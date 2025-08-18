@@ -1,0 +1,100 @@
+<?php
+// app/Services/ProgressUpdater.php
+namespace App\Services;
+
+use App\Models\Level;
+use App\Models\QuizAttempt;
+use App\Models\UserStageProgress;
+use App\Models\UserLevelProgress; // <- add
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+
+class ProgressUpdater
+{
+    public function apply(QuizAttempt $attempt): void
+    {
+        DB::transaction(function () use ($attempt) {
+            $progress = UserStageProgress::firstOrCreate(
+                ['user_id' => $attempt->user_id, 'stage_id' => $attempt->stage_id],
+                ['unlocked_to_level' => 0, 'stars_per_level' => []]
+            );
+
+            $progress->last_activity_at = now();
+
+            if ($attempt->kind === 'pre') {
+                if ($attempt->score >= 80) {
+                    $maxIndex = Level::where('stage_id', $attempt->stage_id)->max('index') ?? 0;
+                    $progress->pre_completed_at = $progress->pre_completed_at ?? Carbon::now();
+                    $progress->unlocked_to_level = max($progress->unlocked_to_level, (int)$maxIndex);
+                } else {
+                    $progress->unlocked_to_level = max($progress->unlocked_to_level, 1);
+                }
+            }
+
+            if ($attempt->kind === 'level' && $attempt->level_id) {
+                $level = Level::findOrFail($attempt->level_id);
+
+                if ($attempt->score >= $level->pass_score) {
+                    if ($level->index >= $progress->unlocked_to_level) {
+                        $progress->unlocked_to_level = $level->index + 1; // unlock next
+                    }
+
+                    // stars for STAGE aggregate (existing)
+                    $stars = $this->computeStars($attempt, $level->id);
+                    $starsPerLevel = $progress->stars_per_level ?? [];
+                    $prev = $starsPerLevel[(string)$level->index] ?? 0;
+                    $starsPerLevel[(string)$level->index] = max($prev, $stars);
+                    $progress->stars_per_level = $starsPerLevel;
+                }
+
+                // ===== NEW: write per-level ledger =====
+                $lp = UserLevelProgress::firstOrNew([
+                    'user_id'  => $attempt->user_id,
+                    'stage_id' => $attempt->stage_id,
+                    'level_id' => $attempt->level_id,
+                ]);
+
+                $lp->attempts_count = ($lp->attempts_count ?? 0) + 1;
+                $lp->last_attempt_at = now();
+                $lp->best_score = max((int)($lp->best_score ?? 0), (int)$attempt->score);
+
+                // compute stars for this attempt, and keep the max
+                $latestStars = $this->computeStars($attempt, $level->id);
+                $lp->stars = max((int)($lp->stars ?? 0), $latestStars);
+
+                // passed + first_passed_at
+                $justPassed = $attempt->score >= $level->pass_score;
+                $lp->passed = $lp->passed || $justPassed;
+                if ($justPassed && !$lp->first_passed_at) {
+                    $lp->first_passed_at = now();
+                }
+
+                $lp->save();
+                // ===== END NEW =====
+            }
+
+            if ($attempt->kind === 'post') {
+                if ($attempt->score >= 80) {
+                    $progress->post_completed_at = $progress->post_completed_at ?? Carbon::now();
+                }
+            }
+
+            $progress->save();
+        });
+    }
+
+    protected function computeStars(QuizAttempt $attempt, int $levelId): int
+    {
+        if ($attempt->score >= 100) {
+            $prevAttempts = QuizAttempt::where('user_id', $attempt->user_id)
+                ->where('level_id', $levelId)
+                ->where('kind', 'level')
+                ->where('id', '<', $attempt->id)
+                ->count();
+            return $prevAttempts === 0 ? 3 : 2;
+        }
+        if ($attempt->score >= 80) return 2;
+        if ($attempt->score >= 60) return 1;
+        return 0;
+    }
+}

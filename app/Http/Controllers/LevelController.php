@@ -57,45 +57,59 @@ class LevelController extends Controller
             'savedStars'    => $levelProgress->stars ?? 0,
         ]);
     }
+public function submit(Request $request, Level $level, ProgressUpdater $updater) 
+{
+    $data = $request->validate([
+        'score'   => 'required|integer|min:0|max:100',
+        'answers' => 'nullable|array',
+    ]);
 
-    public function submit(Request $request, Level $level, ProgressUpdater $updater)
-    {
-        $data = $request->validate([
-            'score'   => 'required|integer|min:0|max:100',
-            'answers' => 'nullable|array',
-        ]);
+    $stageProgress = UserStageProgress::where('user_id', Auth::id())
+        ->where('stage_id', $level->stage_id)
+        ->firstOrFail();
 
-        $stageProgress = UserStageProgress::where('user_id', Auth::id())
-            ->where('stage_id', $level->stage_id)
-            ->firstOrFail();
+    abort_unless($level->index <= $stageProgress->unlocked_to_level, 403, 'Level is locked');
 
-        abort_unless($level->index <= $stageProgress->unlocked_to_level, 403, 'Level is locked');
+    $attempt = QuizAttempt::create([
+        'user_id'     => Auth::id(),
+        'stage_id'    => $level->stage_id,
+        'level_id'    => $level->id,
+        'kind'        => 'level',
+        'score'       => $data['score'],
+        'passed'      => $data['score'] >= $level->pass_score,
+        'answers'     => $data['answers'] ?? null,
+        'finished_at' => now(),
+    ]);
 
-        $attempt = QuizAttempt::create([
-            'user_id'     => Auth::id(),
-            'stage_id'    => $level->stage_id,
-            'level_id'    => $level->id,
-            'kind'        => 'level',
-            'score'       => $data['score'],
-            'passed'      => $data['score'] >= $level->pass_score,
-            'answers'     => $data['answers'] ?? null,
-            'finished_at' => now(),
-        ]);
+    // Apply progress logic (saves stars, best score, attempts)
+    $updater->apply($attempt);
 
-        // Persist level + stage aggregates (best score, stars, unlock next, etc.)
-        $updater->apply($attempt);
+    // FIXED: Fetch fresh data after update to get the latest best score and stars
+    $levelProgress = \App\Models\UserLevelProgress::where([
+        'user_id' => Auth::id(),
+        'level_id' => $level->id,
+    ])->first();
 
-        // If passed: take the user out of the level (to the stage map).
-        // If failed: stay on level page to retry, with a status flash.
-        if ($attempt->passed) {
-            return to_route('stages.enter', $level->stage)
-                ->with('status', "Level {$level->index} complete! Score {$data['score']}%");
-        }
-
-        return to_route('levels.show', $level)
-            ->with('status', "Submitted. Score {$data['score']}%. Try again!");
+    $stars = $levelProgress ? $levelProgress->stars : 0;
+    $bestScore = $levelProgress ? $levelProgress->best_score : $data['score'];
+    
+    // FIXED: Show both current attempt score and best score in message
+    $message = "Level {$level->index} completed! ";
+    $message .= "Score: {$data['score']}%. ";
+    
+    if ($bestScore > $data['score']) {
+        $message .= "Best Score: {$bestScore}%. ";
+    } else if ($bestScore == $data['score']) {
+        $message .= "New Best Score! ";
     }
+    
+    $message .= "You earned {$stars} star" . ($stars == 1 ? '' : 's') . ".";
 
+    // Always redirect to stage with cache-busting parameter
+    return to_route('stages.show', $level->stage)
+        ->with('status', $message)
+        ->with('timestamp', time()); // Cache busting
+}
     /**
      * Resolve the blade to render for this level, based on $level->type.
      * Add more fallbacks here if you like different folder conventions.

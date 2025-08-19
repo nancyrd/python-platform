@@ -621,103 +621,7 @@
             transition: width 1s ease;
             position: relative;
         }
-        /* === Adventure Map Styles (ADD) === */
-.adventure-map-wrap{
-  position: relative;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto 2rem auto;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-  background:
-    radial-gradient(1200px 400px at 50% 120%, #effaf5 0%, rgba(239,250,245,0) 60%),
-    linear-gradient(135deg,#a8e6ff 0%,#c8d8ff 35%, #f8f9ff 100%);
-}
-
-.adventure-map-bg{
-  position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(120px 60px at 15% 25%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%),
-    radial-gradient(160px 80px at 80% 20%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%),
-    radial-gradient(200px 100px at 70% 80%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%);
-  z-index: 1;
-}
-
-.adventure-map-pad{ position: relative; z-index: 2; padding: 28px; }
-
-#mapSvg{ width: 100%; height: 360px; display:block; border-radius: 20px; }
-
-#journeyPath{
-  fill: none;
-  stroke: rgba(13,110,253,.22);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-dasharray: 6 6;
-}
-
-#journeyPathActive{
-  fill: none;
-  stroke: #0d6efd;
-  stroke-width: 4;
-  stroke-linecap: round;
-  filter: drop-shadow(0 4px 8px rgba(13,110,253,.25));
-  stroke-dasharray: 0 9999; /* animated in */
-}
-
-.stage-marker{
-  position: absolute;
-  transform: translate(-50%,-50%);
-  z-index: 5;
-}
-
-.stage-pin{
-  width: 54px; height:54px; border-radius: 50%;
-  display:flex; align-items:center; justify-content:center;
-  background: white;
-  border: 3px solid rgba(0,0,0,0.06);
-  box-shadow: 0 8px 18px rgba(0,0,0,.10);
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.stage-pin.completed{ border-color:#28a74533; box-shadow:0 8px 22px rgba(40,167,69,.18);}
-.stage-pin.unlocked{ border-color:#0d6efd33; box-shadow:0 8px 22px rgba(13,110,253,.18);}
-.stage-pin.locked{ opacity:.75; filter: grayscale(.15); }
-
-.stage-pin:hover{ transform: translateY(-4px) scale(1.04); box-shadow:0 14px 28px rgba(0,0,0,.16); }
-
-.stage-label{
-  margin-top: 6px;
-  text-align:center;
-  font-size:.8rem;
-  font-weight:700;
-  text-shadow: 0 1px 0 rgba(255,255,255,.6);
-}
-
-.level-dots{
-  display:flex; gap:4px; justify-content:center; margin-top:4px;
-}
-.level-dot{
-  width:6px; height:6px; border-radius:50%; background:#dee2e6; opacity:.8;
-}
-.level-dot.done{ background:#28a745; }
-.level-dot.unlock{ background:#0d6efd; }
-
-.avatar{
-  position:absolute; width:44px; height:44px; transform: translate(-50%,-50%);
-  display:flex; align-items:center; justify-content:center; font-size:30px;
-  z-index: 6; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
-  animation: bob 1.2s ease-in-out infinite;
-}
-@keyframes bob{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-3px)}}
-
-.badge-float{
-  position:absolute; top:12px; right:12px; z-index:7;
-  background: #0d6efd; color:white; border-radius:999px; padding:6px 10px; font-weight:700;
-  box-shadow: 0 6px 14px rgba(13,110,253,.25);
-}
-
-/* Keep your existing styles below… */
-
+        
 
         .progress-bar-fill::after {
             content: '';
@@ -735,6 +639,7 @@
             100% { left: 100%; }
         }
     </style>
+
 
   <div style="width:100vw; min-height:1px; padding:0; margin:0;">
 
@@ -823,63 +728,71 @@
                 </h2>
 
                 <div class="row g-4">
-                    @foreach($stage->levels as $level)
-                        @php
-                            $unlocked = $level->index <= $progress->unlocked_to_level;
-                            $stars = (int) data_get($progress->stars_per_level, (string)$level->index, 0);
-                        @endphp
-                        
-                        <div class="col-lg-4 col-md-6">
-                            <div class="level-card {{ $unlocked ? 'unlocked' : 'locked' }} position-relative">
-                                <div class="level-number">{{ $level->index }}</div>
-                                <div class="level-type-badge">{{ $level->type }}</div>
-                                
-                                @if(!$unlocked)
-                                    <div class="locked-overlay">
-                                        🔒
-                                    </div>
-                                @endif
-
-                                <div class="level-title">{{ $level->title }}</div>
-                                
-                                <div class="stars-display">
-                                    @for($i = 1; $i <= 3; $i++)
-                                        <span class="star {{ $i <= $stars ? 'earned' : 'empty' }}">
-                                            {{ $i <= $stars ? '⭐' : '☆' }}
-                                        </span>
-                                    @endfor
-                                </div>
-
-                                @if($stars > 0)
-                                    <div class="mb-3 text-success fw-bold">
-                                        <i class="fas fa-medal me-1"></i>
-                                        {{ $stars }} Star{{ $stars > 1 ? 's' : '' }} Earned!
-                                    </div>
-                                @endif
-
-                                <div class="mt-4">
-                                  @if($unlocked)
+@foreach($stage->levels as $level)
     @php
+        // FIXED: Always fresh query to get latest scores after retakes
         $levelProgress = \App\Models\UserLevelProgress::where('user_id', auth()->id())
             ->where('stage_id', $stage->id)
             ->where('level_id', $level->id)
             ->first();
+            
+        $unlocked = $level->index <= $progress->unlocked_to_level;
+        
+        // FIXED: Always get the latest best_score and stars from fresh query
+        $stars = $levelProgress ? $levelProgress->stars : 0;
+        $bestScore = $levelProgress ? $levelProgress->best_score : 0;
+        $passed = $levelProgress ? $levelProgress->passed : false;
     @endphp
 
-    <a class="btn btn-level" href="{{ route('levels.show', $level) }}">
-        <i class="fas fa-{{ $levelProgress && $levelProgress->passed ? 'redo' : 'play' }} me-2"></i>
-        {{ $levelProgress && $levelProgress->passed ? 'Retake Level' : 'Enter Battle' }}
-    </a>
-@else
-    <button class="btn btn-level" disabled>
-        <i class="fas fa-lock me-2"></i>
-        Locked
-    </button>
-@endif
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
+    <div class="col-lg-4 col-md-6">
+        <div class="level-card {{ $unlocked ? 'unlocked' : 'locked' }} position-relative">
+            <div class="level-number">{{ $level->index }}</div>
+            <div class="level-type-badge">{{ $level->type }}</div>
+            
+            @if(!$unlocked)
+                <div class="locked-overlay">🔒</div>
+            @endif
+
+            <div class="level-title">{{ $level->title }}</div>
+            
+            <div class="stars-display">
+                @for($i = 1; $i <= 3; $i++)
+                    <span class="star {{ $i <= $stars ? 'earned' : 'empty' }}">
+                        {{ $i <= $stars ? '⭐' : '☆' }}
+                    </span>
+                @endfor
+            </div>
+
+            @if($stars > 0)
+                <div class="mb-3 text-success fw-bold">
+                    <i class="fas fa-medal me-1"></i>
+                    {{ $stars }} Star{{ $stars > 1 ? 's' : '' }} Earned!
+                </div>
+            @endif
+
+            {{-- ADDED: Show best score if available --}}
+            @if($bestScore > 0)
+                <div class="mb-2 text-info">
+                    <i class="fas fa-trophy me-1"></i>
+                    Best Score: {{ $bestScore }}%
+                </div>
+            @endif
+
+            <div class="mt-4">
+                @if($unlocked)
+                    <a class="btn btn-level" href="{{ route('levels.show', $level) }}">
+                        <i class="fas fa-{{ $passed ? 'redo' : 'play' }} me-2"></i>
+                        {{ $passed ? 'Retake Level' : 'Enter Battle' }}
+                    </a>
+                @else
+                    <button class="btn btn-level" disabled>
+                        <i class="fas fa-lock me-2"></i> Locked
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
+@endforeach
                 </div>
             </div>
 

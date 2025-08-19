@@ -18,39 +18,119 @@ class StageLevelSeeder extends Seeder
             ['slug' => 'variables'],
             ['title' => 'Stage 1: Variables', 'display_order' => 1]
         );
+Level::updateOrCreate(
+    ['stage_id' => $variables->id, 'index' => 1],
+    [
+        'type'       => 'drag_drop',
+        'title'      => 'What is Python? (Drag & Drop)',
+        'pass_score' => 80,
+        'content'    => [
+            'instructions' => 'Drag each item to the correct category about Python!',
+            'categories' => [
+                "💻 Programming" => [
+                    "🐍 Python",
+                    "☕ Java",
+                    "📋 Excel Macros"
+                ],
+                "👩‍🏫 Who Can Use Python?" => [
+                    "👨‍🎓 Students",
+                    "👩‍🏫 Teachers",
+                    "🎨 Artists",
+                    "🧑‍💻 Programmers"
+                ],
+                "📊 What Can Python Do?" => [
+                    "🧮 Calculations",
+                    "📊 Data Analysis",
+                    "🌐 Make Websites",
+                    "🤖 AI & Automation"
+                ],
+                "🚫 Not Related to Python" => [
+                    "🥤 Drinking Soda",
+                    "🚗 Driving a Car",
+                    "🧑‍🍳 Cooking Pasta"
+                ]
+            ],
+            'hints' => [
+                "🐍 Python is a programming language for many uses.",
+                "💡 Python is great for students and beginners!",
+                "📊 Data, AI, and websites—all possible with Python.",
+                "🚫 Watch out! Not everything is related to Python."
+            ],
+            'time_limit' => 300,
+            'max_hints' => 3
+        ],
+    ]
+);
 
-        // Level 1
-        Level::updateOrCreate(
-            ['stage_id' => $variables->id, 'index' => 1],
-            [
-                'type'       => 'drag_drop',
-                'title'      => 'Build a Greeting',
-                'pass_score' => 80,
-                'content'    => json_encode([
-                    'prompt'        => 'Arrange the blocks to print "Hello, Maya!"',
-                    'blocks'        => [
-                        'name = "Maya"',
-                        'greeting = "Hello, " + name + "!"',
-                        'print(greeting)',
-                    ],
-                    'correct_order' => [0, 1, 2],
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            ]
-        );
-
-        // Level 2
-        Level::updateOrCreate(
-            ['stage_id' => $variables->id, 'index' => 2],
-            [
-                'type'       => 'fill_blank',
-                'title'      => 'Fix the Types',
-                'pass_score' => 80,
-                'content'    => json_encode([
-                    'template' => "x = '7'\ny = ____ (x)\nprint(y + ____)",
-                    'answers'  => ['int', '3'],
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            ]
-        );
+        // Level 4
+   Level::updateOrCreate(
+    ['stage_id' => $variables->id, 'index' => 2], // next index!
+    [
+        'type'       => 'multiple_choice',
+        'title'      => 'Python Basics: Print, Add, Subtract, Multiply, Divide',
+        'pass_score' => 70,
+        'content'    => [
+            'intro' => "In Python, we use <code>print()</code> to display text or numbers on the screen. You can join text using <code>+</code>, do math with <code>+</code> (add), <code>-</code> (subtract), <code>*</code> (multiply), and <code>/</code> (divide). Try the questions below to test your Python basics!",
+            'instructions' => "Answer the following questions about Python basics. Choose the correct answer for each blank.",
+            'questions' => [
+                [
+                    'question' => 'How do you print Goodbye?<br><code>print(___)</code>',
+                    'options' => ['"Goodbye"', 'Goodbye', "'Goodbye'"],
+                    'correct_answer' => 0,
+                    'explanation' => 'You must use double quotes: print("Goodbye")'
+                ],
+                [
+                    'question' => 'Which symbol makes text join together?<br><code>print("A" ___ "B")</code>',
+                    'options' => ['+', '-', '0'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Use <code>+</code> to join (concatenate) text.'
+                ],
+                [
+                    'question' => 'What is the correct way to print a number?<br><code>print(___)</code>',
+                    'options' => ['4', '"number"', 'number'],
+                    'correct_answer' => 0,
+                    'explanation' => 'To print a number, just type it without quotes: print(4)'
+                ],
+                [
+                    'question' => 'How do we add numbers?<br><code>print(2 ___ 3)</code>',
+                    'options' => ['+', '-', '0'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Use <code>+</code> to add numbers.'
+                ],
+                [
+                    'question' => 'How do we subtract numbers?<br><code>print(5 ___ 2)</code>',
+                    'options' => ['-', '+', '*'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Use <code>-</code> to subtract numbers.'
+                ],
+                [
+                    'question' => 'How do we multiply numbers?<br><code>print(3 ___ 2)</code>',
+                    'options' => ['*', '+', '-'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Use <code>*</code> to multiply numbers.'
+                ],
+                [
+                    'question' => 'Which word shows text on the screen?<br><code>___("Hi")</code>',
+                    'options' => ['print', 'say', 'hello'],
+                    'correct_answer' => 0,
+                    'explanation' => 'The <code>print()</code> function shows text on the screen.'
+                ],
+                [
+                    'question' => 'How do we divide numbers?<br><code>print(6 ___ 2)</code>',
+                    'options' => ['/', '*', '+'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Use <code>/</code> to divide numbers.'
+                ],
+            ],
+            'hints' => [
+                'Remember to use quotes for text in Python.',
+                'The plus sign <code>+</code> is used to join or add.',
+                'The <code>print()</code> function is how you show things on the screen.'
+            ],
+            'time_limit' => 180
+        ],
+    ]
+);
 
         // Level 3
         Level::updateOrCreate(

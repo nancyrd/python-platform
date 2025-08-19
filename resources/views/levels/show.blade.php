@@ -1143,68 +1143,80 @@
                 this.showFeedback("🔄 Element Returned to Realm! 🔄", "info", 1000);
             }
 
-            checkAnswers() {
-                if (this.gameCompleted) return;
-                
-                let correct = 0;
-                let total = 0;
-                
-                document.querySelectorAll('.drop-zone').forEach(dropZone => {
-                    const category = dropZone.dataset.category;
-                    const droppedItems = dropZone.querySelectorAll('.dropped-item');
-                    const correctItems = this.gameData.categories[category] || [];
-                    
-                    droppedItems.forEach(item => {
-                        total++;
-                        const itemText = item.dataset.item;
-                        
-                        if (correctItems.includes(itemText)) {
-                            correct++;
-                            dropZone.classList.add('correct');
-                            item.style.background = 'var(--success-gradient)';
-                        } else {
-                            dropZone.classList.add('incorrect');
-                            item.style.background = 'var(--danger-gradient)';
-                        }
-                    });
-                });
-                
-                // Calculate score
-                this.correctAnswers = correct;
-                const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-                this.score = Math.max(0, percentage - (this.hintsUsed * 5)); // Penalty for hints
-                
-                // Time bonus
-                const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
-                this.score = Math.min(100, this.score + timeBonus);
-                
-                this.updateUI();
-                
-                if (percentage >= 80) {
-                    this.completeGame(true);
-                } else {
-                    this.showFeedback(`🎯 Score: ${this.score}% - ${correct}/${total} correct!`, 
-                                    percentage >= 60 ? "success" : "error", 3000);
-                }
+           checkAnswers() {
+    if (this.gameCompleted) return;
+    
+    let correct = 0;
+    let total = 0;
+    
+    document.querySelectorAll('.drop-zone').forEach(dropZone => {
+        const category = dropZone.dataset.category;
+        const droppedItems = dropZone.querySelectorAll('.dropped-item');
+        const correctItems = this.gameData.categories[category] || [];
+        
+        droppedItems.forEach(item => {
+            total++;
+            const itemText = item.dataset.item;
+            
+            if (correctItems.includes(itemText)) {
+                correct++;
+                dropZone.classList.add('correct');
+                item.style.background = 'var(--success-gradient)';
+            } else {
+                dropZone.classList.add('incorrect');
+                item.style.background = 'var(--danger-gradient)';
             }
+        });
+    });
+    
+    // Calculate score
+    this.correctAnswers = correct;
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+    this.score = Math.max(0, percentage - (this.hintsUsed * 5)); // Penalty for hints
+    
+    // Time bonus
+    const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
+    this.score = Math.min(100, this.score + timeBonus);
+    
+    this.updateUI();
+    
+    // FIXED: Always complete the game and submit score, regardless of percentage
+    if (percentage >= 80) {
+        this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 3000);
+        this.startCelebration();
+          this.completeGame(true); 
+    } else {
+        this.showFeedback(`🎯 Score: ${this.score}% - ${correct}/${total} correct!`, 
+                        percentage >= 60 ? "warning" : "error", 3000);
+                        this.completeGame(false); 
+    }
+    
+    // Always submit the score after 3 seconds
+    this.gameCompleted = true;
+    clearInterval(this.timer);
+    setTimeout(() => {
+        document.getElementById('finalScore').value = this.score;
+        document.getElementById('scoreForm').submit();
+    }, 3000);
+}
 
-            completeGame(success = true) {
-                this.gameCompleted = true;
-                clearInterval(this.timer);
-                
-                if (success) {
-                    this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 4000);
-                    this.startCelebration();
-                    
-                    // Submit score
-                    setTimeout(() => {
-                        document.getElementById('finalScore').value = this.score;
-                        document.getElementById('scoreForm').submit();
-                    }, 3000);
-                } else {
-                    this.showFeedback("⚡ Quest Failed! Try Again! ⚡", "error", 3000);
-                }
-            }
+         completeGame(success = true) {
+    this.gameCompleted = true;
+    clearInterval(this.timer);
+    
+    if (success) {
+        this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 4000);
+        this.startCelebration();
+    } else {
+        this.showFeedback("⚡ Quest Complete! ⚡", "warning", 3000);
+    }
+    
+    // FIXED: Always submit score, regardless of success
+    setTimeout(() => {
+        document.getElementById('finalScore').value = this.score;
+        document.getElementById('scoreForm').submit();
+    }, 3000);
+}
 
             startCelebration() {
                 const celebrationContainer = document.getElementById('celebrationContainer');

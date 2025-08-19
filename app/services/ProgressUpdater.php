@@ -21,33 +21,24 @@ class ProgressUpdater
 
             $progress->last_activity_at = now();
 
+            // === Pre-assessment logic ===
             if ($attempt->kind === 'pre') {
+                // Always mark as completed (even if not passed)
+                $progress->pre_completed_at = $progress->pre_completed_at ?? Carbon::now();
+
                 if ($attempt->score >= 80) {
                     $maxIndex = Level::where('stage_id', $attempt->stage_id)->max('index') ?? 0;
-                    $progress->pre_completed_at = $progress->pre_completed_at ?? Carbon::now();
                     $progress->unlocked_to_level = max($progress->unlocked_to_level, (int)$maxIndex);
                 } else {
                     $progress->unlocked_to_level = max($progress->unlocked_to_level, 1);
                 }
             }
 
+            // === Per-level logic (this is your main unlock logic!) ===
             if ($attempt->kind === 'level' && $attempt->level_id) {
                 $level = Level::findOrFail($attempt->level_id);
 
-                if ($attempt->score >= $level->pass_score) {
-                    if ($level->index >= $progress->unlocked_to_level) {
-                        $progress->unlocked_to_level = $level->index + 1; // unlock next
-                    }
-
-                    // stars for STAGE aggregate (existing)
-                    $stars = $this->computeStars($attempt, $level->id);
-                    $starsPerLevel = $progress->stars_per_level ?? [];
-                    $prev = $starsPerLevel[(string)$level->index] ?? 0;
-                    $starsPerLevel[(string)$level->index] = max($prev, $stars);
-                    $progress->stars_per_level = $starsPerLevel;
-                }
-
-                // ===== NEW: write per-level ledger =====
+                // Always update user_level_progress
                 $lp = UserLevelProgress::firstOrNew([
                     'user_id'  => $attempt->user_id,
                     'stage_id' => $attempt->stage_id,
@@ -68,11 +59,23 @@ class ProgressUpdater
                 if ($justPassed && !$lp->first_passed_at) {
                     $lp->first_passed_at = now();
                 }
-
                 $lp->save();
-                // ===== END NEW =====
+
+                // ⭐⭐⭐ UNLOCK next level if at least 1 star
+                if ($latestStars >= 1) {
+                    if ($level->index >= $progress->unlocked_to_level) {
+                        $progress->unlocked_to_level = $level->index + 1; // unlock next
+                    }
+                }
+
+                // Always update stars_per_level (even if 0, so UI can display)
+                $starsPerLevel = $progress->stars_per_level ?? [];
+                $prev = $starsPerLevel[(string)$level->index] ?? 0;
+                $starsPerLevel[(string)$level->index] = max($prev, $latestStars);
+                $progress->stars_per_level = $starsPerLevel;
             }
 
+            // === Post-assessment logic ===
             if ($attempt->kind === 'post') {
                 if ($attempt->score >= 80) {
                     $progress->post_completed_at = $progress->post_completed_at ?? Carbon::now();
@@ -94,7 +97,7 @@ class ProgressUpdater
             return $prevAttempts === 0 ? 3 : 2;
         }
         if ($attempt->score >= 80) return 2;
-        if ($attempt->score >= 60) return 1;
+        if ($attempt->score >= 50) return 1;
         return 0;
     }
 }

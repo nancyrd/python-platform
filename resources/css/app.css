@@ -1,3 +1,30 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@layer components{
+.card{ @apply bg-white border border-purple-100/70 rounded-xl shadow-sm; }
+.field{ @apply border-purple-200 focus:border-purple-500 focus:ring-purple-500; }
+}
+
+/* ---------- App look & feel ---------- */
+@layer base {
+  html { font-feature-settings: "liga" 1, "calt" 0; }
+  body { @apply selection:bg-purple-100 selection:text-purple-900; }
+}
+
+/* Reusable components */
+@layer components {
+  .container-app { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+  .card { @apply bg-white/90 backdrop-blur border border-purple-100/70 rounded-2xl shadow-sm; }
+  .nav-pill { @apply inline-flex items-center px-3 py-2 rounded-lg text-gray-700 hover:bg-purple-50 font-medium transition; }
+  .nav-pill.is-active { @apply bg-purple-100 text-purple-800 shadow-sm; }
+}
+
+/* Ambient hero blobs (for the subtle purple glow) */
+@layer utilities {
+  .bg-hero {
+    background:
+      radial-gradient(700px 300px at 110% -20%, theme('colors.purple.200')/0.45 0%, transparent 60%),
+      radial-gradient(500px 240px at -10% -40%, theme('colors.fuchsia.200')/0.35 0%, transparent 60%);
+  }
+}

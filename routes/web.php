@@ -22,7 +22,13 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
 
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
 
 
       Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');

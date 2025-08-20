@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\StageController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LevelController;
+use App\Http\Controllers\SupportController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,17 +22,23 @@ Route::middleware('auth')->group(function () {
     Route::match(['patch','put'], '/profile', [ProfileController::class, 'update'])->name('profile.update'); // ← add put
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
-Route::get('/about', function () {
-    return view('about');
+//AboutUs
+Route::get('/about-us', function () {
+    return view('aboutUs.index');
 })->name('about');
 
-Route::get('/contact', function () {
-    return view('contact');
-})->name('contact');
+
+
 
 
       Route::get('/dashboard', [DashboardController::class,'index'])->name('dashboard');
+
+      //Help Center
+Route::view('/support', 'support.index')->name('support');
+
+Route::post('/support', [SupportController::class, 'submit'])
+    ->name('support.submit');
+
 
     // stage view (map of levels + pre/post buttons)
     Route::get('/stages/{stage}', [StageController::class,'show'])->name('stages.show');
@@ -50,6 +57,6 @@ Route::get('/levels/{level}/fill', [LevelController::class, 'fill'])->name('leve
 
     Route::get('/stages/{stage}/enter', [StageController::class, 'enter'])->name('stages.enter');
 });
-Route::view('/about', 'about')->name('about');
+
 Route::view('/contact', 'contact')->name('contact');
 require __DIR__.'/auth.php';

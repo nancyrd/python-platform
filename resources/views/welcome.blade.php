@@ -1010,7 +1010,7 @@
         <div class="hero-buttons">
           @if (Route::has('register'))
             <a href="{{ route('register') }}" class="btn btn-primary">
-              <span>🚀</span>
+              <span></span>
               Begin Your Quest
             </a>
           @endif

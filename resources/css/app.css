@@ -28,3 +28,60 @@
       radial-gradient(500px 240px at -10% -40%, theme('colors.fuchsia.200')/0.35 0%, transparent 60%);
   }
 }
+
+@layer components {
+  /* shared container used in your layout */
+  .container-app {
+    @apply max-w-6xl mx-auto px-4;
+  }
+
+  /* soft hero background you already have */
+  .bg-hero {
+    background:
+      radial-gradient(1200px 300px at 10% -20%, rgba(139,92,246,.12), transparent 60%),
+      radial-gradient(900px 250px at 90% -10%, rgba(34,211,238,.10), transparent 55%);
+  }
+
+  /* FOOTER */
+  .site-footer { @apply bg-white border-t border-purple-100 relative; }
+  .site-footer::before {
+    content:"";
+    position:absolute; inset:0 0 auto 0; height:2px;
+    background: linear-gradient(90deg,#8b5cf6, #22d3ee 60%, #10b981);
+    opacity:.45;
+  }
+
+  .footer-top { @apply flex items-center justify-between py-7; }
+  .footer-bottom { @apply flex items-center justify-between py-4 border-t border-purple-100 text-gray-500; }
+
+  .footer-nav { @apply flex gap-2; }
+  .footer-nav a { @apply text-gray-500 px-2.5 py-1 rounded-md transition; }
+  .footer-nav a:hover { @apply text-gray-900 bg-purple-100/40; }
+
+  .footer-right { @apply flex items-center gap-4; }
+  .made { @apply inline-flex items-center gap-2 text-gray-500; }
+  .heart {
+    width:12px; height:12px; display:inline-block; transform:rotate(45deg);
+    background: radial-gradient(circle at 30% 30%, #ec4899, #8b5cf6 70%);
+    border-radius:2px; box-shadow:0 0 10px rgba(236,72,153,.35);
+  }
+
+  .social { @apply flex gap-2 text-gray-500; }
+  .social a { @apply inline-flex p-1.5 rounded-md transition; }
+  .social a:hover { @apply text-blue-600 bg-blue-50; }
+
+  /* tiny brand lockup (same as navbar) */
+  .brand-link { @apply flex items-center gap-3 no-underline; }
+  .brand-icon svg.brand-mark { width:24px; height:24px; }
+  .brand-text {
+    background: linear-gradient(135deg,#8b5cf6 0%,#22d3ee 100%);
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    @apply font-semibold tracking-tight;
+  }
+
+  @media (max-width: 640px){
+    .footer-top, .footer-bottom { @apply flex-col items-start gap-3; }
+    .footer-right { @apply w-full justify-between; }
+  }
+}
+

@@ -53,17 +53,22 @@
 
 <style>
     :root {
-        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-        --danger-gradient: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-        --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --deep-purple: #1a0636;
+        --cosmic-purple: #4a1b6d;
+        --space-blue: #162b6f;
+        --dark-space: #0a1028;
+        --neon-blue: #00b3ff;
+        --neon-purple: #b967ff;
+        --bright-pink: #ff2a6d;
+        --electric-blue: #05d9e8;
         --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
     }
 
     body { 
-        background: linear-gradient(120deg, #ffe8f3 0%, #e0fff2 100%); 
+        background: linear-gradient(45deg, var(--deep-purple) 0%, var(--cosmic-purple) 30%, var(--space-blue) 70%, var(--dark-space) 100%);
         min-height: 100vh; 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Orbitron', 'Arial', sans-serif;
+        color: white;
     }
     
     .floating-flowers {
@@ -72,9 +77,9 @@
     }
     
     .epic-level-header {
-        background: rgba(0, 0, 0, 0.9);
+        background: rgba(10, 6, 30, 0.9);
         backdrop-filter: blur(20px);
-        border-bottom: 3px solid #ffd700;
+        border-bottom: 3px solid var(--neon-purple);
         padding: 20px 0;
         position: relative;
         overflow: hidden;
@@ -87,7 +92,7 @@
         left: -100%;
         width: 100%;
         height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+        background: linear-gradient(90deg, transparent, rgba(185, 103, 255, 0.1), transparent);
         animation: headerShine 4s ease-in-out infinite;
     }
 
@@ -109,7 +114,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+        box-shadow: 0 0 30px rgba(185, 103, 255, 0.6);
         animation: levelPulse 2s ease-in-out infinite;
         position: relative;
         z-index: 2;
@@ -124,11 +129,11 @@
 
     @keyframes levelPulse {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(185, 103, 255, 0.8); }
     }
 
     .level-title {
-        color: #ffd700;
+        color: var(--neon-purple);
         font-size: 1.8rem;
         font-weight: 900;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -164,7 +169,7 @@
     .stat-value {
         font-size: 1.2rem;
         font-weight: 900;
-        color: #ffd700;
+        color: var(--neon-purple);
     }
 
     .stat-label {
@@ -185,14 +190,14 @@
     }
     
     .game-arena {
-        background: rgba(255,255,255,0.98);
+        background: rgba(26, 6, 54, 0.7);
         backdrop-filter: blur(20px);
         border-radius: 30px;
         margin: 30px auto;
         padding: 40px 20px 20px 20px;
         max-width: 1200px;
         box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        border: 2px solid rgba(255, 215, 0, 0.3);
+        border: 2px solid rgba(185, 103, 255, 0.3);
         position: relative;
         overflow: hidden;
         z-index: 2;
@@ -205,7 +210,7 @@
         left: -50%;
         width: 200%;
         height: 200%;
-        background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%);
+        background: radial-gradient(circle, rgba(185, 103, 255, 0.05) 0%, transparent 70%);
         animation: arenaGlow 6s ease-in-out infinite;
     }
 
@@ -218,7 +223,7 @@
         text-align: center;
         font-size: 2.5rem;
         font-weight: 900;
-        background: var(--primary-gradient);
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 30px;
@@ -229,7 +234,7 @@
     .challenge-description {
         text-align: center;
         font-size: 1.2rem;
-        color: #666;
+        color: rgba(255, 255, 255, 0.8);
         margin-bottom: 40px;
         position: relative;
         z-index: 2;
@@ -246,9 +251,9 @@
     }
     
     .mcq-flower-card {
-        background: radial-gradient(circle at 70% 40%, #fffbe7 60%, #ffe0f9 100%);
+        background: radial-gradient(circle at 70% 40%, rgba(30, 10, 60, 0.8) 60%, rgba(50, 20, 80, 0.8) 100%);
         border-radius: 45% 55% 54% 46%/59% 44% 56% 41%;
-        box-shadow: 0 2px 18px #c1f1e6cc;
+        box-shadow: 0 2px 18px rgba(185, 103, 255, 0.3);
         width: 260px; 
         min-height: 210px;
         padding: 28px 20px 14px 20px;
@@ -258,25 +263,25 @@
         justify-content: flex-start;
         position: relative; 
         overflow: visible;
-        border: 2.2px dashed #f6beeb;
+        border: 2.2px dashed var(--neon-purple);
         transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         cursor: pointer;
     }
     
     .mcq-flower-card:hover {
         transform: translateY(-5px) scale(1.02);
-        box-shadow: 0 8px 30px rgba(193, 241, 230, 0.6);
+        box-shadow: 0 8px 30px rgba(185, 103, 255, 0.6);
     }
     
     .mcq-flower-card.correct { 
         border: 2.2px solid #4de37e; 
-        box-shadow: 0 6px 23px #99ffcc44;
+        box-shadow: 0 6px 23px rgba(77, 227, 126, 0.3);
         animation: correctFlower 1s ease;
     }
     
     .mcq-flower-card.incorrect { 
         border: 2.2px solid #ff686b; 
-        box-shadow: 0 6px 23px #ffaaaa44;
+        box-shadow: 0 6px 23px rgba(255, 104, 107, 0.3);
         animation: incorrectFlower 0.5s ease;
     }
 
@@ -295,7 +300,7 @@
     .mcq-flower-emoji {
         font-size: 2.9rem;
         margin-bottom: 4px;
-        filter: drop-shadow(0 3px 7px #e8b1ff9c);
+        filter: drop-shadow(0 3px 7px rgba(185, 103, 255, 0.6));
         user-select: none;
         transition: transform 0.3s ease;
     }
@@ -306,7 +311,7 @@
     
     .mcq-question-text {
         font-size: 1.10rem;
-        color: #b04294;
+        color: #e0b1ff;
         font-weight: bold;
         margin-bottom: 10px;
         text-align: center;
@@ -317,7 +322,7 @@
         display: block;
         margin-bottom: 5px;
         font-weight: 500;
-        color: #4a2c52;
+        color: #d9c2ff;
         padding: 6px 10px;
         border-radius: 12px;
         transition: all 0.3s ease;
@@ -325,22 +330,22 @@
     }
 
     .mcq-options label:hover {
-        background: rgba(255, 231, 250, 0.7);
+        background: rgba(185, 103, 255, 0.2);
         transform: translateX(5px);
     }
     
     .mcq-options input[type="radio"]:checked + label {
-        background: linear-gradient(90deg, #ffe7fa 40%, #d4fbe8 100%);
-        color: #9a00b4;
+        background: linear-gradient(90deg, rgba(185, 103, 255, 0.3), rgba(0, 179, 255, 0.3));
+        color: #ffffff;
         font-weight: bold;
         transform: scale(1.02);
-        box-shadow: 0 3px 10px rgba(154, 0, 180, 0.2);
+        box-shadow: 0 3px 10px rgba(185, 103, 255, 0.2);
     }
     
     .mcq-flower-card .explanation {
         margin-top: 5px; 
         font-size: .99em; 
-        color: #574872; 
+        color: #c9b6ff; 
         font-weight: 500;
         opacity: .93; 
         text-align: center;
@@ -364,16 +369,16 @@
     
     .bouquet-flowers {
         font-size: 2.3rem;
-        filter: drop-shadow(0 3px 10px #a1ffb4a1);
+        filter: drop-shadow(0 3px 10px rgba(185, 103, 255, 0.6));
     }
     
     .bouquet-text {
         margin-top: 6px; 
         font-size: 1.12rem; 
-        color: #b1722a; 
+        color: #ffffff; 
         font-weight: bold;
         letter-spacing: .7px;
-        text-shadow: 0 1px 6px #fff2;
+        text-shadow: 0 1px 6px rgba(255, 255, 255, 0.2);
     }
 
     @keyframes bouquetDrop {
@@ -390,7 +395,7 @@
     }
 
     .btn-epic {
-        background: var(--primary-gradient);
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
         border: none;
         color: white;
         padding: 18px 40px;
@@ -400,7 +405,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 25px rgba(185, 103, 255, 0.3);
         position: relative;
         overflow: hidden;
         margin: 0 10px;
@@ -408,7 +413,7 @@
 
     .btn-epic:hover {
         transform: translateY(-5px) scale(1.05);
-        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 15px 40px rgba(185, 103, 255, 0.5);
         color: white;
     }
 
@@ -431,7 +436,7 @@
     }
 
     .btn-reset {
-        background: var(--danger-gradient);
+        background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
         box-shadow: 0 8px 25px rgba(238, 9, 121, 0.3);
     }
 
@@ -440,7 +445,7 @@
     }
 
     .btn-hint {
-        background: var(--warning-gradient);
+        background: linear-gradient(45deg, #f093fb, #f5576c);
         box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
     }
 
@@ -458,7 +463,7 @@
     }
 
     .feedback-message {
-        background: var(--success-gradient);
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
         color: white;
         padding: 20px 40px;
         border-radius: 25px;
@@ -473,15 +478,15 @@
     }
 
     .feedback-message.error {
-        background: var(--danger-gradient);
+        background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
     }
 
     .feedback-message.warning {
-        background: var(--warning-gradient);
+        background: linear-gradient(45deg, #f093fb, #f5576c);
     }
 
     .feedback-message.info {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
     }
 
     .feedback-message::before {
@@ -519,7 +524,7 @@
 
     .progress-bar {
         height: 100%;
-        background: var(--success-gradient);
+        background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
         border-radius: 10px;
         transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         position: relative;
@@ -556,7 +561,7 @@
         position: absolute;
         width: 10px;
         height: 10px;
-        background: #ffd700;
+        background: var(--neon-purple);
         animation: confettiFall 3s linear infinite;
     }
 
@@ -578,8 +583,8 @@
     }
     
     @keyframes pulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 2px 18px #c1f1e6cc; }
-        50% { transform: scale(1.05); box-shadow: 0 8px 30px rgba(193, 241, 230, 0.8); }
+        0%, 100% { transform: scale(1); box-shadow: 0 2px 18px rgba(185, 103, 255, 0.3); }
+        50% { transform: scale(1.05); box-shadow: 0 8px 30px rgba(185, 103, 255, 0.8); }
     }
 
     @keyframes gameRipple {
@@ -824,80 +829,80 @@ class EpicFlowerGame {
         return '0';
     }
 
-/*    checkAnswers() {
-        if (this.gameCompleted) return;
-        
-        let correct = 0;
-        let answers = [];
-        
-        // Check each question
-        document.querySelectorAll('.mcq-flower-card').forEach((qDiv, i) => {
-            let selected = qDiv.querySelector('input[type=radio]:checked');
-            let isCorrect = false;
-            
-            if (selected) {
-                answers.push(parseInt(selected.value));
-                if (parseInt(selected.value) === parseInt(this.correctAnswers[i])) {
-                    isCorrect = true;
-                    correct++;
-                    qDiv.classList.remove('incorrect');
-                    qDiv.classList.add('correct');
-                    
-                    // Add sparkle effect for correct answers
-                    this.createSparkleEffect(qDiv);
-                } else {
-                    qDiv.classList.remove('correct');
-                    qDiv.classList.add('incorrect');
-                }
-            } else {
-                answers.push(null);
-                qDiv.classList.remove('correct');
-                qDiv.classList.add('incorrect');
-            }
-            
-            // Show explanation
-            let explanation = this.explanations[i] || '';
-            let ex = qDiv.querySelector('.explanation');
-            if (!ex) {
-                ex = document.createElement('div');
-                ex.className = 'explanation';
-                qDiv.appendChild(ex);
-            }
-            ex.innerHTML = isCorrect
-                ? `<i class='fas fa-check-circle text-success'></i> ${explanation}`
-                : `<i class='fas fa-times-circle text-danger'></i> ${explanation}`;
-        });
+    checkAnswers() {
+      if (this.gameCompleted) return;
 
-        // Calculate score
-        const percentage = this.totalQuestions > 0 ? Math.round((correct / this.totalQuestions) * 100) : 0;
-        this.score = Math.max(0, percentage - (this.hintsUsed * 5)); // Penalty for hints
-        
-        // Time bonus
-        const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
-        this.score = Math.min(100, this.score + timeBonus);
-        
-        this.updateUI();
-        this.updateProgress(correct, this.totalQuestions);
-        
-        // Store answers for submission
-        document.getElementById('answersData').value = JSON.stringify(answers);
-        
-        // Show bouquet result
-        this.showBouquetResult(correct, this.totalQuestions);
-        
-        // Complete the game
-        if (percentage >= 80) {
-            this.showFeedback("🏆 LEGENDARY GARDEN! Perfect blooms! 🏆", "success", 3000);
-            this.startCelebration();
-            this.completeGame(true);
+      let correct = 0;
+      let total = 0;
+      let answers = [];
+
+      document.querySelectorAll('.mcq-flower-card').forEach((flowerCard, i) => {
+        total++;
+        const selected = flowerCard.querySelector('input[type=radio]:checked');
+        let isCorrect = false;
+
+        if (selected) {
+          answers.push(parseInt(selected.value));
+          if (parseInt(selected.value) === parseInt(this.correctAnswers[i])) {
+            isCorrect = true;
+            correct++;
+            flowerCard.classList.remove('incorrect');
+            flowerCard.classList.add('correct');
+            flowerCard.style.background = 'linear-gradient(135deg, rgba(40, 167, 69, 0.8) 0%, rgba(56, 239, 125, 0.8) 100%)';
+          } else {
+            flowerCard.classList.remove('correct');
+            flowerCard.classList.add('incorrect');
+            flowerCard.style.background = 'linear-gradient(135deg, rgba(220, 53, 69, 0.8) 0%, rgba(255, 106, 0, 0.8) 100%)';
+          }
         } else {
-            this.showFeedback(
-                `🌸 Score: ${this.score}% — ${correct}/${this.totalQuestions} flowers collected!`, 
-                percentage >= 60 ? "warning" : "error", 
-                3000
-            );
-            this.completeGame(false);
+          answers.push(null);
+          flowerCard.classList.remove('correct');
+          flowerCard.classList.add('incorrect');
+          flowerCard.style.background = 'linear-gradient(135deg, rgba(220, 53, 69, 0.8) 0%, rgba(255, 106, 0, 0.8) 100%)';
         }
+
+        // explanation
+        let explanation = this.explanations[i] || '';
+        let ex = flowerCard.querySelector('.explanation');
+        if (!ex) {
+          ex = document.createElement('div');
+          ex.className = 'explanation';
+          flowerCard.appendChild(ex);
+        }
+        ex.innerHTML = isCorrect
+          ? `<i class='fas fa-check-circle text-success'></i> ${explanation}`
+          : `<i class='fas fa-times-circle text-danger'></i> ${explanation}`;
+      });
+
+      // score calc
+      const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+      this.score = Math.max(0, percentage - (this.hintsUsed * 5));
+      const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
+      this.score = Math.min(100, this.score + timeBonus);
+
+      this.updateUI();
+      this.showBouquetResult(correct, total);
+
+      // set hidden inputs on quizForm
+      const form = document.getElementById('quizForm');
+      document.getElementById('finalScore').value = this.score;
+      document.getElementById('answersData').value = JSON.stringify(answers);
+
+      // messaging + submit
+      if (percentage >= 80) {
+        this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 2000);
+        this.startCelebration();
+      } else {
+        this.showFeedback(`🌸 Score: ${this.score}% - ${correct}/${total} flowers collected!`,
+          percentage >= 60 ? "warning" : "error", 2000);
+      }
+
+      this.gameCompleted = true;
+      clearInterval(this.timer);
+
+      setTimeout(() => {
+        form.submit(); // << always submit quizForm
+      }, 2000);
     }
 
     showBouquetResult(correct, total) {
@@ -916,221 +921,40 @@ class EpicFlowerGame {
                 </div>
             </div>
         `;
-    }*/
-
-  // Fix the completeGame function in your JavaScript section
-// Replace the existing completeGame function with this corrected version:
-
-
-
-// Add the sparkle effect function for flower quiz
-createSparkleEffect(element) {
-    for (let i = 0; i < 5; i++) {
-        setTimeout(() => {
-            const sparkle = document.createElement('div');
-            sparkle.innerHTML = '✨';
-            sparkle.style.cssText = `
-                position: absolute;
-                top: ${Math.random() * 100}%;
-                left: ${Math.random() * 100}%;
-                font-size: 1.5rem;
-                pointer-events: none;
-                animation: sparkle 1s ease-out forwards;
-                z-index: 1000;
-            `;
-            element.style.position = 'relative';
-            element.appendChild(sparkle);
-            
-            setTimeout(() => sparkle.remove(), 1000);
-        }, i * 100);
-    }
-}
-
-// Update the updateProgress function for flower quiz
-updateProgress(completed, total) {
-    const progressBar = document.getElementById('progressBar');
-    if (progressBar && total > 0) {
-        const progress = (completed / total) * 100;
-        progressBar.style.width = progress + '%';
-    }
-}
-
-// Update showBouquetResult function (flower quiz specific)
-showBouquetResult(correct, total) {
-    let bouquet = "";
-    for (let i = 0; i < correct; i++) {
-        bouquet += this.flowerEmojis[i % this.flowerEmojis.length];
-    }
-    
-    let bouquetArea = document.getElementById('bouquetArea');
-    bouquetArea.innerHTML = `
-        <div class="bouquet-result">
-            <div class="bouquet-flowers">${bouquet || '🫠'}</div>
-            <div class="bouquet-text">
-                You collected <b>${correct}</b> flower${correct == 1 ? '' : 's'}!
-                ${correct == total ? '<br>Perfect bouquet! 💐' : ''}
-            </div>
-        </div>
-    `;
-}
-
-// Update highlightHintElements for flower quiz
-highlightHintElements() {
-    const flowerCards = document.querySelectorAll('.mcq-flower-card');
-    flowerCards.forEach(card => {
-        card.style.animation = 'pulse 1s ease-in-out 3';
-        setTimeout(() => {
-            card.style.animation = '';
-        }, 3000);
-    });
-}
-// Also fix the checkAnswers function to ensure proper flow:
-// Replace your checkAnswers function with this FIXED version:
-checkAnswers() {
-  if (this.gameCompleted) return;
-
-  let correct = 0;
-  let total = 0;
-  let answers = [];
-
-  document.querySelectorAll('.mcq-flower-card').forEach((flowerCard, i) => {
-    total++;
-    const selected = flowerCard.querySelector('input[type=radio]:checked');
-    let isCorrect = false;
-
-    if (selected) {
-      answers.push(parseInt(selected.value));
-      if (parseInt(selected.value) === parseInt(this.correctAnswers[i])) {
-        isCorrect = true;
-        correct++;
-        flowerCard.classList.remove('incorrect');
-        flowerCard.classList.add('correct');
-        flowerCard.style.background = 'var(--success-gradient)';
-      } else {
-        flowerCard.classList.remove('correct');
-        flowerCard.classList.add('incorrect');
-        flowerCard.style.background = 'var(--danger-gradient)';
-      }
-    } else {
-      answers.push(null);
-      flowerCard.classList.remove('correct');
-      flowerCard.classList.add('incorrect');
-      flowerCard.style.background = 'var(--danger-gradient)';
     }
 
-    // explanation
-    let explanation = this.explanations[i] || '';
-    let ex = flowerCard.querySelector('.explanation');
-    if (!ex) {
-      ex = document.createElement('div');
-      ex.className = 'explanation';
-      flowerCard.appendChild(ex);
-    }
-    ex.innerHTML = isCorrect
-      ? `<i class='fas fa-check-circle text-success'></i> ${explanation}`
-      : `<i class='fas fa-times-circle text-danger'></i> ${explanation}`;
-  });
-
-  // score calc
-  const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-  this.score = Math.max(0, percentage - (this.hintsUsed * 5));
-  const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
-  this.score = Math.min(100, this.score + timeBonus);
-
-  this.updateUI();
-  this.showBouquetResult(correct, total);
-
-  // set hidden inputs on quizForm
-  const form = document.getElementById('quizForm');
-  document.getElementById('finalScore').value = this.score;
-  document.getElementById('answersData').value = JSON.stringify(answers);
-
-  // messaging + submit
-  if (percentage >= 80) {
-    this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 2000);
-    this.startCelebration();
-  } else {
-    this.showFeedback(`🌸 Score: ${this.score}% - ${correct}/${total} flowers collected!`,
-      percentage >= 60 ? "warning" : "error", 2000);
-  }
-
-  this.gameCompleted = true;
-  clearInterval(this.timer);
-
-  setTimeout(() => {
-    form.submit(); // << always submit quizForm
-  }, 2000);
-}
-// Replace your Level 2 completeGame function with this EXACT logic from Level 1:
-completeGame(success = true) {
-    if (this.gameCompleted) return;
-    
-    console.log('🔍 completeGame called with success:', success);
-    console.log('🔍 Current score:', this.score);
-    
-    this.gameCompleted = true;
-    clearInterval(this.timer);
-    
-    if (success) {
-        this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 4000);
-        this.startCelebration();
-    } else {
-        this.showFeedback("⚡ Quest Complete! ⚡", "warning", 3000);
-    }
-    
-    // DEBUG: Check form elements
-    setTimeout(() => {
-        const scoreInput = document.getElementById('finalScore');
-        const form = document.getElementById('scoreForm');
+    startCelebration() {
+        const celebrationContainer = document.getElementById('celebrationContainer');
         
-        console.log('🔍 Score input element:', scoreInput);
-        console.log('🔍 Form element:', form);
-        console.log('🔍 Form action:', form ? form.action : 'FORM NOT FOUND');
-        
-        if (scoreInput) {
-            scoreInput.value = this.score;
-            console.log('🔍 Set score to:', scoreInput.value);
-        } else {
-            console.error('❌ finalScore input not found!');
-            alert('ERROR: Score input not found!');
+        // Create confetti
+        for (let i = 0; i < 100; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.background = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'][Math.floor(Math.random() * 5)];
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebrationContainer.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 3000);
+            }, i * 30);
+        }
+    }
+
+    showHint() {
+        if (this.hintsUsed >= this.maxHints) {
+            this.showFeedback("🔮 No more wisdom from the Oracle! 🔮", "error", 2000);
             return;
         }
         
-        if (form) {
-            console.log('🔍 About to submit form...');
-            
-            // Create FormData to see what's being sent
-            const formData = new FormData(form);
-            console.log('🔍 Form data:');
-            for (let [key, value] of formData.entries()) {
-                console.log(`  ${key}: ${value}`);
-            }
-            
-            alert(`About to submit: Score=${this.score}, Form action=${form.action}`);
-            form.submit();
-        } else {
-            console.error('❌ scoreForm not found!');
-            alert('ERROR: Form not found!');
-        }
-    }, 3000);
-} 
-    startCelebration() {
-    const celebrationContainer = document.getElementById('celebrationContainer');
-    
-    // Create confetti
-    for (let i = 0; i < 100; i++) {
-        setTimeout(() => {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.background = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'][Math.floor(Math.random() * 5)];
-            confetti.style.animationDelay = Math.random() * 3 + 's';
-            celebrationContainer.appendChild(confetti);
-            
-            setTimeout(() => confetti.remove(), 3000);
-        }, i * 30);
+        this.hintsUsed++;
+        
+        const randomHint = this.hints[Math.floor(Math.random() * this.hints.length)];
+        this.showFeedback(`💡 Oracle's Wisdom: ${randomHint}`, "info", 3000);
+        
+        // Highlight related elements
+        this.highlightHintElements();
     }
-}
 
     highlightHintElements() {
         const cards = document.querySelectorAll('.mcq-flower-card');

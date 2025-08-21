@@ -3,200 +3,110 @@
         <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
                 <div class="learning-map-icon me-3">
-                    <i class="fas fa-map-marked-alt text-primary fs-2"></i>
+                    <i class="fas fa-map-marked-alt text-light fs-2"></i>
                 </div>
                 <div>
-                    <h2 class="mb-1 fw-bold text-dark">Learning Adventure Map</h2>
-                    <p class="mb-0 text-muted small">
+                    <h2 class="mb-1 fw-bold text-white">Python Quest Universe</h2>
+                    <p class="mb-0 text-light small">
                         <i class="fas fa-info-circle me-1"></i>
-                        Complete stages to unlock your learning journey
+                        Complete stages to unlock your coding journey
                     </p>
                     <a class="btn btn-game rounded-pill ms-3" data-bs-toggle="modal" data-bs-target="#progressModal">
-    <i class="fas fa-chart-line me-2"></i> My Progress
-</a>
-
+                        <i class="fas fa-chart-line me-2"></i> My Progress
+                    </a>
                 </div>
             </div>
             <div class="achievement-summary d-none d-md-flex">
                 <div class="text-center me-4">
                     <div class="fw-bold text-warning fs-4">{{ collect($progressByStage)->sum(function($p) { return $p && $p->stars_per_level ? array_sum($p->stars_per_level) : 0; }) }}</div>
-                    <small class="text-muted">Total Stars</small>
+                    <small class="text-light">Total Stars</small>
                 </div>
                 <div class="text-center">
                     <div class="fw-bold text-success fs-4">{{ collect($progressByStage)->filter(function($p) { return $p && $p->post_completed_at; })->count() }}/{{ count($stages) }}</div>
-                    <small class="text-muted">Completed</small>
+                    <small class="text-light">Completed</small>
                 </div>
             </div>
         </div>
     </x-slot>
-@php
-    // Totals already shown in header
-    $totalStarsBlade = collect($progressByStage)->sum(function($p) {
-        return $p && $p->stars_per_level ? array_sum($p->stars_per_level) : 0;
-    });
-    $totalPointsBlade = $totalStarsBlade * 10;
 
-    // Stages stats
-    $stagesTotalBlade = count($stages);
-    $stagesCompletedBlade = collect($progressByStage)->filter(function($p){
-        return $p && $p->post_completed_at;
-    })->count();
+    @php
+        // Totals already shown in header
+        $totalStarsBlade = collect($progressByStage)->sum(function($p) {
+            return $p && $p->stars_per_level ? array_sum($p->stars_per_level) : 0;
+        });
+        $totalPointsBlade = $totalStarsBlade * 10;
 
-    // Levels stats
-    $levelsTotalBlade = (int) collect($stages)->sum('levels_count');
-    $levelsCompletedBlade = \App\Models\UserLevelProgress::where('user_id', auth()->id())
-        ->where('passed', true)->count();
+        // Stages stats
+        $stagesTotalBlade = count($stages);
+        $stagesCompletedBlade = collect($progressByStage)->filter(function($p){
+            return $p && $p->post_completed_at;
+        })->count();
 
-    // Assessment counts
-    $preDoneBlade  = collect($progressByStage)->filter(fn($p) => $p && $p->pre_completed_at)->count();
-    $postDoneBlade = $stagesCompletedBlade;
+        // Levels stats
+        $levelsTotalBlade = (int) collect($stages)->sum('levels_count');
+        $levelsCompletedBlade = \App\Models\UserLevelProgress::where('user_id', auth()->id())
+            ->where('passed', true)->count();
 
-    // Rank thresholds (adjust as you like)
-    $rankTable = [
-        ['name' => 'Beginner I', 'points' =>   0],
-        ['name' => 'Beginner II','points' =>  50],
-        ['name' => 'Apprentice', 'points' => 100],
-        ['name' => 'Explorer',   'points' => 180],
-        ['name' => 'Coder',      'points' => 280],
-        ['name' => 'Pythonista', 'points' => 400],
-        ['name' => 'Guru',       'points' => 600],
-    ];
-    $currentRank = $rankTable[0];
-    $nextRank = null;
-    foreach ($rankTable as $i => $r) {
-        if ($totalPointsBlade >= $r['points']) {
-            $currentRank = $r;
-            $nextRank = $rankTable[$i + 1] ?? null;
+        // Assessment counts
+        $preDoneBlade  = collect($progressByStage)->filter(fn($p) => $p && $p->pre_completed_at)->count();
+        $postDoneBlade = $stagesCompletedBlade;
+
+        // Rank thresholds
+        $rankTable = [
+            ['name' => 'Beginner I', 'points' =>   0],
+            ['name' => 'Beginner II','points' =>  50],
+            ['name' => 'Apprentice', 'points' => 100],
+            ['name' => 'Explorer',   'points' => 180],
+            ['name' => 'Coder',      'points' => 280],
+            ['name' => 'Pythonista', 'points' => 400],
+            ['name' => 'Guru',       'points' => 600],
+        ];
+        $currentRank = $rankTable[0];
+        $nextRank = null;
+        foreach ($rankTable as $i => $r) {
+            if ($totalPointsBlade >= $r['points']) {
+                $currentRank = $r;
+                $nextRank = $rankTable[$i + 1] ?? null;
+            }
         }
-    }
-    $rankPct = $nextRank
-        ? (int)( ($totalPointsBlade - $currentRank['points']) * 100 / max(1, $nextRank['points'] - $currentRank['points']) )
-        : 100;
+        $rankPct = $nextRank
+            ? (int)( ($totalPointsBlade - $currentRank['points']) * 100 / max(1, $nextRank['points'] - $currentRank['points']) )
+            : 100;
 
-    // Find a next recommended stage
-    $nextStageBlade = collect($stages)->first(function($s) use ($progressByStage){
-        $p = $progressByStage[$s->id] ?? null;
-        return $p && ($p->unlocked_to_level ?? 0) < ($s->levels_count ?? 0);
-    });
-@endphp
+        // Find a next recommended stage
+        $nextStageBlade = collect($stages)->first(function($s) use ($progressByStage){
+            $p = $progressByStage[$s->id] ?? null;
+            return $p && ($p->unlocked_to_level ?? 0) < ($s->levels_count ?? 0);
+        });
+    @endphp
 
-    <!-- Custom Styles -->
     <style>
-/* === Adventure Map Styles (ADD) === */
-.adventure-map-wrap{
-  position: relative;
-  width: 100%;
-  max-width: 1100px;
-  margin: 0 auto 2rem auto;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.12);
-  background:
-    radial-gradient(1200px 400px at 50% 120%, #effaf5 0%, rgba(239,250,245,0) 60%),
-    linear-gradient(135deg,#a8e6ff 0%,#c8d8ff 35%, #f8f9ff 100%);
-}
-
-.adventure-map-bg{
-  position: absolute; inset: 0; pointer-events: none;
-  background:
-    radial-gradient(120px 60px at 15% 25%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%),
-    radial-gradient(160px 80px at 80% 20%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%),
-    radial-gradient(200px 100px at 70% 80%, rgba(255,255,255,.6) 0%, rgba(255,255,255,0) 70%);
-  z-index: 1;
-}
-
-.adventure-map-pad{ position: relative; z-index: 2; padding: 28px; }
-
-#mapSvg{ width: 100%; height: 360px; display:block; border-radius: 20px; }
-
-#journeyPath{
-  fill: none;
-  stroke: rgba(13,110,253,.22);
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  stroke-dasharray: 6 6;
-}
-
-#journeyPathActive{
-  fill: none;
-  stroke: #0d6efd;
-  stroke-width: 4;
-  stroke-linecap: round;
-  filter: drop-shadow(0 4px 8px rgba(13,110,253,.25));
-  stroke-dasharray: 0 9999; /* animated in */
-}
-
-.stage-marker{
-  position: absolute;
-  transform: translate(-50%,-50%);
-  z-index: 5;
-}
-
-.stage-pin{
-  width: 54px; height:54px; border-radius: 50%;
-  display:flex; align-items:center; justify-content:center;
-  background: white;
-  border: 3px solid rgba(0,0,0,0.06);
-  box-shadow: 0 8px 18px rgba(0,0,0,.10);
-  transition: transform .2s ease, box-shadow .2s ease;
-}
-.stage-pin.completed{ border-color:#28a74533; box-shadow:0 8px 22px rgba(40,167,69,.18);}
-.stage-pin.unlocked{ border-color:#0d6efd33; box-shadow:0 8px 22px rgba(13,110,253,.18);}
-.stage-pin.locked{ opacity:.75; filter: grayscale(.15); }
-
-.stage-pin:hover{ transform: translateY(-4px) scale(1.04); box-shadow:0 14px 28px rgba(0,0,0,.16); }
-
-.stage-label{
-  margin-top: 6px;
-  text-align:center;
-  font-size:.8rem;
-  font-weight:700;
-  text-shadow: 0 1px 0 rgba(255,255,255,.6);
-}
-
-.level-dots{
-  display:flex; gap:4px; justify-content:center; margin-top:4px;
-}
-.level-dot{
-  width:6px; height:6px; border-radius:50%; background:#dee2e6; opacity:.8;
-}
-.level-dot.done{ background:#28a745; }
-.level-dot.unlock{ background:#0d6efd; }
-
-.avatar{
-  position:absolute; width:44px; height:44px; transform: translate(-50%,-50%);
-  display:flex; align-items:center; justify-content:center; font-size:30px;
-  z-index: 6; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18));
-  animation: bob 1.2s ease-in-out infinite;
-}
-@keyframes bob{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-3px)}}
-
-.badge-float{
-  position:absolute; top:12px; right:12px; z-index:7;
-  background: #0d6efd; color:white; border-radius:999px; padding:6px 10px; font-weight:700;
-  box-shadow: 0 6px 14px rgba(13,110,253,.25);
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        :root {
+            --deep-purple: #1a0636;
+            --cosmic-purple: #4a1b6d;
+            --space-blue: #162b6f;
+            --dark-space: #0a1028;
+            --neon-blue: #00b3ff;
+            --neon-purple: #b967ff;
+            --bright-pink: #ff2a6d;
+            --electric-blue: #05d9e8;
+        }
+        
+        body {
+            background: linear-gradient(45deg, var(--deep-purple) 0%, var(--cosmic-purple) 30%, var(--space-blue) 70%, var(--dark-space) 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            overflow-x: hidden;
+            color: white;
+        }
+        
         .learning-map-container {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            padding: 0;
         }
 
         .floating-particles {
@@ -225,6 +135,7 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
             position: relative;
+            border: 2px solid transparent;
         }
 
         .stage-node:hover {
@@ -233,34 +144,36 @@
 
         .stage-node.completed {
             animation: pulse-success 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(25, 135, 84, 0.7);
         }
 
         .stage-node.unlocked {
             animation: pulse-primary 2s ease-in-out infinite;
+            box-shadow: 0 0 20px rgba(185, 103, 255, 0.7);
         }
 
         @keyframes pulse-success {
-            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.4); }
+            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(25, 135, 84, 0); }
             100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
         }
 
         @keyframes pulse-primary {
-            0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(13, 110, 253, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(185, 103, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(185, 103, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(185, 103, 255, 0); }
         }
 
         .connector-line {
             height: 4px;
-            background: linear-gradient(90deg, transparent, #6c757d, transparent);
+            background: linear-gradient(90deg, transparent, rgba(108, 117, 125, 0.5), transparent);
             border-radius: 2px;
             position: relative;
             overflow: hidden;
         }
 
         .connector-line.active {
-            background: linear-gradient(90deg, transparent, #0d6efd, transparent);
+            background: linear-gradient(90deg, transparent, var(--neon-purple), transparent);
             animation: flow 2s linear infinite;
         }
 
@@ -271,16 +184,17 @@
 
         .stage-card {
             backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(26, 6, 54, 0.7);
+            border: 1px solid var(--neon-purple);
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(185, 103, 255, 0.3);
         }
 
         .stage-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 40px rgba(185, 103, 255, 0.5);
         }
 
         .stage-card::before {
@@ -290,7 +204,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
             transition: left 0.5s ease;
         }
 
@@ -339,7 +253,7 @@
         }
 
         .btn-game {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             border: none;
             color: white;
             font-weight: 600;
@@ -352,7 +266,7 @@
 
         .btn-game:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 25px rgba(185, 103, 255, 0.4);
             color: white;
         }
 
@@ -375,18 +289,19 @@
         }
 
         .mobile-stage-item {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(26, 6, 54, 0.7);
             backdrop-filter: blur(10px);
             border-left: 4px solid transparent;
             transition: all 0.3s ease;
+            border: 1px solid rgba(185, 103, 255, 0.3);
         }
 
         .mobile-stage-item.completed {
-            border-left-color: #198754;
+            border-left-color: #28a745;
         }
 
         .mobile-stage-item.unlocked {
-            border-left-color: #0d6efd;
+            border-left-color: var(--neon-purple);
         }
 
         .mobile-stage-item.locked {
@@ -409,6 +324,49 @@
             z-index: 2;
         }
 
+        .cosmic-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 5s infinite;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--deep-purple) 0%, var(--cosmic-purple) 100%);
+            border: 1px solid var(--neon-purple);
+            color: white;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid var(--neon-purple);
+        }
+
+        .modal-footer {
+            border-top: 1px solid var(--neon-purple);
+        }
+
+        .table {
+            color: white;
+        }
+
+        .table th {
+            border-color: var(--neon-purple);
+        }
+
+        .table td {
+            border-color: rgba(185, 103, 255, 0.3);
+        }
+
         @media (max-width: 768px) {
             .achievement-summary { display: none !important; }
         }
@@ -428,11 +386,11 @@
             <div class="particle" style="left: 90%; animation-delay: 1.8s;"></div>
         </div>
 
-        <div class="container learning-path">
+        <div class="container-fluid learning-path px-3">
             <!-- Desktop/Tablet Horizontal Stage Map -->
             <div class="row justify-content-center mb-5">
-                <div class="col-12">
-                    <div class="stage-card rounded-4 p-4 shadow-lg">
+                <div class="col-12 px-0">
+                    <div class="stage-card rounded-4 p-4">
                         <div class="d-none d-md-flex align-items-center justify-content-between position-relative">
                             @foreach($stages as $i => $stage)
                                 @php
@@ -447,16 +405,6 @@
                                     $chip = $isCompleted ? 'Mastered!' : ($isUnlocked ? ($hasPre ? 'In Progress' : 'Ready to Start') : 'Locked');
                                     $ctaLabel = $isUnlocked ? ($hasPre ? 'Continue Journey' : 'Begin Adventure') : 'Locked';
                                 @endphp
-
-
-
-
-
-
-
-
-
-
                                 
                                 <!-- Connector Line -->
                                 @if($i > 0)
@@ -469,7 +417,7 @@
                                 <div class="text-center" style="min-width: 160px;">
                                     <div class="position-relative d-inline-block">
                                         <div class="stage-node {{ $isCompleted ? 'completed' : ($isUnlocked ? 'unlocked' : '') }} 
-                                                    {{ $nodeClass }} rounded-circle d-flex align-items-center justify-content-center text-white shadow-lg"
+                                                    {{ $nodeClass }} rounded-circle d-flex align-items-center justify-content-center text-white"
                                              style="width: 80px; height: 80px; font-size: 24px;"
                                              data-bs-toggle="tooltip" 
                                              data-bs-placement="top" 
@@ -485,7 +433,7 @@
                                     </div>
 
                                     <div class="mt-3">
-                                        <h6 class="fw-bold text-dark mb-1">{{ $stage->title }}</h6>
+                                        <h6 class="fw-bold text-white mb-1">{{ $stage->title }}</h6>
                                         <span class="badge {{ $isCompleted ? 'bg-success' : ($isUnlocked ? 'bg-primary' : 'bg-secondary') }} px-2 py-1">
                                             {{ $chip }}
                                         </span>
@@ -494,7 +442,7 @@
                                     <div class="mt-3">
                                         @if($isUnlocked)
                                             <a href="{{ route('stages.enter', $stage) }}" 
-                                               class="btn btn-game btn-sm px-3 py-2 rounded-pill shadow-sm">
+                                               class="btn btn-game btn-sm px-3 py-2 rounded-pill">
                                                 <i class="fas fa-play me-1"></i>
                                                 {{ $ctaLabel }}
                                             </a>
@@ -524,7 +472,7 @@
                                     $ctaLabel = $isUnlocked ? ($hasPre ? 'Continue' : 'Start') : 'Locked';
                                 @endphp
 
-                                <div class="mobile-stage-item {{ $statusClass }} rounded-3 p-3 mb-3 shadow-sm">
+                                <div class="mobile-stage-item {{ $statusClass }} rounded-3 p-3 mb-3">
                                     <div class="d-flex align-items-center">
                                         <div class="me-3">
                                             <div class="rounded-circle {{ $isCompleted ? 'bg-success' : ($isUnlocked ? 'bg-primary' : 'bg-secondary') }} text-white d-flex align-items-center justify-content-center"
@@ -533,8 +481,8 @@
                                             </div>
                                         </div>
                                         <div class="flex-fill">
-                                            <h6 class="fw-bold text-dark mb-1">{{ $stage->title }}</h6>
-                                            <small class="text-muted">{{ $chip }}</small>
+                                            <h6 class="fw-bold text-white mb-1">{{ $stage->title }}</h6>
+                                            <small class="text-light">{{ $chip }}</small>
                                         </div>
                                         <div>
                                             @if($isUnlocked)
@@ -565,7 +513,7 @@
                         $hasPre = (bool) ($p && $p->pre_completed_at);
                         $isUnlocked = (bool) ($stage->unlocked ?? false);
                         
-                        $headerClass = $isCompleted ? 'bg-success text-white' : ($isUnlocked ? 'bg-primary text-white' : 'bg-light text-dark');
+                        $headerClass = $isCompleted ? 'bg-success text-white' : ($isUnlocked ? 'bg-primary text-white' : 'bg-secondary text-white');
                         $preText = $p ? ($p->pre_completed_at ? 'Completed ✅' : 'Pending') : 'Not Started';
                         $postText = $p ? ($p->post_completed_at ? 'Completed ✅' : 'Pending') : 'Not Started';
                         $levelsCount = $stage->levels_count ?? 0;
@@ -587,7 +535,7 @@
                     @endphp
 
                     <div class="col-lg-6">
-                        <div class="stage-card rounded-4 shadow-lg h-100 overflow-hidden">
+                        <div class="stage-card rounded-4 h-100 overflow-hidden">
                             <!-- Card Header -->
                             <div class="{{ $headerClass }} p-3">
                                 <div class="d-flex align-items-center justify-content-between">
@@ -607,23 +555,23 @@
                                 <!-- Assessment Status -->
                                 <div class="row g-3 mb-4">
                                     <div class="col-4">
-                                        <div class="text-center p-2 rounded-3 bg-light">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(255,255,255,0.1);">
                                             <i class="fas fa-clipboard-list text-info fs-4 mb-1"></i>
-                                            <div class="small text-muted">Pre-Assessment</div>
+                                            <div class="small text-light">Pre-Assessment</div>
                                             <div class="fw-bold small">{{ $preText }}</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="text-center p-2 rounded-3 bg-light">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(255,255,255,0.1);">
                                             <i class="fas fa-unlock-alt text-warning fs-4 mb-1"></i>
-                                            <div class="small text-muted">Unlocked To</div>
+                                            <div class="small text-light">Unlocked To</div>
                                             <div class="fw-bold small">Level {{ $unlockedTo }}</div>
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <div class="text-center p-2 rounded-3 bg-light">
+                                        <div class="text-center p-2 rounded-3" style="background: rgba(255,255,255,0.1);">
                                             <i class="fas fa-graduation-cap text-success fs-4 mb-1"></i>
-                                            <div class="small text-muted">Post-Assessment</div>
+                                            <div class="small text-light">Post-Assessment</div>
                                             <div class="fw-bold small">{{ $postText }}</div>
                                         </div>
                                     </div>
@@ -640,7 +588,7 @@
                                                 <span class="badge bg-warning text-dark ms-2">+{{ $stars - 10 }} more</span>
                                             @endif
                                         @else
-                                            <span class="text-muted small">
+                                            <span class="text-light small">
                                                 <i class="far fa-star me-1"></i>
                                                 No stars earned yet
                                             </span>
@@ -659,7 +607,7 @@
                                                         style="stroke-dashoffset: calc(251.2 - (251.2 * {{ $pct }}) / 100);"/>
                                             </svg>
                                             <div class="position-absolute top-50 start-50 translate-middle">
-                                                <small class="fw-bold">{{ $pct }}%</small>
+                                                <small class="fw-bold text-white">{{ $pct }}%</small>
                                             </div>
                                         </div>
                                     </div>
@@ -669,7 +617,7 @@
                                 <div class="text-end">
                                     @if($isUnlocked)
                                         <a href="{{ route('stages.enter', $stage) }}" 
-                                           class="btn btn-game px-4 py-2 rounded-pill shadow-sm">
+                                           class="btn btn-game px-4 py-2 rounded-pill">
                                             <i class="fas fa-{{ $isCompleted ? 'redo' : 'play' }} me-2"></i>
                                             {{ $cardCta }}
                                         </a>
@@ -840,160 +788,159 @@
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- My Progress Modal -->
-<div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content rounded-4">
-      <div class="modal-header border-0">
-        <h5 class="modal-title fw-bold" id="progressModalLabel">
-          <i class="fas fa-user-astronaut me-2 text-primary"></i> Your Journey Stats
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <!-- Rank -->
-        <div class="p-3 rounded-3 mb-3" style="background:linear-gradient(90deg,#eef2ff,#f5f3ff);">
-          <div class="d-flex align-items-center justify-content-between">
-            <div>
-              <div class="small text-muted">Python Level</div>
-              <div class="fs-5 fw-bold">
-                {{ $currentRank['name'] }}
-                <span class="text-muted fw-normal">({{ $totalPointsBlade }} pts)</span>
-              </div>
-              <div class="small">Next: {{ $nextRank['name'] ?? 'MAX' }}</div>
-            </div>
-            <div style="min-width:260px;">
-              <div class="progress" style="height:10px;">
-                <div class="progress-bar bg-success" role="progressbar"
-                     style="width: {{ $rankPct }}%"
-                     aria-valuenow="{{ $rankPct }}" aria-valuemin="0" aria-valuemax="100"></div>
-              </div>
-              <div class="d-flex justify-content-between small text-muted mt-1">
-                <span>{{ $currentRank['points'] }} pts</span>
-                <span>{{ $nextRank['points'] ?? $totalPointsBlade }} pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Counters -->
-        <div class="row g-3">
-          <div class="col-6 col-md-3">
-            <div class="p-3 text-center bg-light rounded-3">
-              <div class="fw-bold fs-4 text-success">{{ $stagesCompletedBlade }}/{{ $stagesTotalBlade }}</div>
-              <div class="small text-muted">Stages Completed</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3 text-center bg-light rounded-3">
-              <div class="fw-bold fs-4 text-primary">{{ $levelsCompletedBlade }}/{{ $levelsTotalBlade }}</div>
-              <div class="small text-muted">Levels Completed</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3 text-center bg-light rounded-3">
-              <div class="fw-bold fs-4 text-warning">{{ $totalStarsBlade }}</div>
-              <div class="small text-muted">Total Stars</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="p-3 text-center bg-light rounded-3">
-              <div class="fw-bold fs-4 text-info">{{ $totalPointsBlade }}</div>
-              <div class="small text-muted">Total Points</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Assessments -->
-        <div class="row g-3 mt-3">
-          <div class="col-md-6">
-            <div class="p-3 rounded-3 border">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-clipboard-list me-3 text-info"></i>
-                <div>
-                  <div class="fw-bold">Pre-Assessments</div>
-                  <div class="small text-muted">{{ $preDoneBlade }} completed</div>
+    <div class="modal fade" id="progressModal" tabindex="-1" aria-labelledby="progressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content rounded-4">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold text-white" id="progressModalLabel">
+                        <i class="fas fa-user-astronaut me-2 text-primary"></i> Your Journey Stats
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="p-3 rounded-3 border">
-              <div class="d-flex align-items-center">
-                <i class="fas fa-graduation-cap me-3 text-success"></i>
-                <div>
-                  <div class="fw-bold">Post-Assessments</div>
-                  <div class="small text-muted">{{ $postDoneBlade }} completed</div>
+
+                <div class="modal-body">
+                    <!-- Rank -->
+                    <div class="p-3 rounded-3 mb-3" style="background:linear-gradient(90deg,rgba(238,242,255,0.2),rgba(245,243,255,0.2));">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div>
+                                <div class="small text-light">Python Level</div>
+                                <div class="fs-5 fw-bold text-white">
+                                    {{ $currentRank['name'] }}
+                                    <span class="text-light fw-normal">({{ $totalPointsBlade }} pts)</span>
+                                </div>
+                                <div class="small text-light">Next: {{ $nextRank['name'] ?? 'MAX' }}</div>
+                            </div>
+                            <div style="min-width:260px;">
+                                <div class="progress" style="height:10px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                         style="width: {{ $rankPct }}%"
+                                         aria-valuenow="{{ $rankPct }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <div class="d-flex justify-content-between small text-light mt-1">
+                                    <span>{{ $currentRank['points'] }} pts</span>
+                                    <span>{{ $nextRank['points'] ?? $totalPointsBlade }} pts</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Counters -->
+                    <div class="row g-3">
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(255,255,255,0.1);">
+                                <div class="fw-bold fs-4 text-success">{{ $stagesCompletedBlade }}/{{ $stagesTotalBlade }}</div>
+                                <div class="small text-light">Stages Completed</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(255,255,255,0.1);">
+                                <div class="fw-bold fs-4 text-primary">{{ $levelsCompletedBlade }}/{{ $levelsTotalBlade }}</div>
+                                <div class="small text-light">Levels Completed</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(255,255,255,0.1);">
+                                <div class="fw-bold fs-4 text-warning">{{ $totalStarsBlade }}</div>
+                                <div class="small text-light">Total Stars</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(255,255,255,0.1);">
+                                <div class="fw-bold fs-4 text-info">{{ $totalPointsBlade }}</div>
+                                <div class="small text-light">Total Points</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Assessments -->
+                    <div class="row g-3 mt-3">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="border-color: var(--neon-purple) !important;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-clipboard-list me-3 text-info"></i>
+                                    <div>
+                                        <div class="fw-bold text-white">Pre-Assessments</div>
+                                        <div class="small text-light">{{ $preDoneBlade }} completed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-3 border" style="border-color: var(--neon-purple) !important;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-graduation-cap me-3 text-success"></i>
+                                    <div>
+                                        <div class="fw-bold text-white">Post-Assessments</div>
+                                        <div class="small text-light">{{ $postDoneBlade }} completed</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Next best actions -->
+                    <div class="mt-3 p-3 rounded-3" style="background:rgba(255,255,255,0.1);">
+                        <div class="fw-bold mb-1 text-white">
+                            <i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Actions
+                        </div>
+                        <ul class="small mb-0 text-light">
+                            @if($nextStageBlade)
+                                <li>
+                                    Continue <strong>{{ $nextStageBlade->title }}</strong> —
+                                    level {{ (($progressByStage[$nextStageBlade->id]->unlocked_to_level ?? 0) + 1) }} is waiting.
+                                </li>
+                            @else
+                                <li>Great job! All unlocked levels are done. Improve stars to boost your rank.</li>
+                            @endif
+                            <li>Retake any 2⭐ level and aim for 3⭐ to earn more points.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Per-stage mini table -->
+                    <div class="mt-3">
+                        <div class="fw-bold mb-2 text-white"><i class="fas fa-list-check me-2 text-primary"></i>Per-Stage Breakdown</div>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="text-light">Stage</th>
+                                        <th class="text-center text-light">Levels</th>
+                                        <th class="text-center text-light">Unlocked To</th>
+                                        <th class="text-center text-light">Stars</th>
+                                        <th class="text-center text-light">Pre</th>
+                                        <th class="text-center text-light">Post</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($stages as $s)
+                                        @php
+                                            $pp = $progressByStage[$s->id] ?? null;
+                                            $starsSum = $pp && $pp->stars_per_level ? array_sum($pp->stars_per_level) : 0;
+                                        @endphp
+                                        <tr>
+                                            <td class="text-light">{{ $s->title }}</td>
+                                            <td class="text-center text-light">{{ $s->levels_count ?? 0 }}</td>
+                                            <td class="text-center text-light">{{ $pp->unlocked_to_level ?? 0 }}</td>
+                                            <td class="text-center text-light">{{ $starsSum }}</td>
+                                            <td class="text-center">{!! $pp && $pp->pre_completed_at ? '✅' : '—' !!}</td>
+                                            <td class="text-center">{!! $pp && $pp->post_completed_at ? '✅' : '—' !!}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-              </div>
+
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                    <a href="{{ route('dashboard') }}" class="btn btn-game rounded-pill">
+                        <i class="fas fa-bolt me-2"></i> Go Improve Now
+                    </a>
+                </div>
             </div>
-          </div>
         </div>
-
-        <!-- Next best actions -->
-        <div class="mt-3 p-3 rounded-3" style="background:#f8f9fa;">
-          <div class="fw-bold mb-1">
-            <i class="fas fa-lightbulb me-2 text-warning"></i>Next Best Actions
-          </div>
-          <ul class="small mb-0">
-            @if($nextStageBlade)
-              <li>
-                Continue <strong>{{ $nextStageBlade->title }}</strong> —
-                level {{ (($progressByStage[$nextStageBlade->id]->unlocked_to_level ?? 0) + 1) }} is waiting.
-              </li>
-            @else
-              <li>Great job! All unlocked levels are done. Improve stars to boost your rank.</li>
-            @endif
-            <li>Retake any 2⭐ level and aim for 3⭐ to earn more points.</li>
-          </ul>
-        </div>
-
-        <!-- Per-stage mini table -->
-        <div class="mt-3">
-          <div class="fw-bold mb-2"><i class="fas fa-list-check me-2 text-primary"></i>Per-Stage Breakdown</div>
-          <div class="table-responsive">
-            <table class="table table-sm align-middle">
-              <thead>
-                <tr>
-                  <th>Stage</th>
-                  <th class="text-center">Levels</th>
-                  <th class="text-center">Unlocked To</th>
-                  <th class="text-center">Stars</th>
-                  <th class="text-center">Pre</th>
-                  <th class="text-center">Post</th>
-                </tr>
-              </thead>
-              <tbody>
-                @foreach($stages as $s)
-                  @php
-                    $pp = $progressByStage[$s->id] ?? null;
-                    $starsSum = $pp && $pp->stars_per_level ? array_sum($pp->stars_per_level) : 0;
-                  @endphp
-                  <tr>
-                    <td>{{ $s->title }}</td>
-                    <td class="text-center">{{ $s->levels_count ?? 0 }}</td>
-                    <td class="text-center">{{ $pp->unlocked_to_level ?? 0 }}</td>
-                    <td class="text-center">{{ $starsSum }}</td>
-                    <td class="text-center">{!! $pp && $pp->pre_completed_at ? '✅' : '—' !!}</td>
-                    <td class="text-center">{!! $pp && $pp->post_completed_at ? '✅' : '—' !!}</td>
-                  </tr>
-                @endforeach
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="modal-footer border-0">
-        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-        <a href="{{ route('dashboard') }}" class="btn btn-game rounded-pill">
-          <i class="fas fa-bolt me-2"></i> Go Improve Now
-        </a>
-      </div>
     </div>
-  </div>
-</div>
-
 </x-app-layout>

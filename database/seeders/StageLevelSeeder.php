@@ -57,7 +57,7 @@ Level::updateOrCreate(
                 "🚫 Watch out! Not everything is related to Python."
             ],
             'time_limit' => 300,
-            'max_hints' => 3
+            'max_hints' => 4
         ],
     ]
 );
@@ -132,12 +132,13 @@ Level::updateOrCreate(
     ]
 );
 
+
         // Level 3
         Level::updateOrCreate(
             ['stage_id' => $variables->id, 'index' => 3],
             [
-                'type'       => 'match_output',
-                'title'      => 'Predict the Output',
+                'type'       => 'true/false',
+                'title'      => 'guess which is true or false',
                 'pass_score' => 80,
                 'content'    => json_encode([
                     'questions' => [

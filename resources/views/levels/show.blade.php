@@ -1,10 +1,10 @@
 <x-app-layout>
- @php
-    // These are only for the Level page
-    $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
-    $savedScore    = $levelProgress->best_score ?? null;
-    $savedStars    = $levelProgress->stars ?? 0;
-@endphp
+    @php
+        // These are only for the Level page
+        $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
+        $savedScore    = $levelProgress->best_score ?? null;
+        $savedStars    = $levelProgress->stars ?? 0;
+    @endphp
 
     <x-slot name="header">
         <div class="epic-level-header">
@@ -53,23 +53,28 @@
     <!-- Epic Styles -->
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            --danger-gradient: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
-            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --deep-purple: #1a0636;
+            --cosmic-purple: #4a1b6d;
+            --space-blue: #162b6f;
+            --dark-space: #0a1028;
+            --neon-blue: #00b3ff;
+            --neon-purple: #b967ff;
+            --bright-pink: #ff2a6d;
+            --electric-blue: #05d9e8;
             --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
         }
 
         body {
-            background: var(--primary-gradient);
+            background: linear-gradient(45deg, var(--deep-purple) 0%, var(--cosmic-purple) 30%, var(--space-blue) 70%, var(--dark-space) 100%);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Orbitron', 'Arial', sans-serif;
+            color: white;
         }
 
         .epic-level-header {
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(10, 6, 30, 0.9);
             backdrop-filter: blur(20px);
-            border-bottom: 3px solid #ffd700;
+            border-bottom: 3px solid var(--neon-purple);
             padding: 20px 0;
             position: relative;
             overflow: hidden;
@@ -82,7 +87,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(185, 103, 255, 0.1), transparent);
             animation: headerShine 4s ease-in-out infinite;
         }
 
@@ -104,7 +109,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            box-shadow: 0 0 30px rgba(185, 103, 255, 0.6);
             animation: levelPulse 2s ease-in-out infinite;
             position: relative;
             z-index: 2;
@@ -119,11 +124,11 @@
 
         @keyframes levelPulse {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(185, 103, 255, 0.8); }
         }
 
         .level-title {
-            color: #ffd700;
+            color: var(--neon-purple);
             font-size: 1.8rem;
             font-weight: 900;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
@@ -159,7 +164,7 @@
         .stat-value {
             font-size: 1.2rem;
             font-weight: 900;
-            color: #ffd700;
+            color: var(--neon-purple);
         }
 
         .stat-label {
@@ -168,14 +173,14 @@
         }
 
         .game-arena {
-            background: rgba(255, 255, 255, 0.98);
+            background: rgba(26, 6, 54, 0.7);
             backdrop-filter: blur(20px);
             border-radius: 30px;
             margin: 30px auto;
             padding: 40px;
             max-width: 1200px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(185, 103, 255, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -187,7 +192,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(185, 103, 255, 0.05) 0%, transparent 70%);
             animation: arenaGlow 6s ease-in-out infinite;
         }
 
@@ -200,7 +205,7 @@
             text-align: center;
             font-size: 2.5rem;
             font-weight: 900;
-            background: var(--primary-gradient);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 30px;
@@ -211,7 +216,7 @@
         .challenge-description {
             text-align: center;
             font-size: 1.2rem;
-            color: #666;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 40px;
             position: relative;
             z-index: 2;
@@ -227,10 +232,10 @@
         }
 
         .draggables-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, rgba(40, 10, 70, 0.7) 0%, rgba(60, 20, 90, 0.7) 100%);
             border-radius: 20px;
             padding: 30px;
-            border: 3px dashed #dee2e6;
+            border: 3px dashed var(--neon-purple);
             position: relative;
             overflow: hidden;
         }
@@ -240,7 +245,7 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            background: var(--primary-gradient);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -252,23 +257,24 @@
         .section-title {
             font-size: 1.5rem;
             font-weight: 800;
-            color: #333;
+            color: white;
             margin-bottom: 25px;
             text-align: center;
         }
 
         .draggable-item {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 3px solid #007bff;
+            background: linear-gradient(135deg, rgba(30, 10, 60, 0.8) 0%, rgba(50, 20, 80, 0.8) 100%);
+            border: 3px solid var(--neon-blue);
             border-radius: 15px;
             padding: 20px;
             margin: 15px 0;
             cursor: grab;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 8px 25px rgba(0,123,255,0.15);
+            box-shadow: 0 8px 25px rgba(0, 179, 255, 0.15);
             position: relative;
             overflow: hidden;
             user-select: none;
+            color: white;
         }
 
         .draggable-item::before {
@@ -278,7 +284,7 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0,123,255,0.1), transparent);
+            background: linear-gradient(90deg, transparent, rgba(0, 179, 255, 0.1), transparent);
             transition: left 0.5s ease;
         }
 
@@ -288,14 +294,14 @@
 
         .draggable-item:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 40px rgba(0,123,255,0.25);
-            border-color: #0056b3;
+            box-shadow: 0 15px 40px rgba(0, 179, 255, 0.25);
+            border-color: var(--electric-blue);
         }
 
         .draggable-item:active {
             cursor: grabbing;
             transform: scale(1.05);
-            box-shadow: 0 20px 50px rgba(0,123,255,0.4);
+            box-shadow: 0 20px 50px rgba(0, 179, 255, 0.4);
             z-index: 1000;
         }
 
@@ -303,7 +309,7 @@
             transform: rotate(5deg) scale(1.1);
             opacity: 0.8;
             z-index: 1000;
-            box-shadow: 0 25px 60px rgba(0,123,255,0.5);
+            box-shadow: 0 25px 60px rgba(0, 179, 255, 0.5);
         }
 
         .item-icon {
@@ -315,15 +321,14 @@
         .item-text {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #333;
             vertical-align: middle;
         }
 
         .drop-zones-section {
-            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            background: linear-gradient(135deg, rgba(70, 30, 100, 0.7) 0%, rgba(90, 40, 120, 0.7) 100%);
             border-radius: 20px;
             padding: 30px;
-            border: 3px dashed #ffc107;
+            border: 3px dashed var(--neon-purple);
             position: relative;
             overflow: hidden;
         }
@@ -333,7 +338,7 @@
             position: absolute;
             top: 15px;
             right: 20px;
-            background: var(--warning-gradient);
+            background: linear-gradient(45deg, var(--bright-pink), var(--neon-purple));
             color: white;
             padding: 8px 16px;
             border-radius: 20px;
@@ -343,8 +348,8 @@
         }
 
         .drop-zone {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 3px dashed #ffc107;
+            background: linear-gradient(135deg, rgba(30, 10, 60, 0.8) 0%, rgba(50, 20, 80, 0.8) 100%);
+            border: 3px dashed var(--neon-purple);
             border-radius: 15px;
             padding: 25px;
             margin: 15px 0;
@@ -358,7 +363,7 @@
         }
 
         .drop-zone.drag-over {
-            background: var(--success-gradient);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
             border-color: #28a745;
             border-style: solid;
             transform: scale(1.05);
@@ -387,7 +392,7 @@
         }
 
         .drop-zone.correct {
-            background: var(--success-gradient);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.3) 0%, rgba(56, 239, 125, 0.3) 100%);
             border-color: #28a745;
             border-style: solid;
             animation: correctDrop 1s ease;
@@ -400,7 +405,7 @@
         }
 
         .drop-zone.incorrect {
-            background: var(--danger-gradient);
+            background: linear-gradient(135deg, rgba(220, 53, 69, 0.3) 0%, rgba(255, 106, 0, 0.3) 100%);
             border-color: #dc3545;
             border-style: solid;
             animation: incorrectDrop 0.5s ease;
@@ -413,7 +418,7 @@
         }
 
         .drop-zone-placeholder {
-            color: #999;
+            color: rgba(255, 255, 255, 0.7);
             font-size: 1.1rem;
             font-weight: 600;
             text-align: center;
@@ -421,7 +426,7 @@
         }
 
         .dropped-item {
-            background: var(--success-gradient);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.8) 0%, rgba(56, 239, 125, 0.8) 100%);
             border: 3px solid #28a745;
             border-radius: 15px;
             padding: 20px;
@@ -446,7 +451,7 @@
         }
 
         .btn-epic {
-            background: var(--primary-gradient);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             border: none;
             color: white;
             padding: 18px 40px;
@@ -464,7 +469,7 @@
 
         .btn-epic:hover {
             transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 15px 40px rgba(185, 103, 255, 0.5);
             color: white;
         }
 
@@ -487,7 +492,7 @@
         }
 
         .btn-reset {
-            background: var(--danger-gradient);
+            background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
             box-shadow: 0 8px 25px rgba(238, 9, 121, 0.3);
         }
 
@@ -496,7 +501,7 @@
         }
 
         .btn-hint {
-            background: var(--warning-gradient);
+            background: linear-gradient(45deg, #f093fb, #f5576c);
             box-shadow: 0 8px 25px rgba(240, 147, 251, 0.3);
         }
 
@@ -514,7 +519,7 @@
         }
 
         .feedback-message {
-            background: var(--success-gradient);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             color: white;
             padding: 20px 40px;
             border-radius: 25px;
@@ -528,7 +533,7 @@
         }
 
         .feedback-message.error {
-            background: var(--danger-gradient);
+            background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
         }
 
         .feedback-message::before {
@@ -566,7 +571,7 @@
 
         .progress-bar {
             height: 100%;
-            background: var(--success-gradient);
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             border-radius: 10px;
             transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
@@ -603,7 +608,7 @@
             position: absolute;
             width: 10px;
             height: 10px;
-            background: #ffd700;
+            background: var(--neon-purple);
             animation: confettiFall 3s linear infinite;
         }
 
@@ -1161,10 +1166,10 @@
             if (correctItems.includes(itemText)) {
                 correct++;
                 dropZone.classList.add('correct');
-                item.style.background = 'var(--success-gradient)';
+                item.style.background = 'linear-gradient(135deg, rgba(40, 167, 69, 0.8) 0%, rgba(56, 239, 125, 0.8) 100%)';
             } else {
                 dropZone.classList.add('incorrect');
-                item.style.background = 'var(--danger-gradient)';
+                item.style.background = 'linear-gradient(135deg, rgba(220, 53, 69, 0.8) 0%, rgba(255, 106, 0, 0.8) 100%)';
             }
         });
     });
@@ -1377,8 +1382,8 @@
             }
             
             @keyframes pulse {
-                0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0,123,255,0.15); }
-                50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0,123,255,0.4); }
+                0%, 100% { transform: scale(1); box-shadow: 0 8px 25px rgba(0,179,255,0.15); }
+                50% { transform: scale(1.05); box-shadow: 0 15px 40px rgba(0,179,255,0.4); }
             }
         `;
         document.head.appendChild(dynamicStyles);

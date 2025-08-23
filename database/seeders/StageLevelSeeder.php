@@ -127,7 +127,8 @@ Level::updateOrCreate(
                 'The plus sign <code>+</code> is used to join or add.',
                 'The <code>print()</code> function is how you show things on the screen.'
             ],
-            'time_limit' => 180
+            'time_limit' => 180,
+            'max_hints' => 4
         ],
     ]
 );

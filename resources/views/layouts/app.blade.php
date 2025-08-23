@@ -11,8 +11,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600;inter:400,500,600,700&display=swap" rel="stylesheet"/>
 
-    <!-- Vite -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+   
+  <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+<script src="{{ asset('js/app.js') }}"></script>
 </head>
 <body class="font-sans antialiased bg-gradient-to-b from-purple-50 via-white to-white text-gray-900">
     <div class="relative min-h-screen">

@@ -370,6 +370,7 @@
         @media (max-width: 768px) {
             .achievement-summary { display: none !important; }
         }
+        
     </style>
 
     <div class="learning-map-container py-4">

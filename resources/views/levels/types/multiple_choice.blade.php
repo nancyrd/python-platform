@@ -630,11 +630,7 @@
 <!-- Flower Floating Background -->
 <div class="floating-flowers" aria-hidden="true">
     @for($i=0; $i<12; $i++)
-        <span class="flower" style="
-            left:{{ rand(3,90) }}vw;
-            top:{{ rand(5,85) }}vh;
-            animation-delay:{{ rand(0, 12) }}s;
-        ">
+        <span class="flower" style="left:{{ rand(3,90) }}vw; top:{{ rand(5,85) }}vh; animation-delay:{{ rand(0, 12) }}s;">
             {{ $flowerEmojis[array_rand($flowerEmojis)] }}
         </span>
     @endfor
@@ -645,50 +641,51 @@
     <p class="challenge-description">
         {!! $level->content['intro'] ?? 'Collect beautiful flowers by answering Python questions correctly!' !!}
     </p>
-    
+
     <div id="bouquetArea"></div>
-    
+
     <div class="progress-bar-container mb-3">
         <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
     </div>
-    
-   <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}">
-    @csrf
-    <input type="hidden" name="score" id="finalScore" value="0">
-    <input type="hidden" name="answers" id="answersData" value="[]">
-    
-    <div class="mcq-questions-list">
-        @foreach($level->content['questions'] as $i => $q)
-            <div class="mcq-flower-card" data-question="{{ $i }}">
-                <div class="mcq-flower-emoji">
-                    {{ $flowerEmojis[$i % count($flowerEmojis)] }}
+
+    <!-- IMPORTANT: novalidate + explicit hidden score/answers -->
+    <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
+        @csrf
+        <input type="hidden" name="score" id="finalScore" value="0">
+        <input type="hidden" name="answers" id="answersData" value="[]">
+
+        <div class="mcq-questions-list">
+            @foreach($level->content['questions'] as $i => $q)
+                <div class="mcq-flower-card" data-question="{{ $i }}">
+                    <div class="mcq-flower-emoji">
+                        {{ $flowerEmojis[$i % count($flowerEmojis)] }}
+                    </div>
+                    <div class="mcq-question-text">{!! $q['question'] !!}</div>
+                    <div class="mcq-options">
+                        @foreach($q['options'] as $j => $option)
+                            <input type="radio" name="q{{ $i }}" value="{{ $j }}" id="q{{ $i }}_{{ $j }}" style="display:none;">
+                            <label for="q{{ $i }}_{{ $j }}">{{ $option }}</label>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="mcq-question-text">{!! $q['question'] !!}</div>
-                <div class="mcq-options">
-                    @foreach($q['options'] as $j => $option)
-                        <input type="radio" name="q{{ $i }}" value="{{ $j }}" id="q{{ $i }}_{{ $j }}" style="display:none;">
-                        <label for="q{{ $i }}_{{ $j }}">{{ $option }}</label>
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
-    </div>
-    
-    <div class="controls-section">
-        <button type="button" class="btn-epic" onclick="checkAnswers()">
-            <i class="fas fa-magic me-2"></i>
-            Collect Flowers!
-        </button>
-        <button type="button" class="btn-epic btn-hint" onclick="showHint()">
-            <i class="fas fa-lightbulb me-2"></i>
-            Oracle's Wisdom
-        </button>
-        <button type="button" class="btn-epic btn-reset" onclick="resetGame()">
-            <i class="fas fa-redo me-2"></i>
-            Reset Realm
-        </button>
-    </div>
-</form>
+            @endforeach
+        </div>
+
+        <div class="controls-section">
+            <button type="button" class="btn-epic" id="btnCheck" onclick="checkAnswers()">
+                <i class="fas fa-magic me-2"></i>
+                Collect Flowers!
+            </button>
+            <button type="button" class="btn-epic btn-hint" id="btnHint" onclick="showHint()">
+                <i class="fas fa-lightbulb me-2"></i>
+                Oracle's Wisdom
+            </button>
+            <button type="button" class="btn-epic btn-reset" id="btnReset" onclick="resetGame()">
+                <i class="fas fa-redo me-2"></i>
+                Reset Realm
+            </button>
+        </div>
+    </form>
 </div>
 
 <!-- Required containers for game engine -->
@@ -697,9 +694,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
-/**
- * Epic Game Engine - Reusable game functionality
- */
 class EpicFlowerGame {
     constructor() {
         this.score = 0;
@@ -710,24 +704,25 @@ class EpicFlowerGame {
         this.maxHints = 3;
         this.gameStarted = false;
         this.gameCompleted = false;
-        this.correctAnswers = 0;
+        this.correctCount = 0;
         this.totalQuestions = 0;
         this.timer = null;
+        this.submitting = false;
 
-        // Game data
-        this.correctAnswers = @json(array_map(fn($q) => $q['correct_answer'], $level->content['questions'] ?? []));
+        // Answer key + explanations
+        this.answerKey   = @json(array_map(fn($q) => $q['correct_answer'], $level->content['questions'] ?? []));
         this.explanations = @json(array_map(fn($q) => $q['explanation'] ?? '', $level->content['questions'] ?? []));
         this.flowerEmojis = @json($flowerEmojis);
-        this.totalQuestions = this.correctAnswers.length;
-        
-        // Hints
-    this.hints = @json($level->content['hints'] ?? []) || [
-    "🌸 Read each question carefully and think about Python basics!",
-    "💡 Remember what you learned about Python programming!",
-    "🌻 Take your time - good flowers need patience to bloom!",
-    "🐍 Python is friendly for beginners - trust your instincts!",
-    "📚 Think about what makes Python special as a programming language!"
-];
+        this.totalQuestions = this.answerKey.length;
+
+        // Hints (fallback to defaults if null)
+        this.hints = @json($level->content['hints'] ?? null) || [
+            "🌸 Read each question carefully and think about Python basics!",
+            "💡 Remember what you learned about Python programming!",
+            "🌻 Take your time—good flowers need patience to bloom!",
+            "🐍 Python is friendly for beginners—trust your instincts!",
+            "📚 Think about what makes Python special as a programming language!"
+        ];
 
         this.init();
     }
@@ -741,55 +736,44 @@ class EpicFlowerGame {
     }
 
     setupEventListeners() {
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (this.gameCompleted) return;
-            
-            if (e.key === 'h' || e.key === 'H') {
-                e.preventDefault();
-                this.showHint();
-            } else if (e.key === 'r' || e.key === 'R') {
-                e.preventDefault();
-                this.resetGame();
-            } else if (e.key === 'Enter' && e.ctrlKey) {
-                e.preventDefault();
-                this.checkAnswers();
-            }
+        // progress as user selects
+        document.querySelectorAll('.mcq-options input[type=radio]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const answered = document.querySelectorAll('.mcq-options input[type=radio]:checked').length;
+                this.updateProgress(answered, this.totalQuestions);
+            });
         });
 
-        // Add ripple effects to buttons
-        document.querySelectorAll('.btn-epic').forEach(button => {
-            button.addEventListener('click', this.createRippleEffect.bind(this));
+        // keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (this.gameCompleted) return;
+            if (e.key === 'h' || e.key === 'H') { e.preventDefault(); this.showHint(); }
+            else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); this.resetGame(); }
+            else if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); this.checkAnswers(); }
+        });
+
+        // ripple visuals
+        document.querySelectorAll('.btn-epic').forEach(btn => {
+            btn.addEventListener('click', this.createRippleEffect.bind(this));
         });
     }
 
     createRippleEffect(e) {
-        if (e.target.disabled) return;
-        
+        if (e.currentTarget.disabled) return;
         const button = e.currentTarget;
         const ripple = document.createElement('span');
         const rect = button.getBoundingClientRect();
         const size = Math.max(rect.width, rect.height);
-        const x = e.clientX - rect.left - size / 2;
-        const y = e.clientY - rect.top - size / 2;
-        
+        const x = (e.clientX ?? (rect.left + rect.width/2)) - rect.left - size/2;
+        const y = (e.clientY ?? (rect.top + rect.height/2)) - rect.top - size/2;
+
         ripple.style.cssText = `
-            position: absolute;
-            width: ${size}px;
-            height: ${size}px;
-            left: ${x}px;
-            top: ${y}px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: scale(0);
-            animation: gameRipple 0.6s linear;
-            pointer-events: none;
-            z-index: 1000;
+            position:absolute;width:${size}px;height:${size}px;left:${x}px;top:${y}px;
+            background:rgba(255,255,255,.3);border-radius:50%;transform:scale(0);
+            animation: gameRipple .6s linear;pointer-events:none;z-index:1000;
         `;
-        
         button.style.position = 'relative';
         button.appendChild(ripple);
-        
         setTimeout(() => ripple.remove(), 600);
     }
 
@@ -797,7 +781,6 @@ class EpicFlowerGame {
         this.timer = setInterval(() => {
             this.timeRemaining--;
             this.updateUI();
-            
             if (this.timeRemaining <= 0) {
                 this.handleTimeUp();
             } else if (this.timeRemaining <= 60 && this.timeRemaining % 15 === 0) {
@@ -808,18 +791,16 @@ class EpicFlowerGame {
 
     handleTimeUp() {
         clearInterval(this.timer);
-        this.showFeedback("⏰ Time's Up! Collecting your flowers... ⏰", "error", 3000);
-        setTimeout(() => this.checkAnswers(), 1000);
+        this.showFeedback("⏰ Time's Up! Collecting your flowers... ⏰", "error", 1800);
+        setTimeout(() => this.checkAnswers(), 800);
     }
 
     updateUI() {
         document.getElementById('currentScore').textContent = this.score;
-        document.getElementById('starsEarned').textContent = this.getStars();
-        
-        const minutes = Math.floor(this.timeRemaining / 60);
-        const seconds = this.timeRemaining % 60;
-        document.getElementById('timeRemaining').textContent = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('starsEarned').textContent  = this.getStars();
+        const m = Math.floor(this.timeRemaining / 60);
+        const s = this.timeRemaining % 60;
+        document.getElementById('timeRemaining').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
     }
 
     getStars() {
@@ -830,79 +811,86 @@ class EpicFlowerGame {
     }
 
     checkAnswers() {
-      if (this.gameCompleted) return;
+        if (this.gameCompleted || this.submitting) return;
 
-      let correct = 0;
-      let total = 0;
-      let answers = [];
+        let correct = 0, total = 0;
+        const answers = [];
 
-      document.querySelectorAll('.mcq-flower-card').forEach((flowerCard, i) => {
-        total++;
-        const selected = flowerCard.querySelector('input[type=radio]:checked');
-        let isCorrect = false;
+        document.querySelectorAll('.mcq-flower-card').forEach((card, i) => {
+            total++;
+            const selected = card.querySelector('input[type=radio]:checked');
+            let isCorrect = false;
 
-        if (selected) {
-          answers.push(parseInt(selected.value));
-          if (parseInt(selected.value) === parseInt(this.correctAnswers[i])) {
-            isCorrect = true;
-            correct++;
-            flowerCard.classList.remove('incorrect');
-            flowerCard.classList.add('correct');
-            flowerCard.style.background = 'linear-gradient(135deg, rgba(40, 167, 69, 0.8) 0%, rgba(56, 239, 125, 0.8) 100%)';
-          } else {
-            flowerCard.classList.remove('correct');
-            flowerCard.classList.add('incorrect');
-            flowerCard.style.background = 'linear-gradient(135deg, rgba(220, 53, 69, 0.8) 0%, rgba(255, 106, 0, 0.8) 100%)';
-          }
+            if (selected) {
+                const val = parseInt(selected.value);
+                answers.push(Number.isFinite(val) ? val : -1);
+                if (val === parseInt(this.answerKey[i])) {
+                    isCorrect = true; correct++;
+                    card.classList.remove('incorrect'); card.classList.add('correct');
+                    card.style.background = 'linear-gradient(135deg, rgba(40,167,69,.8) 0%, rgba(56,239,125,.8) 100%)';
+                } else {
+                    card.classList.remove('correct'); card.classList.add('incorrect');
+                    card.style.background = 'linear-gradient(135deg, rgba(220,53,69,.8) 0%, rgba(255,106,0,.8) 100%)';
+                }
+            } else {
+                // IMPORTANT: push -1 (integer), not null — avoids 422 validation traps
+                answers.push(-1);
+                card.classList.remove('correct'); card.classList.add('incorrect');
+                card.style.background = 'linear-gradient(135deg, rgba(220,53,69,.8) 0%, rgba(255,106,0,.8) 100%)';
+            }
+
+            // explanation
+            const explanation = this.explanations[i] || '';
+            let ex = card.querySelector('.explanation');
+            if (!ex) {
+                ex = document.createElement('div');
+                ex.className = 'explanation';
+                card.appendChild(ex);
+            }
+            ex.innerHTML = isCorrect
+              ? `<i class='fas fa-check-circle text-success'></i> ${explanation}`
+              : `<i class='fas fa-times-circle text-danger'></i> ${explanation}`;
+        });
+
+        // score
+        const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+        this.score = Math.max(0, percentage - (this.hintsUsed * 5));
+        const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
+        this.score = Math.min(100, this.score + timeBonus);
+
+        this.updateUI();
+        this.showBouquetResult(correct, total);
+
+        // set hidden inputs
+        const form = document.getElementById('quizForm');
+        document.getElementById('finalScore').value = this.score;
+        document.getElementById('answersData').value = JSON.stringify(answers);
+
+        // feedback
+        if (percentage >= 80) {
+            this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 1500);
+            this.startCelebration();
         } else {
-          answers.push(null);
-          flowerCard.classList.remove('correct');
-          flowerCard.classList.add('incorrect');
-          flowerCard.style.background = 'linear-gradient(135deg, rgba(220, 53, 69, 0.8) 0%, rgba(255, 106, 0, 0.8) 100%)';
+            this.showFeedback(`🌸 Score: ${this.score}% — ${correct}/${total} flowers collected!`,
+                percentage >= 60 ? "warning" : "error", 1500);
         }
 
-        // explanation
-        let explanation = this.explanations[i] || '';
-        let ex = flowerCard.querySelector('.explanation');
-        if (!ex) {
-          ex = document.createElement('div');
-          ex.className = 'explanation';
-          flowerCard.appendChild(ex);
-        }
-        ex.innerHTML = isCorrect
-          ? `<i class='fas fa-check-circle text-success'></i> ${explanation}`
-          : `<i class='fas fa-times-circle text-danger'></i> ${explanation}`;
-      });
+        // lock UI & submit
+        this.gameCompleted = true;
+        this.submitting = true;
+        clearInterval(this.timer);
 
-      // score calc
-      const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-      this.score = Math.max(0, percentage - (this.hintsUsed * 5));
-      const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
-      this.score = Math.min(100, this.score + timeBonus);
+        // disable buttons so the user can’t re-trigger
+        ['btnCheck','btnHint','btnReset'].forEach(id => {
+            const b = document.getElementById(id);
+            if (b) b.disabled = true;
+        });
 
-      this.updateUI();
-      this.showBouquetResult(correct, total);
-
-      // set hidden inputs on quizForm
-      const form = document.getElementById('quizForm');
-      document.getElementById('finalScore').value = this.score;
-      document.getElementById('answersData').value = JSON.stringify(answers);
-
-      // messaging + submit
-      if (percentage >= 80) {
-        this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 2000);
-        this.startCelebration();
-      } else {
-        this.showFeedback(`🌸 Score: ${this.score}% - ${correct}/${total} flowers collected!`,
-          percentage >= 60 ? "warning" : "error", 2000);
-      }
-
-      this.gameCompleted = true;
-      clearInterval(this.timer);
-
-      setTimeout(() => {
-        form.submit(); // << always submit quizForm
-      }, 2000);
+        setTimeout(() => {
+            // robust submit (works even if a browser blocks implicit submit)
+            if (form.requestSubmit) form.requestSubmit();
+            else form.submit();
+        }, 1200);
     }
 
     showBouquetResult(correct, total) {
@@ -910,9 +898,8 @@ class EpicFlowerGame {
         for (let i = 0; i < correct; i++) {
             bouquet += this.flowerEmojis[i % this.flowerEmojis.length];
         }
-        
-        let bouquetArea = document.getElementById('bouquetArea');
-        bouquetArea.innerHTML = `
+        const area = document.getElementById('bouquetArea');
+        area.innerHTML = `
             <div class="bouquet-result">
                 <div class="bouquet-flowers">${bouquet || '🫠'}</div>
                 <div class="bouquet-text">
@@ -924,118 +911,66 @@ class EpicFlowerGame {
     }
 
     startCelebration() {
-        const celebrationContainer = document.getElementById('celebrationContainer');
-        
-        // Create confetti
+        const wrap = document.getElementById('celebrationContainer');
         for (let i = 0; i < 100; i++) {
             setTimeout(() => {
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti';
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.background = ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'][Math.floor(Math.random() * 5)];
-                confetti.style.animationDelay = Math.random() * 3 + 's';
-                celebrationContainer.appendChild(confetti);
-                
-                setTimeout(() => confetti.remove(), 3000);
+                const c = document.createElement('div');
+                c.className = 'confetti';
+                c.style.left = Math.random() * 100 + 'vw';
+                c.style.background = ['#ffd700','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24'][Math.floor(Math.random()*5)];
+                c.style.animationDelay = Math.random() * 3 + 's';
+                wrap.appendChild(c);
+                setTimeout(() => c.remove(), 3000);
             }, i * 30);
         }
     }
 
     showHint() {
+        if (this.gameCompleted || this.submitting) return;
         if (this.hintsUsed >= this.maxHints) {
-            this.showFeedback("🔮 No more wisdom from the Oracle! 🔮", "error", 2000);
+            this.showFeedback("🔮 No more wisdom from the Oracle! 🔮", "error", 1800);
             return;
         }
-        
         this.hintsUsed++;
-        
         const randomHint = this.hints[Math.floor(Math.random() * this.hints.length)];
-        this.showFeedback(`💡 Oracle's Wisdom: ${randomHint}`, "info", 3000);
-        
-        // Highlight related elements
+        this.showFeedback(`💡 Oracle's Wisdom: ${randomHint}`, "info", 2200);
         this.highlightHintElements();
     }
 
     highlightHintElements() {
-        const cards = document.querySelectorAll('.mcq-flower-card');
-        cards.forEach(card => {
+        document.querySelectorAll('.mcq-flower-card').forEach(card => {
             card.style.animation = 'pulse 1s ease-in-out 3';
-            setTimeout(() => {
-                card.style.animation = '';
-            }, 3000);
+            setTimeout(() => { card.style.animation = ''; }, 3000);
         });
     }
 
     resetGame() {
+        if (this.gameCompleted || this.submitting) return;
         if (confirm('🔄 Are you sure you want to restart your mystical flower journey?')) {
             location.reload();
         }
     }
 
     updateProgress(completed, total) {
-        const progressBar = document.getElementById('progressBar');
-        if (progressBar && total > 0) {
-            const progress = (completed / total) * 100;
-            progressBar.style.width = progress + '%';
-        }
-    }
-
-    createSparkleEffect(element) {
-        for (let i = 0; i < 5; i++) {
-            setTimeout(() => {
-                const sparkle = document.createElement('div');
-                sparkle.innerHTML = '✨';
-                sparkle.style.cssText = `
-                    position: absolute;
-                    top: ${Math.random() * 100}%;
-                    left: ${Math.random() * 100}%;
-                    font-size: 1.5rem;
-                    pointer-events: none;
-                    animation: sparkle 1s ease-out forwards;
-                    z-index: 1000;
-                `;
-                element.style.position = 'relative';
-                element.appendChild(sparkle);
-                
-                setTimeout(() => sparkle.remove(), 1000);
-            }, i * 100);
-        }
+        const bar = document.getElementById('progressBar');
+        if (bar && total > 0) bar.style.width = ((completed/total)*100) + '%';
     }
 
     showFeedback(message, type = "success", duration = 2000) {
-        const feedbackContainer = document.getElementById('feedbackContainer');
-        const feedback = document.createElement('div');
-        feedback.className = `feedback-message ${type}`;
-        feedback.textContent = message;
-        
-        feedbackContainer.appendChild(feedback);
-        
-        setTimeout(() => {
-            feedback.remove();
-        }, duration);
+        const box = document.createElement('div');
+        box.className = `feedback-message ${type}`;
+        box.textContent = message;
+        document.getElementById('feedbackContainer').appendChild(box);
+        setTimeout(() => box.remove(), duration);
     }
 }
 
-// Global functions for button clicks
-function checkAnswers() {
-    if (window.game) {
-        window.game.checkAnswers();
-    }
-}
+// Global hooks
+function checkAnswers(){ window.game && window.game.checkAnswers(); }
+function showHint(){ window.game && window.game.showHint(); }
+function resetGame(){ window.game && window.game.resetGame(); }
 
-function showHint() {
-    if (window.game) {
-        window.game.showHint();
-    }
-}
-
-function resetGame() {
-    if (window.game) {
-        window.game.resetGame();
-    }
-}
-
-// Initialize game when page loads
+// Boot
 document.addEventListener('DOMContentLoaded', () => {
     window.game = new EpicFlowerGame();
 });

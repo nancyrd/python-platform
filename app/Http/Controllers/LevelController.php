@@ -59,10 +59,25 @@ class LevelController extends Controller
     }
 public function submit(Request $request, Level $level, ProgressUpdater $updater) 
 {
+    // Validate score; accept answers as string JSON
     $data = $request->validate([
         'score'   => 'required|integer|min:0|max:100',
-        'answers' => 'nullable|array',
+        'answers' => 'nullable|string', // <-- was array
     ]);
+
+    // Decode JSON safely to a PHP array; normalize to ints; allow -1 for unanswered
+    $answers = null;
+    if ($request->filled('answers')) {
+        $decoded = json_decode($request->input('answers'), true);
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            // coerce values to integers (and keep -1 for unanswered)
+            $answers = array_map(function ($v) {
+                return is_numeric($v) ? (int)$v : -1;
+            }, $decoded);
+        } else {
+            $answers = []; // or leave null if you prefer
+        }
+    }
 
     $stageProgress = UserStageProgress::where('user_id', Auth::id())
         ->where('stage_id', $level->stage_id)
@@ -75,41 +90,33 @@ public function submit(Request $request, Level $level, ProgressUpdater $updater)
         'stage_id'    => $level->stage_id,
         'level_id'    => $level->id,
         'kind'        => 'level',
-        'score'       => $data['score'],
-        'passed'      => $data['score'] >= $level->pass_score,
-        'answers'     => $data['answers'] ?? null,
+        'score'       => (int)$data['score'],
+        'passed'      => (int)$data['score'] >= (int)$level->pass_score,
+        'answers'     => $answers,          // <-- decoded array
         'finished_at' => now(),
     ]);
 
-    // Apply progress logic (saves stars, best score, attempts)
     $updater->apply($attempt);
 
-    // FIXED: Fetch fresh data after update to get the latest best score and stars
+    // re-fetch latest progress after updater mutates it
     $levelProgress = \App\Models\UserLevelProgress::where([
         'user_id' => Auth::id(),
         'level_id' => $level->id,
     ])->first();
 
-    $stars = $levelProgress ? $levelProgress->stars : 0;
-    $bestScore = $levelProgress ? $levelProgress->best_score : $data['score'];
-    
-    // FIXED: Show both current attempt score and best score in message
-    $message = "Level {$level->index} completed! ";
-    $message .= "Score: {$data['score']}%. ";
-    
-    if ($bestScore > $data['score']) {
-        $message .= "Best Score: {$bestScore}%. ";
-    } else if ($bestScore == $data['score']) {
-        $message .= "New Best Score! ";
-    }
-    
+    $stars     = $levelProgress->stars      ?? 0;
+    $bestScore = $levelProgress->best_score ?? (int)$data['score'];
+
+    $message  = "Level {$level->index} completed! Score: {$data['score']}%. ";
+    $message .= $bestScore > $data['score'] ? "Best Score: {$bestScore}%. " :
+                ($bestScore == $data['score'] ? "New Best Score! " : "");
     $message .= "You earned {$stars} star" . ($stars == 1 ? '' : 's') . ".";
 
-    // Always redirect to stage with cache-busting parameter
     return to_route('stages.show', $level->stage)
         ->with('status', $message)
-        ->with('timestamp', time()); // Cache busting
+        ->with('timestamp', time());
 }
+
     /**
      * Resolve the blade to render for this level, based on $level->type.
      * Add more fallbacks here if you like different folder conventions.

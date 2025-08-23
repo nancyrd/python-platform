@@ -397,6 +397,21 @@
             position: relative;
             overflow: hidden;
         }
+        /* Make the decorative overlay ignore clicks */
+.post-assessment-final-boss::before {
+  pointer-events: none;
+  z-index: 0;           /* keep it visually behind */
+}
+
+/* Ensure the card creates a stacking context */
+.post-assessment-final-boss::before {
+  pointer-events: none;   /* let clicks pass through */
+}
+
+.btn-final-boss {
+  position: relative;
+  z-index: 2;             /* above decorative layers */
+}
 
         .btn-level:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -728,10 +743,12 @@
 
                     <div class="text-center">
                         @if($post)
-                            <a class="btn btn-final-boss" href="{{ route('assessments.show', $post) }}">
-                                <i class="fas fa-{{ $progress->post_completed_at ? 'redo' : 'sword' }} me-2"></i>
-                                {{ $progress->post_completed_at ? 'Challenge Again' : 'Face Final Boss' }}
-                            </a>
+                <a class="btn btn-final-boss"
+   href="{{ route('assessments.post1') }}"
+   onclick="event.stopPropagation();">
+   <i class="fas fa-sword me-2"></i>
+   Face Final Boss
+</a>
                         @else
                             <button class="btn btn-final-boss" disabled style="opacity: .7;">
                                 <i class="fas fa-lock me-2"></i>

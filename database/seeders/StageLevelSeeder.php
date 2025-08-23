@@ -62,7 +62,7 @@ Level::updateOrCreate(
     ]
 );
 
-        // Level 4
+        // Level 2
    Level::updateOrCreate(
     ['stage_id' => $variables->id, 'index' => 2], // next index!
     [
@@ -135,28 +135,88 @@ Level::updateOrCreate(
 
 
         // Level 3
-        Level::updateOrCreate(
-            ['stage_id' => $variables->id, 'index' => 3],
-            [
-                'type'       => 'true/false',
-                'title'      => 'guess which is true or false',
-                'pass_score' => 80,
-                'content'    => json_encode([
-                    'questions' => [
-                        [
-                            'code'    => "a = 2\nb = 3.0\nc = str(a) + str(b)\nprint(c)",
-                            'options' => ['5.0', '23.0', '2 + 3.0', 'Error'],
-                            'correct' => '23.0',
-                        ],
-                        [
-                            'code'    => "x = 'hi'\nprint(x * 3)",
-                            'options' => ['hi3', 'hihihi', '3hi', 'Error'],
-                            'correct' => 'hihihi',
-                        ],
-                    ],
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            ]
-        );
+     // Level 3 — True/False about print() combining numbers & strings
+Level::updateOrCreate(
+    ['stage_id' => $variables->id, 'index' => 3],
+    [
+        'type'       => 'tf1',
+        'title'      => 'print(): numbers + strings (True/False)',
+        'pass_score' => 80,
+        'content'    => json_encode([
+'intro' => "In Python, there are two kinds of things here:\ntext (like \"Age: \") and numbers (like 5).\n\nTo show them together, use one of these:\n\nprint(\"Age:\", 5) ← easiest (comma lets print mix text + numbers)\n\nprint(\"Age: \" + str(5)) ← turn the number into text with str()\n\nprint(f\"Age: {5}\") ← f-string puts the number inside { }\n\nDo NOT do this (it crashes):\n\"Age: \" + 5\n2 + \"3\"\n\nNow go try the level!!",
+
+            'questions' => [
+                [
+                    'code'        => "print(5)",
+                    'statement'   => "This prints the number 5.",
+                    'answer'      => true,
+                    'explanation' => "Numbers can be printed directly without quotes."
+                ],
+                [
+                    'code'        => "print(\"Age: \" + 5)",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => false,
+                    'explanation' => "TypeError: you can’t add str + int. Use str(5) or a comma."
+                ],
+                [
+                    'code'        => "print(\"Age: \" + str(5))",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => true,
+                    'explanation' => "Convert numbers to strings with str() when concatenating."
+                ],
+                [
+                    'code'        => "print(\"Age:\", 5)",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => true,
+                    'explanation' => "Using a comma prints items separated by a space."
+                ],
+                [
+                    'code'        => "print(\"2\" + \"3\")",
+                    'statement'   => "This prints 23",
+                    'answer'      => true,
+                    'explanation' => "String + string concatenates text."
+                ],
+                [
+                    'code'        => "print(2 + \"3\")",
+                    'statement'   => "This prints 5",
+                    'answer'      => false,
+                    'explanation' => "TypeError: int + str. Use 2 + int(\"3\") or str(2) + \"3\"."
+                ],
+                [
+                    'code'        => "print(\"2\" * 3)",
+                    'statement'   => "This prints 222",
+                    'answer'      => true,
+                    'explanation' => "String * int repeats the string."
+                ],
+                [
+                    'code'        => "print(f\"Age: {5}\")",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => true,
+                    'explanation' => "f-strings format values inside {}."
+                ],
+                [
+                    'code'        => "age = 5\nprint(\"Age: \" + str(age))",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => true,
+                    'explanation' => "Again, convert number to string when concatenating."
+                ],
+                [
+                    'code'        => "age = \"5\"\nprint(\"Age: \" + age)",
+                    'statement'   => "This prints Age: 5",
+                    'answer'      => true,
+                    'explanation' => "Both parts are strings—safe to concatenate."
+                ],
+            ],
+            'hints' => [
+                "Use str(number) when joining with text using +.",
+                "print(a, b) separates items with a space automatically.",
+                "f-strings: f\"Age: {value}\" are an easy way to mix text and numbers."
+            ],
+            'time_limit' => 180,
+            'max_hints'  => 3
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    ]
+);
 
         // Pre assessment
         Assessment::updateOrCreate(
@@ -194,34 +254,44 @@ Level::updateOrCreate(
         );
 
         // Post assessment
-        Assessment::updateOrCreate(
-            ['stage_id' => $variables->id, 'type' => 'post'],
+       Assessment::updateOrCreate(
+    ['stage_id' => $variables->id, 'type' => 'post'],
+    [
+        'title'     => 'Post: Print & Basic Types',
+        'questions' => json_encode([
             [
-                'title'     => 'Post: Variables',
-                'questions' => json_encode([
-                    [
-                        'prompt'  => 'Choose the fix: x="10"; y=x+2',
-                        'options' => ['y=int(x)+2', 'y=str(x)+2', 'y=x+"2"', 'int+2=y'],
-                        'correct' => 'y=int(x)+2',
-                    ],
-                    [
-                        'prompt'  => 'What is a good name for number of students?',
-                        'options' => ['2students', 'num-students', 'num_students', 'class'],
-                        'correct' => 'num_students',
-                    ],
-                    [
-                        'prompt'  => 'bool("False") is…',
-                        'options' => ['True', 'False'],
-                        'correct' => 'True',
-                    ],
-                    [
-                        'prompt'  => 'Store 3.14 in pi',
-                        'options' => ['pi = "3.14"', 'pi = 3.14', '3.14 = pi', 'float = 3.14'],
-                        'correct' => 'pi = 3.14',
-                    ],
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            ]
-        );
+                'prompt'  => 'What is the exact output of: print("Hello, Python!")',
+                'options' => ['Hello, Python!', '"Hello, Python!"', 'print("Hello, Python!")', 'Error'],
+                'correct' => 'Hello, Python!',
+            ],
+            [
+                'prompt'  => 'What does this print?   print("Age:", 5)',
+                'options' => ['Age:5', 'Age: 5', '"Age:", 5', 'Error'],
+                'correct' => 'Age: 5',
+            ],
+            [
+                'prompt'  => 'What does this print?   print("2" + "3")',
+                'options' => ['23', '5', '2 + 3', 'Error'],
+                'correct' => '23',
+            ],
+            [
+                'prompt'  => 'After x = 3.14, what is type(x)?',
+                'options' => ['int', 'float', 'str', 'bool'],
+                'correct' => 'float',
+            ],
+            [
+                'prompt'  => 'Which line causes a TypeError?',
+                'options' => [
+                    'print("Score:", 10)',
+                    'print(10 + 5)',
+                    'print("10" + "5")',
+                    'print("Score: " + 10)'
+                ],
+                'correct' => 'print("Score: " + 10)',
+            ],
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    ]
+);
 
         /**
          * STAGE 2: Input / Output (include ONLY ONCE)

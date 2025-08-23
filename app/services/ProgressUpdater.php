@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Level;
 use App\Models\QuizAttempt;
+use App\Models\Stage;
 use App\Models\UserStageProgress;
 use App\Models\UserLevelProgress; // <- add
 use Illuminate\Support\Facades\DB;

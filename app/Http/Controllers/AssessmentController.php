@@ -68,8 +68,27 @@ public function show(Assessment $assessment, StageGate $gate)
     ]);
 
     $updater->apply($attempt);
+// If this was a POST assessment and we passed, unlock + redirect to next stage
+if ($assessment->type === 'post' && $attempt->passed) {
+    $nextStage = Stage::where('display_order', '>', $assessment->stage->display_order)
+        ->orderBy('display_order')
+        ->first();
 
+    if ($nextStage) {
+        // Ensure a progress row exists so the next stage page can render and start at level 1
+        UserStageProgress::firstOrCreate(
+            ['user_id' => Auth::id(), 'stage_id' => $nextStage->id],
+            ['unlocked_to_level' => 1, 'stars_per_level' => []]
+        );
+
+        return to_route('stages.show', $nextStage)
+            ->with('status', "Post assessment passed ({$attempt->score}%). Next stage unlocked!");
+    }
+
+    // No next stage; go back to current stage with a win message
     return to_route('stages.show', $assessment->stage_id)
-        ->with('status', "Submitted ({$assessment->type}), score {$score}%");
+        ->with('status', "Post assessment passed ({$attempt->score}%). You’ve conquered the last stage!");
+}
+
 }
 }

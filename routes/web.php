@@ -7,6 +7,7 @@ use App\Http\Controllers\StageController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\SupportController;
+use App\Models\Assessment;
 
 Route::get('/', function () {
     return view('welcome');
@@ -42,6 +43,11 @@ Route::post('/support', [SupportController::class, 'submit'])
 
     // stage view (map of levels + pre/post buttons)
     Route::get('/stages/{stage}', [StageController::class,'show'])->name('stages.show');
+Route::get('/assessments/post1', function () {
+    // Pick whichever "post" assessment you want to submit to:
+    $assessment = Assessment::where('type', 'post')->firstOrFail();
+    return view('assessments.post1', compact('assessment'));
+})->name('assessments.post1');
 
     // assessments
     Route::get('/assessments/{assessment}', [AssessmentController::class,'show'])->name('assessments.show');
@@ -50,9 +56,6 @@ Route::post('/support', [SupportController::class, 'submit'])
     // levels
     Route::get('/levels/{level}', [LevelController::class,'show'])->name('levels.show');
     Route::post('/levels/{level}', [LevelController::class,'submit'])->name('levels.submit');
-Route::get('/levels/{level}/fill', [LevelController::class, 'fill'])->name('levels.fill');
-
-
 
 
     Route::get('/stages/{stage}/enter', [StageController::class, 'enter'])->name('stages.enter');

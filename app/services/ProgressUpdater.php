@@ -75,17 +75,35 @@ class ProgressUpdater
                 $starsPerLevel[(string)$level->index] = max($prev, $latestStars);
                 $progress->stars_per_level = $starsPerLevel;
             }
-
-            // === Post-assessment logic ===
-            if ($attempt->kind === 'post') {
+ if ($attempt->kind === 'post') {
                 if ($attempt->score >= 80) {
-                    $progress->post_completed_at = $progress->post_completed_at ?? Carbon::now();
+                    // mark this stage as completed
+                    if (!$progress->post_completed_at) {
+                        $progress->post_completed_at = now();
+                    }
+
+                    // ensure there is a progress row for the next stage
+                    $currentStage = Stage::find($attempt->stage_id);
+                    if ($currentStage) {
+                        $nextStage = Stage::where('display_order', '>', $currentStage->display_order)
+                            ->orderBy('display_order')
+                            ->first();
+
+                        if ($nextStage) {
+                            UserStageProgress::firstOrCreate(
+                                ['user_id' => $attempt->user_id, 'stage_id' => $nextStage->id],
+                                ['unlocked_to_level' => 1, 'stars_per_level' => [], 'last_activity_at' => now()]
+                            );
+                        }
+                    }
                 }
             }
 
             $progress->save();
         });
     }
+
+
 
     protected function computeStars(QuizAttempt $attempt, int $levelId): int
     {
@@ -102,3 +120,4 @@ class ProgressUpdater
         return 0;
     }
 }
+        

@@ -1,25 +1,25 @@
 <?php
-
+ 
 namespace Database\Seeders;
-
+ 
 use Illuminate\Database\Seeder;
 use App\Models\Stage;
 use App\Models\Level;
 use App\Models\Assessment;
-
+ 
 class Stage2VariablesSeeder extends Seeder
 {
     public function run(): void
     {
         // safe next order – won’t disturb existing stages
         $nextOrder = (int) (Stage::max('display_order') ?? 0) + 1;
-
+ 
         // unique slug so we never collide with Stage 1
         $stage = Stage::firstOrCreate(
             ['slug' => 'variables-foundations'],
             ['title' => 'Stage 2: Variables (Foundations)', 'display_order' => $nextOrder]
         );
-
+ 
         // ---------- PRE ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'pre'],
@@ -32,7 +32,7 @@ class Stage2VariablesSeeder extends Seeder
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]
         );
-
+ 
         // ---------- LEVEL 1 (MCQ / easy) ----------
         Level::updateOrCreate(
             ['stage_id' => $stage->id, 'index' => 1],
@@ -53,7 +53,7 @@ class Stage2VariablesSeeder extends Seeder
                 ],
             ]
         );
-
+ 
         // ---------- LEVEL 2 (Drag & Drop) ----------
         Level::updateOrCreate(
             ['stage_id' => $stage->id, 'index' => 2],
@@ -78,7 +78,7 @@ class Stage2VariablesSeeder extends Seeder
                 ],
             ]
         );
-
+ 
         // ---------- LEVEL 3 (True/False) ----------
         Level::updateOrCreate(
             ['stage_id' => $stage->id, 'index' => 3],
@@ -108,7 +108,7 @@ class Stage2VariablesSeeder extends Seeder
                 ],
             ]
         );
-
+ 
         // ---------- POST ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'post'],
@@ -122,7 +122,7 @@ class Stage2VariablesSeeder extends Seeder
             ]
         );
     }
-
+ 
     private function mcqPool(): array
     {
         return [

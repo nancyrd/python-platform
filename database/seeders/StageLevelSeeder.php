@@ -12,7 +12,7 @@ class StageLevelSeeder extends Seeder
     public function run(): void
     {
         /**
-         * STAGE 1: Variables
+         * STAGE 1: print()
          */
         $variables = Stage::query()->firstOrCreate(
             ['slug' => 'variables'],
@@ -293,27 +293,7 @@ Level::updateOrCreate(
     ]
 );
 
-        /**
-         * STAGE 2: Input / Output (include ONLY ONCE)
-         */
-        $io = Stage::query()->firstOrCreate(
-            ['slug' => 'input-output'],
-            ['title' => 'Stage 2: Input / Output', 'display_order' => 2]
-        );
-
-        Assessment::updateOrCreate(
-            ['stage_id' => $io->id, 'type' => 'pre'],
-            [
-                'title'     => 'Pre: I/O',
-                'questions' => json_encode([
-                    [
-                        'prompt'  => 'Which prints text to the screen?',
-                        'options' => ['input()', 'print()', 'len()'],
-                        'correct' => 'print()',
-                    ],
-                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-            ]
-        );
+     
 
         // (Add IO levels later as you build them.)
     }

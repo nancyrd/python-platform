@@ -60,6 +60,7 @@ Route::get('/assessments/post1', function () {
 
     Route::get('/stages/{stage}/enter', [StageController::class, 'enter'])->name('stages.enter');
 });
+Route::get('/levels/{level}/instructions', [LevelController::class, 'instructions'])->name('levels.instructions');
 
 Route::view('/contact', 'contact')->name('contact');
 require __DIR__.'/auth.php';

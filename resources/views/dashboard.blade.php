@@ -899,41 +899,119 @@
                         </ul>
                     </div>
 
-                    <!-- Per-stage mini table -->
-                    <div class="mt-3">
-                        <div class="fw-bold mb-2 text-white"><i class="fas fa-list-check me-2 text-primary"></i>Per-Stage Breakdown</div>
-                        <div class="table-responsive">
-                            <table class="table table-sm align-middle">
-                                <thead>
-                                    <tr>
-                                        <th class="text-light">Stage</th>
-                                        <th class="text-center text-light">Levels</th>
-                                        <th class="text-center text-light">Unlocked To</th>
-                                        <th class="text-center text-light">Stars</th>
-                                        <th class="text-center text-light">Pre</th>
-                                        <th class="text-center text-light">Post</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($stages as $s)
-                                        @php
-                                            $pp = $progressByStage[$s->id] ?? null;
-                                            $starsSum = $pp && $pp->stars_per_level ? array_sum($pp->stars_per_level) : 0;
-                                        @endphp
-                                        <tr>
-                                            <td class="text-light">{{ $s->title }}</td>
-                                            <td class="text-center text-light">{{ $s->levels_count ?? 0 }}</td>
-                                            <td class="text-center text-light">{{ $pp->unlocked_to_level ?? 0 }}</td>
-                                            <td class="text-center text-light">{{ $starsSum }}</td>
-                                            <td class="text-center">{!! $pp && $pp->pre_completed_at ? '✅' : '—' !!}</td>
-                                            <td class="text-center">{!! $pp && $pp->post_completed_at ? '✅' : '—' !!}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                  <!-- Per-stage mini table -->
+<div class="mt-3">
+  <div class="fw-bold mb-2 text-white">
+    <i class="fas fa-list-check me-2 text-primary"></i>
+    Per-Stage Breakdown
+  </div>
+
+  <div class="card rounded-3 border-0 shadow-sm" style="background:rgba(20,16,40,.65);">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped table-hover align-middle mb-0">
+        <thead class="sticky-top" style="background:linear-gradient(90deg, rgba(0,179,255,.2), rgba(185,103,255,.2));">
+          <tr>
+            <th class="border-0 text-uppercase small fw-bold">Stage</th>
+            <th class="border-0 text-center text-uppercase small fw-bold">Levels</th>
+            <th class="border-0 text-center text-uppercase small fw-bold">Unlocked</th>
+            <th class="border-0 text-center text-uppercase small fw-bold">Stars</th>
+            <th class="border-0 text-center text-uppercase small fw-bold">Pre</th>
+            <th class="border-0 text-center text-uppercase small fw-bold">Post</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach($stages as $s)
+    @php
+  $pp = $progressByStage[$s->id] ?? null;
+
+  $levels     = (int) ($s->levels_count ?? 0);
+  $unlockedTo = (int) ($pp->unlocked_to_level ?? 0);
+
+  // What we SHOW: clamp to total levels so we never see "4 / 3"
+  $displayUnlocked = min($unlockedTo, $levels);
+
+  // Percent for the bar
+  $pct = $levels > 0 ? intval(($displayUnlocked / $levels) * 100) : 0;
+
+  // Stars sum
+  $starsSum = $pp && $pp->stars_per_level ? array_sum($pp->stars_per_level) : 0;
+@endphp
+<tr>
+  <td class="fw-semibold">
+    <span class="me-2">{{ $s->title }}</span>
+    @if(optional($pp)->post_completed_at)
+      <span class="badge bg-success-subtle text-success border border-success-subtle">Mastered</span>
+    @elseif(optional($pp)->pre_completed_at)
+      <span class="badge bg-info-subtle text-info border border-info-subtle">In progress</span>
+    @else
+      <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Locked</span>
+    @endif
+  </td>
+
+  <td class="text-center">{{ $levels }}</td>
+
+  <td class="text-center" style="min-width:160px;">
+    <div class="small text-light mb-1">
+      Lvl {{ $displayUnlocked }} / {{ $levels }}
+      @if($levels > 0 && $displayUnlocked >= $levels)
+        <span class="badge bg-success ms-1">All cleared</span>
+      @endif
+    </div>
+
+    <div class="progress progress-neon mx-auto" style="height:6px; max-width:140px;">
+      <div class="progress-bar bg-neon" role="progressbar"
+           style="width: {{ $pct }}%"
+           aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    @if($unlockedTo > $levels)
+      <div class="mt-1 small text-muted">
+        <em>(next index {{ $unlockedTo }}, capped for display)</em>
+      </div>
+    @endif
+  </td>
+
+  <td class="text-center">
+    @if($starsSum > 0)
+      <span class="text-warning fw-bold">{{ $starsSum }}</span>
+      <span class="opacity-75">⭐</span>
+    @else
+      <span class="text-muted">—</span>
+    @endif
+  </td>
+
+  <td class="text-center">
+    @if($pp && $pp->pre_completed_at)
+      <span class="badge rounded-pill bg-success"><i class="fas fa-check me-1"></i>Done</span>
+    @else
+      <span class="badge rounded-pill bg-secondary"><i class="fas fa-hourglass-half me-1"></i>Pending</span>
+    @endif
+  </td>
+
+  <td class="text-center">
+    @if($pp && $pp->post_completed_at)
+      <span class="badge rounded-pill bg-success"><i class="fas fa-crown me-1"></i>Cleared</span>
+    @else
+      <span class="badge rounded-pill bg-secondary"><i class="fas fa-lock me-1"></i>Pending</span>
+    @endif
+  </td>
+</tr>
+
+          @endforeach
+
+          @if(count($stages) === 0)
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <i class="fas fa-meteor me-2"></i>No stages yet. Come back after your first adventure!
+              </td>
+            </tr>
+          @endif
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 
                 <div class="modal-footer border-0">
                     <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>

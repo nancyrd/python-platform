@@ -23,9 +23,10 @@ Level::updateOrCreate(
     [
         'type'       => 'drag_drop',
         'title'      => 'What is Python? (Drag & Drop)',
-        'pass_score' => 80,
+        'pass_score' => 50,
+        'instructions' => 'Drag each item to the correct category about Python!',
         'content'    => [
-            'instructions' => 'Drag each item to the correct category about Python!',
+           
             'categories' => [
                 "💻 Programming" => [
                     "🐍 Python",
@@ -68,7 +69,8 @@ Level::updateOrCreate(
     [
         'type'       => 'multiple_choice',
         'title'      => 'Python Basics: Print, Add, Subtract, Multiply, Divide',
-        'pass_score' => 70,
+        'instructions' => 'print() is a command that shows text The text goes inside quotes: ("Hello World" )When you run this, you willl see: Hello World on your screen',
+        'pass_score' => 50,
         'content'    => [
             'intro' => "In Python, we use <code>print()</code> to display text or numbers on the screen. You can join text using <code>+</code>, do math with <code>+</code> (add), <code>-</code> (subtract), <code>*</code> (multiply), and <code>/</code> (divide). Try the questions below to test your Python basics!",
             'instructions' => "Answer the following questions about Python basics. Choose the correct answer for each blank.",
@@ -141,7 +143,7 @@ Level::updateOrCreate(
     [
         'type'       => 'tf1',
         'title'      => 'print(): numbers + strings (True/False)',
-        'pass_score' => 80,
+        'pass_score' => 50,
         'content'    => json_encode([
 'intro' => "In Python, there are two kinds of things here:\ntext (like \"Age: \") and numbers (like 5).\n\nTo show them together, use one of these:\n\nprint(\"Age:\", 5) ← easiest (comma lets print mix text + numbers)\n\nprint(\"Age: \" + str(5)) ← turn the number into text with str()\n\nprint(f\"Age: {5}\") ← f-string puts the number inside { }\n\nDo NOT do this (it crashes):\n\"Age: \" + 5\n2 + \"3\"\n\nNow go try the level!!",
 
@@ -293,7 +295,7 @@ Level::updateOrCreate(
     ]
 );
 
-     
+      
 
         // (Add IO levels later as you build them.)
     }

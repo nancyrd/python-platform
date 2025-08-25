@@ -265,6 +265,7 @@
             background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 6px 18px rgba(185, 103, 255, 0.3);
         }
 
         .arena-sub {
@@ -350,6 +351,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 4px;
         }
 
         .star {
@@ -397,21 +399,22 @@
             position: relative;
             overflow: hidden;
         }
+        
         /* Make the decorative overlay ignore clicks */
-.post-assessment-final-boss::before {
-  pointer-events: none;
-  z-index: 0;           /* keep it visually behind */
-}
+        .post-assessment-final-boss::before {
+            pointer-events: none;
+            z-index: 0;           /* keep it visually behind */
+        }
 
-/* Ensure the card creates a stacking context */
-.post-assessment-final-boss::before {
-  pointer-events: none;   /* let clicks pass through */
-}
+        /* Ensure the card creates a stacking context */
+        .post-assessment-final-boss::before {
+            pointer-events: none;   /* let clicks pass through */
+        }
 
-.btn-final-boss {
-  position: relative;
-  z-index: 2;             /* above decorative layers */
-}
+        .btn-final-boss {
+            position: relative;
+            z-index: 2;             /* above decorative layers */
+        }
 
         .btn-level:hover:not(:disabled) {
             transform: translateY(-2px);
@@ -421,6 +424,37 @@
         .btn-level:disabled {
             background: linear-gradient(135deg, #303b48, #243140);
             color: #8aa1b4;
+        }
+
+        .btn-instructions {
+            background: linear-gradient(135deg, var(--electric-blue), var(--neon-blue));
+            color: white;
+            border: 0;
+            padding: 12px 22px;
+            border-radius: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            box-shadow: 0 12px 26px rgba(5, 217, 232, 0.2), inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-instructions:hover:not(:disabled) {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        .level-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .level-actions .btn {
+            flex: 1;
+            min-width: 120px;
         }
 
         .locked-overlay {
@@ -565,6 +599,13 @@
                 height: 70px;
                 font-size: 32px;
             }
+            .level-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .level-actions .btn {
+                width: 100%;
+            }
         }
     </style>
 
@@ -697,10 +738,16 @@
 
                                     <div class="mt-3">
                                         @if($unlocked)
-                                            <a class="btn btn-level" href="{{ route('levels.show', $level) }}">
-                                                <i class="fas fa-{{ $passed ? 'redo' : 'play' }} me-2"></i>
-                                                {{ $passed ? 'Retake Level' : 'Enter Battle' }}
-                                            </a>
+                                            <div class="level-actions">
+                                                <a class="btn btn-level" href="{{ route('levels.show', $level) }}">
+                                                    <i class="fas fa-{{ $passed ? 'redo' : 'play' }} me-2"></i>
+                                                    {{ $passed ? 'Retake' : 'Battle' }}
+                                                </a>
+                                                <a class="btn btn-instructions" href="{{ route('levels.instructions', $level) }}">
+                                                    <i class="fas fa-book me-2"></i>
+                                                    Instructions
+                                                </a>
+                                            </div>
                                         @else
                                             <button class="btn btn-level" disabled>
                                                 <i class="fas fa-lock me-2"></i> Locked
@@ -743,17 +790,10 @@
 
                     <div class="text-center">
                         @if($post)
-                <a class="btn btn-final-boss"
-   href="{{ route('assessments.post1') }}"
-   onclick="event.stopPropagation();">
-   <i class="fas fa-sword me-2"></i>
-   Face Final Boss
-</a>
-                        @else
-                            <button class="btn btn-final-boss" disabled style="opacity: .7;">
-                                <i class="fas fa-lock me-2"></i>
-                                Boss Not Available
-                            </button>
+                            <a class="btn btn-final-boss" href="{{ route('assessments.show', $post) }}">
+                                <i class="fas fa-sword me-2"></i>
+                                Face Final Boss
+                            </a>
                         @endif
                     </div>
 
@@ -805,9 +845,12 @@
 
             // card hover click-through
             document.querySelectorAll('.level-card.unlocked').forEach(card => {
-                card.addEventListener('click', function() {
-                    const btn = this.querySelector('.btn-level:not(:disabled)');
-                    if (btn) btn.click();
+                card.addEventListener('click', function(e) {
+                    // Don't trigger if clicking on buttons
+                    if (!e.target.closest('.btn')) {
+                        const btn = this.querySelector('.btn-level:not(:disabled)');
+                        if (btn) btn.click();
+                    }
                 });
             });
 

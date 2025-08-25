@@ -65,7 +65,7 @@ class AssessmentController extends Controller
         'level_id'    => null,
         'kind'        => $assessment->type, // 'pre' or 'post'
         'score'       => $score,
-        'passed'      => $score >= 80,
+        'passed'      => $score >= 50,
         'answers'     => $data['answers'],
         'finished_at' => now(),
     ]);

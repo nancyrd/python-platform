@@ -19,7 +19,7 @@
         <div class="w-full max-w-md">
             <a href="/" class="mx-auto flex items-center justify-center gap-3 mb-6">
                 <span class="text-3xl">📚</span>
-                <span class="font-bold text-xl tracking-tight text-purple-700">PyLearn</span>
+                <span class="font-bold text-xl tracking-tight text-purple-700">Zero2Py</span>
             </a>
 
             <div class="card p-6 sm:p-8">

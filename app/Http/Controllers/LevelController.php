@@ -89,6 +89,7 @@ class LevelController extends Controller
         ]);
 
         $updater->apply($attempt);
+        
 
         // re-fetch latest progress after updater mutates it
         $levelProgress = UserLevelProgress::where([
@@ -129,4 +130,8 @@ class LevelController extends Controller
         }
         return 'levels.show';
     }
+    public function instructions(Level $level)
+{
+    return view('levels.instructions', compact('level'));
+}
 }

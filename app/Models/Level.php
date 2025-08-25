@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Level extends Model
 {
      protected $fillable = ['stage_id','index','type','title','pass_score','content','questions', 
-    'answers',
+    'answers','instructions',
     'hints'];
     protected $casts = ['content' => 'array'];
 

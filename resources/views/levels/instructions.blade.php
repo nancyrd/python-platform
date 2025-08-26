@@ -1,19 +1,18 @@
-{{-- resources/views/levels/instructions.blade.php --}}
 <x-app-layout>
-    @php
-        // Normalize content: it may be an array or a JSON string.
-        $content = $level->content ?? null;
-        if (is_string($content)) {
-            $decoded = json_decode($content, true);
-            if (json_last_error() === JSON_ERROR_NONE) {
-                $content = $decoded;
-            }
-        }
-        // Prefer 'instructions', fallback to 'intro', else null.
-        $instructions = is_array($content)
-            ? ($content['instructions'] ?? ($content['intro'] ?? null))
-            : null;
-    @endphp
+@php
+    // --- Instructions + content normalization ---
+    $instructions = $level->instructions;
+    $content = $level->content;
+
+    if (is_string($content)) {
+        $decoded = json_decode($content, true);
+        if (json_last_error() === JSON_ERROR_NONE) $content = $decoded;
+    }
+
+    if (empty($instructions) && is_array($content)) {
+        $instructions = $content['instructions'] ?? ($content['intro'] ?? null);
+    }
+@endphp
 
     <x-slot name="header">
         <div class="game-header-container">
@@ -21,158 +20,340 @@
                 <div class="d-flex align-items-center">
                     <div class="stage-icon-container me-3">
                         <div class="stage-icon-wrapper">
-                            <i class="fas fa-dungeon stage-icon"></i>
+                            <i class="fas fa-graduation-cap stage-icon"></i>
                         </div>
                     </div>
                     <div>
-                        <h2 class="stage-title mb-0">
-                            {{ $level->title ?? 'Level Instructions' }}
-                        </h2>
-                        <div class="stage-subtitle">
-                            <i class="fas fa-map-marker-alt me-1"></i>
-                            Learn Before You Play
-                        </div>
+                        <h2 class="stage-title mb-0">🎮 {{ $level->title ?? 'Level Instructions' }}</h2>
+                        <div class="stage-subtitle"><i class="fas fa-brain me-1"></i> Level Up Your Skills!</div>
                     </div>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-back-to-map">
-                        <i class="fas fa-map me-2"></i> Stage Map
-                    </a>
-                    <a href="{{ route('levels.show', $level) }}" class="btn btn-back-to-map">
-                        <i class="fas fa-play me-2"></i> Start Level
-                    </a>
-                </div>
+                <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-back-to-map">
+                    <i class="fas fa-map me-2"></i> World Map
+                </a>
             </div>
         </div>
     </x-slot>
 
+    {{-- FULL-BLEED STYLES --}}
     <style>
         :root{
-            --deep-purple:#1a0636;--cosmic-purple:#4a1b6d;--space-blue:#162b6f;--dark-space:#0a1028;
-            --neon-blue:#00b3ff;--neon-purple:#b967ff;--bright-pink:#ff2a6d;--electric-blue:#05d9e8;
+            --deep:#1a0636; --cosmic:#4a1b6d; --space:#162b6f; --dark:#0a1028;
+            --nblue:#00b3ff; --npurple:#b967ff; --green:#00ff88; --warn:#ff9500; --err:#ff3366;
+            --headerH: 80px; /* approximate header height */
         }
+
+        /* Make the layout background and fonts consistent */
+        html, body { height: 100%; }
         body{
-            background:linear-gradient(45deg,var(--deep-purple) 0%,var(--cosmic-purple) 30%,var(--space-blue) 70%,var(--dark-space) 100%);
-            color:#fff;font-family:'Orbitron','Arial',sans-serif;
+            margin:0;
+            background:linear-gradient(45deg,var(--deep),var(--cosmic) 35%,var(--space) 70%,var(--dark));
+            color:#fff; font-family:'Orbitron','Arial',sans-serif;
         }
+
         .game-header-container{
-            background:linear-gradient(135deg,var(--deep-purple),var(--cosmic-purple));
-            border-bottom:2px solid var(--neon-purple);
-            box-shadow:0 6px 30px rgba(0,0,0,.5), inset 0 -1px 0 rgba(255,255,255,.06);
-            position:relative;overflow:hidden;padding:14px 0;
+            background:linear-gradient(135deg,var(--deep),var(--cosmic));
+            border-bottom:2px solid var(--npurple);
+            padding:14px 18px;
         }
-        .game-header-container::before{
-            content:'';position:absolute;inset:0;left:-100%;
-            background:linear-gradient(90deg,transparent,rgba(185,103,255,.25),transparent);
-            animation:headerShine 4s ease-in-out infinite;
-        }
-        @keyframes headerShine{0%{left:-100%}50%{left:100%}100%{left:100%}}
         .stage-icon-wrapper{
-            width:64px;height:64px;border-radius:14px;border:1px solid var(--neon-purple);
-            background:linear-gradient(145deg,var(--deep-purple),var(--space-blue));
-            box-shadow:0 0 30px rgba(185,103,255,.2) inset,0 0 24px rgba(185,103,255,.2);
-            display:flex;align-items:center;justify-content:center;animation:pulse 2.4s ease-in-out infinite;
+            width:56px;height:56px;border-radius:12px;border:1px solid var(--npurple);
+            background:linear-gradient(145deg,var(--deep),var(--space)); display:flex;align-items:center;justify-content:center;
         }
-        .stage-icon{color:var(--neon-purple);font-size:26px}
-        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+        .stage-icon{ color:var(--green); font-size:22px; }
         .stage-title{
-            font-size:1.8rem;font-weight:900;letter-spacing:.5px;
-            background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-            text-shadow:0 6px 18px rgba(185,103,255,.3);
+            font-size:1.6rem; font-weight:900;
+            background:linear-gradient(45deg,var(--green),var(--npurple));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
         }
-        .stage-subtitle{color:rgba(255,255,255,.7);font-size:.95rem}
+        .stage-subtitle{ color:rgba(255,255,255,.75); }
         .btn-back-to-map{
-            background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));color:#fff;border:0;
-            padding:10px 18px;border-radius:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
-            box-shadow:0 10px 24px rgba(185,103,255,.3), inset 0 -2px 0 rgba(0,0,0,.3);
+            background:linear-gradient(135deg,var(--nblue),var(--npurple)); color:#fff; border:0;
+            padding:10px 16px; border-radius:10px; font-weight:800;
         }
-        .btn-back-to-map:hover{transform:translateY(-1px);color:#fff;box-shadow:0 12px 28px rgba(185,103,255,.45)}
-        .game-container{position:relative;min-height:calc(100vh - 140px);padding:24px 0}
-        .instructions-wrap{
-            max-width:980px;margin:0 auto;background:linear-gradient(135deg,rgba(26,6,54,.8),rgba(74,27,109,.8));
-            border:1px solid var(--neon-purple);border-radius:22px;padding:28px;position:relative;overflow:hidden;
-            box-shadow:0 24px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.03);
+
+        /* ---- Full-bleed content (touch the edges) ---- */
+        .page-wrap {
+            /* remove any outer padding; take the whole width */
+            padding: 0;
         }
-        .instructions-wrap::before{
-            content:'';position:absolute;inset:-40%;
-            background:conic-gradient(from 0deg,transparent,rgba(185,103,255,.10),transparent,rgba(185,103,255,.10));
-            animation:rotate 10s linear infinite;
+        /* Full-bleed trick: pull to viewport edges even if parent has padding/containers */
+        .full-bleed {
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            width: 100vw;
         }
-        @keyframes rotate{100%{transform:rotate(360deg)}}
-        .instructions-inner{position:relative;z-index:2}
-        .title-big{
-            font-size:2rem;font-weight:900;text-align:center;margin-bottom:8px;
-            background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));
-            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+
+        /* The main "card" becomes a full-width band with square corners */
+        .band {
+            background:linear-gradient(135deg, rgba(26,6,54,.96), rgba(74,27,109,.96));
+            border-top:2px solid var(--npurple);
+            border-bottom:2px solid var(--npurple);
+            /* touch left/right edges thanks to full-bleed */
         }
-        .subtitle{color:rgba(255,255,255,.8);text-align:center;margin-bottom:20px}
-        .instructions-content{
-            background:rgba(22,43,111,.5);border-radius:16px;padding:22px;border:1px solid rgba(185,103,255,.3);
+
+        /* Make it fill (almost) the viewport height under the header */
+        .band-inner {
+            min-height: calc(100vh - var(--headerH));
+            display: flex;
+            flex-direction: column;
         }
-        .instruction-text{font-size:1.08rem;line-height:1.7;color:#fff}
-        .actions{display:flex;gap:12px;justify-content:center;margin-top:22px}
-        .btn-ghost{
-            background:rgba(185,103,255,.18);color:#fff;border:1px solid var(--neon-purple);
-            padding:12px 28px;border-radius:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;
+
+        .band-header {
+            background:linear-gradient(135deg,var(--nblue),var(--npurple));
+            padding: 22px 24px;
+            text-align: center;
         }
-        .btn-ghost:hover{background:rgba(185,103,255,.28)}
-        .btn-primary-neo{
-            background:linear-gradient(135deg,var(--neon-blue),var(--neon-purple));color:#fff;border:0;
-            padding:12px 28px;border-radius:12px;font-weight:900;text-transform:uppercase;letter-spacing:.5px;
-            box-shadow:0 12px 26px rgba(185,103,255,.25), inset 0 -2px 0 rgba(0,0,0,.35);
+        .band-title { margin:0; font-size:2.1rem; font-weight:900; }
+
+        .band-body {
+            padding: 24px;
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
         }
-        .btn-primary-neo:hover{transform:translateY(-2px);color:#fff}
-        @media (max-width:768px){
-            .title-big{font-size:1.6rem}
-            .actions{flex-direction:column}
+
+        /* Sections */
+        .section{
+            background: rgba(22,43,111,.6);
+            border:1px solid rgba(185,103,255,.35);
+            border-radius: 14px;
+            padding: 18px 18px;
+            margin-bottom: 18px;
+        }
+        .section h3{ color:var(--green); margin-bottom: .8rem; font-weight:800; }
+
+        .instructions-content { white-space: pre-wrap; line-height: 1.6; color: rgba(255,255,255,.95); }
+        .instructions-content code {
+            background: rgba(0,255,136,0.15); color: #00ff88; padding: 2px 6px; border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        }
+
+        .hint{
+            background: rgba(255,149,0,.15);
+            border:1px solid var(--warn);
+            border-radius:12px; padding:14px; margin:14px 0;
+        }
+
+        /* Python console */
+        .py-console{
+            background:#0a1028; border:2px solid var(--nblue);
+            border-radius:14px; overflow:hidden; margin:20px 0;
+            box-shadow: 0 12px 30px rgba(0,0,0,.35);
+        }
+        .py-head{
+            display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px;
+            background:linear-gradient(135deg,#05d9e8,var(--nblue));
+        }
+        .py-title{ font-weight:800; }
+        .py-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+        .btn-console{
+            background: rgba(255,255,255,.2); color:white; border:1px solid rgba(255,255,255,.35);
+            padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer;
+        }
+        .btn-console:hover{ background: rgba(255,255,255,.3); }
+        .io .code{ padding: 14px; }
+        .io .code textarea{
+            width:100%; min-height:140px; background:transparent; color:var(--green); border:none; outline:none;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.95rem; resize:vertical;
+        }
+        .out{
+            width:100%; border-top:1px solid rgba(5,217,232,.25); background:#070c22;
+            padding:14px; font-family: ui-monospace, monospace; max-height:260px; overflow:auto; white-space:pre-wrap;
+        }
+        .ok{ color:var(--green); } .err{ color:var(--err); }
+
+        /* Footer actions pinned visually to the bottom spacing */
+        .band-footer {
+            padding: 0 24px 28px;
+            display:flex; gap:10px; flex-wrap:wrap; justify-content:center;
+        }
+
+        @media (max-width: 768px){
+            .band-title{ font-size:1.7rem; }
         }
     </style>
 
-    <div class="game-container">
-        <div class="container-xl px-3 px-md-4">
-            <div class="instructions-wrap">
-                <div class="instructions-inner">
-                    <div class="title-big">{{ $level->title ?? 'Level Instructions' }}</div>
-                    <div class="subtitle">Read this carefully before starting the level.</div>
+    <div class="page-wrap">
+        <!-- FULL WIDTH STRIP -->
+        <div class="full-bleed band">
+            <div class="band-inner">
+                <div class="band-header">
+                    <h1 class="band-title">🎯 {{ $level->title ?? 'Python Quest' }}</h1>
+                </div>
 
-                 <div class="instructions-content">
-    <div class="instruction-text">
-        @if($level->instructions)
-            {!! nl2br(e($level->instructions)) !!}
-        @else
-            <p>No instructions available for this level yet.</p>
-        @endif
-    </div>
-</div>
+                <div class="band-body">
+                    {{-- Instructions from DB/content --}}
+                    @if($instructions)
+                        <div class="section">
+                            <h3>📋 Instructions</h3>
+                            <div class="instructions-content">{!! nl2br(e($instructions)) !!}</div>
+                        </div>
+                    @endif
 
-                    <div class="actions">
-                        <a href="{{ route('stages.show', $level->stage_id) }}" class="btn-ghost">
-                            <i class="fas fa-arrow-left me-2"></i> Back to Stage
-                        </a>
-                        <a href="{{ route('levels.show', $level) }}" class="btn-primary-neo">
-                            <i class="fas fa-play-circle me-2"></i> Start Level
-                        </a>
+                    {{-- Hints --}}
+                    @php
+                        $hints = $level->hints;
+                        if (empty($hints) && is_array($content)) $hints = $content['hints'] ?? null;
+                        if (is_string($hints)) {
+                            $decodedHints = json_decode($hints, true);
+                            if (json_last_error() === JSON_ERROR_NONE) $hints = $decodedHints;
+                        }
+                    @endphp
+                    @if($hints)
+                        <div class="hint">
+                            <strong>💡 Tips:</strong>
+                            @if(is_array($hints))
+                                <ul style="margin:.5rem 0 0 1rem;">
+                                    @foreach($hints as $hint)
+                                        <li>{{ $hint }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <div>{{ $hints }}</div>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- Python console --}}
+                    <div class="py-console">
+                        <div class="py-head">
+                            <div class="py-title">🐍 Python Console <span id="status" style="font-weight:600;">(loading…)</span></div>
+                            <div class="py-actions">
+                                <button class="btn-console" id="btnRun">▶ Run</button>
+                                <button class="btn-console" id="btnCheck">✅ Check Answer</button>
+                                <button class="btn-console" id="btnClear">🗑 Clear</button>
+                            </div>
+                        </div>
+                        <div class="io">
+                            <div class="code">
+                                <textarea id="code" placeholder='# Type your Python code here
+print("Hello, World!")'></textarea>
+                            </div>
+                        </div>
+                        <div class="out" id="output">👋 Type code above and click "Run".</div>
                     </div>
+
+                    {{-- Optional expected output from content --}}
+                    @php $expectedOutput = is_array($content) ? ($content['expected_output'] ?? null) : null; @endphp
+                    @if($expectedOutput)
+                        <div class="section" id="challenge" data-expected="{{ $expectedOutput }}">
+                            <strong>Expected Output:</strong> <code>{{ $expectedOutput }}</code>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="band-footer">
+                    <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-back-to-map">🗺 Back to World Map</a>
+                    <a href="{{ route('levels.show', $level) }}" class="btn btn-console" style="border-color:var(--nblue)">🚀 Start Level</a>
                 </div>
             </div>
         </div>
     </div>
 
+    {{-- Pyodide (client-side Python) --}}
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <script>
-        // tiny micro-interaction
+        let pyodide, pyReady = false;
+
+        async function bootPython() {
+            try {
+                pyodide = await loadPyodide({
+                    stdout: s => appendOut(s + "\n"),
+                    stderr: s => appendErr(s + "\n")
+                });
+                await pyodide.runPythonAsync(`
+import builtins
+try:
+    from js import prompt as __prompt
+    builtins.input = lambda p='': __prompt(p)
+except Exception:
+    pass
+                `);
+                pyReady = true;
+                setStatus('ready');
+            } catch (e) {
+                setStatus('failed');
+                appendErr("Pyodide failed to load: " + (e.message || e));
+            }
+        }
+
+        function setStatus(s){
+            const el = document.getElementById('status');
+            if (el) el.textContent = `(${s})`;
+        }
+        function clearOut(){ const el = document.getElementById('output'); if (el) el.textContent = ''; }
+        function appendOut(s){ const el = document.getElementById('output'); if (!el) return; const span=document.createElement('span'); span.className='ok'; span.textContent=s; el.appendChild(span); el.scrollTop=el.scrollHeight; }
+        function appendErr(s){ const el = document.getElementById('output'); if (!el) return; const span=document.createElement('span'); span.className='err'; span.textContent=s; el.appendChild(span); el.scrollTop=el.scrollHeight; }
+
+        async function runCode(code){
+            clearOut();
+            if(!pyReady){ appendErr("Python runtime is not ready yet."); return {out:'',err:'not-ready'}; }
+            try {
+                pyodide.globals.set("USER_CODE", code);
+                await pyodide.runPythonAsync(`
+import sys, io
+_out = io.StringIO(); _err = io.StringIO()
+__so, __se = sys.stdout, sys.stderr
+sys.stdout, sys.stderr = _out, _err
+ns = {}
+try:
+    exec(USER_CODE, ns, ns)
+except Exception:
+    import traceback; traceback.print_exc()
+finally:
+    sys.stdout, sys.stderr = __so, __se
+OUT = _out.getvalue(); ERR = _err.getvalue()
+                `);
+                const OUT = pyodide.globals.get('OUT') || '';
+                const ERR = pyodide.globals.get('ERR') || '';
+                if (OUT) appendOut(OUT);
+                if (ERR) appendErr(ERR);
+                return {out: OUT, err: ERR};
+            } catch(e) {
+                appendErr("Error: " + (e.message || e));
+                return {out:'', err:e.message || String(e)};
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
-            const box = document.querySelector('.instructions-wrap');
-            if (!box) return;
-            box.addEventListener('mousemove', (e) => {
-                const r = box.getBoundingClientRect();
-                const x = (e.clientX - r.left) / r.width - 0.5;
-                const y = (e.clientY - r.top) / r.height - 0.5;
-                box.style.transform = `perspective(800px) rotateX(${y * -2}deg) rotateY(${x * 2}deg)`;
-            });
-            box.addEventListener('mouseleave', () => {
-                box.style.transform = '';
-            });
+            const btnRun   = document.getElementById('btnRun');
+            const btnCheck = document.getElementById('btnCheck');
+            const btnClear = document.getElementById('btnClear');
+            const codeTA   = document.getElementById('code');
+            const output   = document.getElementById('output');
+
+            if (btnRun) {
+                btnRun.addEventListener('click', async () => {
+                    btnRun.disabled = true; setStatus('running');
+                    const {err} = await runCode(codeTA.value);
+                    setStatus(err ? 'error' : 'ready');
+                    btnRun.disabled = false;
+                });
+            }
+            if (btnCheck) {
+                btnCheck.addEventListener('click', async () => {
+                    const expected = (document.getElementById('challenge')?.dataset.expected || '').trim();
+                    btnCheck.disabled = true; setStatus('checking');
+                    const {out} = await runCode(codeTA.value);
+                    const clean = (out || '').trim();
+                    if (expected) {
+                        if (clean === expected) appendOut("\n✅ Correct! Great job!");
+                        else appendErr(`\n❌ Not quite. Expected: "${expected}"\nYour output: "${clean}"`);
+                    } else {
+                        appendOut("\n✓ Code executed successfully!");
+                    }
+                    setStatus('ready'); btnCheck.disabled = false;
+                });
+            }
+            if (btnClear) {
+                btnClear.addEventListener('click', () => {
+                    codeTA.value = '';
+                    output.textContent = '👋 Type code above and click "Run".';
+                });
+            }
+
+            bootPython();
         });
     </script>
 </x-app-layout>

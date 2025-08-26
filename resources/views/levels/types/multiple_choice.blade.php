@@ -70,138 +70,85 @@
         font-family: 'Orbitron', 'Arial', sans-serif;
         color: white;
     }
+ 
+
+   /* Title smaller */
+.epic-level-header {
+  background: rgba(10,6,30,.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 3px solid var(--neon-purple);
+  padding: 20px 0;
+  position: relative;
+  overflow: hidden;
+}
+.epic-level-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(185,103,255,.1), transparent);
+  animation: headerShine 4s ease-in-out infinite;
+}
+@keyframes headerShine { 0%{left:-100%}50%,100%{left:100%} }
+
+.level-badge {
+  width: 70px; height: 70px;
+  background: var(--gold-gradient);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 30px rgba(185,103,255,.6);
+  animation: levelPulse 2s ease-in-out infinite;
+  position: relative; z-index: 2;
+}
+.level-number {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0,0,0,.3);
+}
+@keyframes levelPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 40px rgba(185,103,255,.8)} }
+
+.level-title {
+  color: var(--neon-purple);
+  font-size: 1.8rem;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(0,0,0,.5);
+  letter-spacing: 1px;
+}
+.level-subtitle { color: rgba(255,255,255,.85); }
+.level-stats { display: flex; align-items: center; }
+.stat-item {
+  text-align: center;
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  backdrop-filter: blur(10px);
+  padding: 15px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.2);
+  min-width: 80px;
+}
+.stat-icon { font-size: 1.5rem; margin-bottom: 5px; }
+.stat-value { font-size: 1.2rem; font-weight: 900; color: var(--neon-purple); }
+.stat-label { font-size: .8rem; opacity: .8; }
+
     
-    .floating-flowers {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;
-    }
-    
-    .epic-level-header {
-        background: rgba(10, 6, 30, 0.9);
-        backdrop-filter: blur(20px);
-        border-bottom: 3px solid var(--neon-purple);
-        padding: 20px 0;
-        position: relative;
-        overflow: hidden;
-    }
+   .game-arena {
+    background: rgba(26, 6, 54, 0.7);
+    backdrop-filter: blur(20px);
 
-    .epic-level-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(185, 103, 255, 0.1), transparent);
-        animation: headerShine 4s ease-in-out infinite;
-    }
+    /* ✅ remove rounded card look */
+    border-radius: 0;
+    margin: 0;
+    padding: 30px;
 
-    @keyframes headerShine {
-        0% { left: -100%; }
-        50% { left: 100%; }
-        100% { left: 100%; }
-    }
+    /* ✅ full width/height */
+    max-width: 100%;
+    width: 100%;
+    min-height: calc(100vh - 70px); /* fills page minus header */
 
-    .level-badge-container {
-        position: relative;
-    }
-
-    .level-badge {
-        width: 70px;
-        height: 70px;
-        background: var(--gold-gradient);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 30px rgba(185, 103, 255, 0.6);
-        animation: levelPulse 2s ease-in-out infinite;
-        position: relative;
-        z-index: 2;
-    }
-
-    .level-number {
-        font-size: 1.8rem;
-        font-weight: 900;
-        color: #333;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-    }
-
-    @keyframes levelPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(185, 103, 255, 0.8); }
-    }
-
-    .level-title {
-        color: var(--neon-purple);
-        font-size: 1.8rem;
-        font-weight: 900;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        letter-spacing: 1px;
-    }
-
-    .level-subtitle {
-        color: rgba(255, 255, 255, 0.8);
-        font-size: 1rem;
-    }
-
-    .level-stats {
-        display: flex;
-        align-items: center;
-    }
-
-    .stat-item {
-        text-align: center;
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 15px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        min-width: 80px;
-    }
-
-    .stat-icon {
-        font-size: 1.5rem;
-        margin-bottom: 5px;
-    }
-
-    .stat-value {
-        font-size: 1.2rem;
-        font-weight: 900;
-        color: var(--neon-purple);
-    }
-
-    .stat-label {
-        font-size: 0.8rem;
-        opacity: 0.8;
-    }
-
-    .floating-flowers .flower {
-        position: absolute;
-        font-size: 2.3rem;
-        opacity: 0.14;
-        animation: floatFlowers 13s infinite linear;
-    }
-    
-    @keyframes floatFlowers {
-        0%   { transform: translateY(100vh) scale(0.95) rotate(0deg);}
-        100% { transform: translateY(-10vh) scale(1.05) rotate(360deg);}
-    }
-    
-    .game-arena {
-        background: rgba(26, 6, 54, 0.7);
-        backdrop-filter: blur(20px);
-        border-radius: 30px;
-        margin: 30px auto;
-        padding: 40px 20px 20px 20px;
-        max-width: 1200px;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        border: 2px solid rgba(185, 103, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-        z-index: 2;
-    }
+    border: none;
+    box-shadow: none;
+}
 
     .game-arena::before {
         content: '';

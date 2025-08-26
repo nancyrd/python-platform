@@ -26,7 +26,7 @@ Level::updateOrCreate(
         'type'         => 'drag_drop',
         'title'        => 'What is Python? (Drag & Drop)',
         'pass_score'   => 50,
-        'instructions' => 'Programming means giving step-by-step instructions to a computer. Python is a beginner-friendly language used for calculations, data, websites, and AI. Drag each item to the correct category.',
+        'instructions' => 'Programming means giving step-by-step instructions to a computer. Python is a beginner-friendly language used for calculations, data, websites, and AI.',
         'content'      => [
             'categories' => [
                 "💻 Programming" => [

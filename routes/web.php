@@ -62,5 +62,17 @@ Route::get('/assessments/post1', function () {
 });
 Route::get('/levels/{level}/instructions', [LevelController::class, 'instructions'])->name('levels.instructions');
 
+Route::post('/levels/execute-python', [\App\Http\Controllers\LevelController::class, 'executePython'])
+    ->name('levels.executePython')
+    ->middleware('throttle:12,1');
+Route::get('/debug-level/{level}', function(Level $level) {
+    return [
+        'id' => $level->id,
+        'title' => $level->title,
+        'type' => $level->type,
+        'content' => $level->content,
+        'resolved_view' => app(App\Http\Controllers\LevelController::class)->resolveLevelView($level)
+    ];
+});
 Route::view('/contact', 'contact')->name('contact');
 require __DIR__.'/auth.php';

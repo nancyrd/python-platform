@@ -9,6 +9,7 @@ use App\Models\UserLevelProgress;
 use App\Services\ProgressUpdater;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Process\Process;
 
 class LevelController extends Controller
 {
@@ -133,5 +134,42 @@ class LevelController extends Controller
     public function instructions(Level $level)
 {
     return view('levels.instructions', compact('level'));
+}
+public function executePython(Request $request)
+{
+    $data = $request->validate([
+        'code' => 'required|string|max:5000',
+    ]);
+
+    // (Optional) naive guard against obviously dangerous modules
+    $blocked = ['os.', 'subprocess', 'socket', 'sys.exit', 'open(', 'eval(', 'exec('];
+    foreach ($blocked as $bad) {
+        if (stripos($data['code'], $bad) !== false) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Disallowed code detected.',
+            ], 400);
+        }
+    }
+
+    $tmp = tempnam(sys_get_temp_dir(), 'py_') . '.py';
+    file_put_contents($tmp, $data['code']);
+
+    // Use 'python' on Windows, 'python3' elsewhere
+    $exe = stripos(PHP_OS_FAMILY, 'Windows') === 0 ? 'python' : 'python3';
+    $process = new Process([$exe, $tmp]);
+    $process->setTimeout(10); // seconds
+    $process->run();
+
+    @unlink($tmp);
+
+    if (!$process->isSuccessful()) {
+        // combine STDOUT + STDERR so users see errors
+        $out = trim($process->getOutput() . $process->getErrorOutput());
+        return response()->json(['success' => false, 'error' => $out ?: 'Execution failed.'], 200);
+    }
+
+    $out = trim($process->getOutput());
+    return response()->json(['success' => true, 'output' => $out !== '' ? $out : '(No output)']);
 }
 }

@@ -23,19 +23,15 @@
 
         <!-- Top navigation -->
         @include('layouts.navigation')
+@isset($header)
+    <header class="sticky top-0 z-30 backdrop-blur bg-white/70 border-b border-purple-100 py-5 px-6">
+        {{ $header }}
+    </header>
+@endisset
 
-        @isset($header)
-            <header class="sticky top-0 z-30 backdrop-blur bg-white/70 border-b border-purple-100">
-                <div class="container-app py-5">
-                    {{ $header }}
-                </div>
-            </header>
-        @endisset
-
-        <main class="container-app py-8">
-            {{ $slot }}
-        </main>
-
+<main class="w-full py-8 px-6">
+    {{ $slot }}
+</main>
       <!-- Footer -->
 <!-- Footer -->
 <footer class="py-footer mt-16">
@@ -52,6 +48,7 @@
       background:linear-gradient(180deg, var(--ft-accent) 0%, var(--ft-primary) 100%);
       color:var(--ink);
     }
+
 
     .py-footer .container-app{ max-width:1400px; margin:0 auto; padding:0 1rem; }
 

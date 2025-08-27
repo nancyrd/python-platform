@@ -5,36 +5,39 @@
     // ===============================
     $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
     $savedScore    = $levelProgress->best_score ?? null;
-    $savedStars    = $levelProgress->stars ?? 0;
 
     // Content fallbacks
-    $timeLimit  = (int)($level->content['time_limit'] ?? 180);
-    $hints      = $level->content['hints'] ?? [];
-    $questions  = $level->content['questions'] ?? [];
-    $introText  = $level->content['intro'] ?? '';
-    $uiInstrux  = $level->content['instructions'] ?? 'Choose the best answer for each question.';
+    $timeLimit   = (int)($level->content['time_limit'] ?? 180);
+    $hints       = $level->content['hints'] ?? [];
+    $lines       = $level->content['lines'] ?? [];
+    $uiInstrux   = $level->content['instructions'] ?? 'Drag the lines into the correct order.';
+    $passScore   = (int)($level->pass_score ?? 50);
 
     // Default hints if none supplied
     $defaultHints = [
-        "Read the code carefully and watch for small details like spaces and exact output.",
-        "Recall Python basics from the lesson above before answering.",
-        "Eliminate obviously wrong choices first, then pick the best remaining option.",
-        "If two answers seem right, re-check exact wording and number formatting.",
+        "Start with setup (initialization) above the loop.",
+        "The condition should reference something that can change.",
+        "Place body actions (e.g., print) inside the loop.",
+        "An update step prevents infinite loops (e.g., i += 1).",
     ];
     $hintsForJs = !empty($hints) ? $hints : $defaultHints;
 
-    // Build answer key and explanations arrays safely for JS
-    $answerKeyJs = array_map(function ($q) {
-        return $q['correct_answer'] ?? null;
-    }, $questions);
+    // Preserve the *author's intended* correct order for grading.
+    $correctOrder = $lines;
 
-    $explanationsJs = array_map(function ($q) {
-        return $q['explanation'] ?? '';
-    }, $questions);
+    // Create a shuffled copy for initial display (JS will also safeguard).
+    $shuffled = $lines;
+    // basic deterministic shuffle keyed by level id for repeatable UX per level
+    mt_srand((int)($level->id ?? 0) * 7919);
+    for ($i = count($shuffled) - 1; $i > 0; $i--) {
+        $j = mt_rand(0, $i);
+        [$shuffled[$i], $shuffled[$j]] = [$shuffled[$j], $shuffled[$i]];
+    }
+    mt_srand();
 @endphp
 
 <x-slot name="header">
-    <div class="mcq-header">
+    <div class="reorder-header">
         <div class="container-fluid">
             <div class="row align-items-center g-3">
                 <div class="col-auto">
@@ -85,92 +88,71 @@
   --border:rgba(255,255,255,.12);
 }
 
-/* Layout backdrop */
 body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(185,103,255,.12), transparent 60%), linear-gradient(180deg, var(--bg-1), var(--bg-2)); color:var(--ink); }
 
 /* Header */
-.mcq-header{ background: rgba(10,16,40,.85); border-bottom:1px solid var(--border); padding:16px 0; }
+.reorder-header{ background: rgba(10,16,40,.85); border-bottom:1px solid var(--border); padding:16px 0; }
 .lvl-badge{ width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-2),var(--accent-1)); display:flex;align-items:center;justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,.25); }
 .lvl-number{ font-weight:900;font-size:1.35rem;color:#0f0f1a; }
 .lvl-meta .lvl-stage{ font-size:.85rem;color:var(--muted); letter-spacing:.02em; }
 .lvl-meta .lvl-title{ margin:0;color:#fff;font-weight:800;letter-spacing:.2px; }
-
 .lvl-stats{ display:flex;gap:18px; }
 .stat{ min-width:90px;background:rgba(255,255,255,.06);border:1px solid var(--border);padding:10px 14px;border-radius:12px;text-align:center; }
 .stat-label{ font-size:.75rem;color:var(--muted); }
 .stat-value{ font-size:1.05rem;font-weight:800;color:#fff; }
 
 /* Container */
-.mcq-wrap{ max-width:1040px;margin:24px auto;padding:0 16px; }
+.wrap{ max-width:1040px;margin:24px auto;padding:0 16px; }
 
-/* Lesson panel */
+/* Lesson */
 .lesson{ background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:18px 18px; }
 .lesson h3{ margin:0 0 8px 0;font-size:1.05rem;color:var(--accent-3);font-weight:800; }
 .lesson pre{ background:#0d1330;border:1px solid var(--border);border-radius:12px;padding:12px 14px; color:#cfeaff; overflow:auto; margin:10px 0 0 0; }
 
-/* Progress bar */
+/* Progress */
 .progress-shell{ height:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:18px 0; }
 .progress-bar{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent-1),var(--accent-2)); transition:width .4s ease; }
 
-/* Question list */
-.q-list{ display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px; }
-@media(min-width:900px){ .q-list{ grid-template-columns:1fr 1fr; } }
+/* Reorder board */
+.board{ background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px; }
+.board-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.board-title{ font-weight:800; color:#fff; }
+.board-sub{ color:var(--muted); font-size:.9rem; }
 
-.q-card{ background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px; }
-.q-head{ display:flex;justify-content:space-between;gap:10px;margin-bottom:10px; }
-.q-index{ font-weight:800;color:var(--accent-2); }
-.q-score-dot{ width:10px;height:10px;border-radius:50%; background:rgba(255,255,255,.15); align-self:center; }
-
-.q-text{ color:#e7e5ff;margin:0 0 10px 0; font-weight:700; line-height:1.35; }
-.q-text code{ background:#0d1330;border:1px solid var(--border);border-radius:8px;padding:2px 6px;color:#bde0ff; }
-.q-text .block{ display:block;white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:#0d1330;border:1px dashed var(--border);border-radius:12px;padding:10px; color:#cfeaff; margin-top:8px; }
-
-.q-options{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
-.q-option{ position:relative; }
-.q-option input{ position:absolute; inset:0; opacity:0; }
-.q-option label{
-  display:block; padding:10px 12px; border:1px solid var(--border); border-radius:12px;
-  background:rgba(255,255,255,.03); cursor:pointer; color:#e9e7ff; font-weight:600;
-  transition: all .18s ease;
+.list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.item{
+  display:flex; gap:10px; align-items:center;
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:12px; padding:10px 12px;
 }
-.q-option:hover label{ border-color:rgba(185,103,255,.55); background:rgba(185,103,255,.08); transform: translateY(-1px); }
-.q-option input:checked + label{ border-color:var(--accent-1); box-shadow:0 0 0 3px rgba(0,179,255,.2) inset; }
-
-.q-card.correct{ border-color:rgba(53,209,155,.65); box-shadow:0 0 0 3px rgba(53,209,155,.2) inset; }
-.q-card.incorrect{ border-color:rgba(255,90,122,.6); box-shadow:0 0 0 3px rgba(255,90,122,.18) inset; }
-.q-explain{ margin-top:10px; font-size:.95rem; color:#cfd7ff; border-top:1px dashed var(--border); padding-top:8px; display:none; }
-.q-card.show-explain .q-explain{ display:block; }
+.item.dragging{ opacity:.7; border-color:var(--accent-1); box-shadow:0 0 0 3px rgba(0,179,255,.2) inset; }
+.handle{ width:34px; height:34px; border-radius:8px; background:rgba(255,255,255,.06); display:flex; align-items:center; justify-content:center; color:var(--muted); cursor:grab; user-select:none; }
+.code{ white-space:pre; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; color:#cfeaff; }
 
 /* Controls */
 .controls{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 6px 0; }
-.btn{
-  border:none; border-radius:12px; padding:12px 18px; font-weight:800; letter-spacing:.2px;
-  color:#0f1020; cursor:pointer; transition: transform .12s ease, box-shadow .2s ease;
-}
+.btn{ border:none; border-radius:12px; padding:12px 18px; font-weight:800; letter-spacing:.2px; color:#0f1020; cursor:pointer; transition: transform .12s ease, box-shadow .2s ease; }
 .btn:disabled{ opacity:.6; cursor:not-allowed; }
 .btn-primary{ background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#0e1126; }
 .btn-secondary{ background:linear-gradient(135deg,#5ad0ff,#a58aff); color:#0e1126; }
 .btn-ghost{ background:transparent; color:var(--ink); border:1px solid var(--border); }
-
 .btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
 
-/* Toast feedback */
+/* Toasts */
 .toast-wrap{ position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px; z-index:1000; }
-.toast{
-  background:rgba(10,16,40,.9); border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:12px;
-  font-weight:700; min-width:220px;
-}
+.toast{ background:rgba(10,16,40,.9); border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:12px; font-weight:700; min-width:220px; }
 .toast.ok{ border-color:rgba(53,209,155,.6); }
 .toast.warn{ border-color:rgba(255,176,32,.6); }
 .toast.err{ border-color:rgba(255,90,122,.6); }
 
-/* Footer meta */
+/* Meta */
 .meta{ display:flex; justify-content:space-between; gap:10px; margin-top:10px; color:var(--muted); font-size:.9rem; }
 .meta .left{ display:flex; gap:10px; align-items:center; }
 .meta .pill{ border:1px solid var(--border); padding:4px 8px; border-radius:999px; }
 </style>
 
-<div class="mcq-wrap">
+<div class="wrap">
     @if($alreadyPassed)
         <div class="lesson" style="border-left:4px solid var(--ok);">
             <h3>Level Completed</h3>
@@ -181,72 +163,42 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
 
     <div class="lesson">
         <h3>Lesson</h3>
-        <div style="white-space:pre-wrap; line-height:1.4;">{!! nl2br(e($level->instructions)) !!}</div>
-        @if(stripos($level->instructions, 'python') !== false)
-            <!-- Simple code block detection already covered by instructions text -->
-        @endif
+        <div style="white-space:pre-wrap; line-height:1.45;">{!! nl2br(e($level->instructions)) !!}</div>
     </div>
 
     <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
 
-    <div class="lesson" style="margin-top:12px;">
-        <h3>How to answer</h3>
-        <div style="white-space:pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
-        @if($introText)
-            <pre class="mt-2" style="white-space:pre-wrap;">{!! e($introText) !!}</pre>
-        @endif
+    <div class="board">
+        <div class="board-header">
+            <div class="board-title">Drag to reorder</div>
+            <div class="board-sub">Place the lines into the correct sequence.</div>
+        </div>
+
+        <!-- The draggable list -->
+        <ul id="reorderList" class="list">
+            @foreach($shuffled as $idx => $line)
+                <li class="item" draggable="true" data-line="{{ $line }}">
+                    <div class="handle" title="Drag handle">≡</div>
+                    <pre class="code">{{ $line }}</pre>
+                </li>
+            @endforeach
+        </ul>
     </div>
 
-    <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
+    <form id="reorderForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
         @csrf
         <input type="hidden" name="score" id="finalScore" value="0">
         <input type="hidden" name="answers" id="answersData" value="[]">
 
-        <div class="q-list">
-            @foreach($questions as $i => $q)
-                <div class="q-card" data-q="{{ $i }}">
-                    <div class="q-head">
-                        <div class="q-index">Q{{ $i + 1 }}</div>
-                        <div class="q-score-dot" aria-hidden="true"></div>
-                    </div>
-
-                    <p class="q-text">
-                        {!! $q['question'] !!}
-                        @php
-                            // If the author put raw "python\n..." in question text, format it nicely:
-                            $qtxt = $q['question'];
-                        @endphp
-                        @if(is_string($qtxt) && str_starts_with(trim($qtxt), 'What prints?') && str_contains($qtxt, "python"))
-                            @php
-                                $code = trim(preg_replace('/^.*?python/i', '', $qtxt));
-                            @endphp
-                            <span class="block">{{ $code }}</span>
-                        @endif
-                    </p>
-
-                    <div class="q-options">
-                        @foreach(($q['options'] ?? []) as $j => $opt)
-                            <div class="q-option">
-                                <input type="radio" id="q{{ $i }}_{{ $j }}" name="q{{ $i }}" value="{{ $j }}">
-                                <label for="q{{ $i }}_{{ $j }}">{{ $opt }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="q-explain" id="exp{{ $i }}"></div>
-                </div>
-            @endforeach
-        </div>
-
         <div class="controls">
-            <button class="btn btn-primary" type="button" id="btnCheck">Submit Answers</button>
+            <button class="btn btn-primary" type="button" id="btnCheck">Submit Order</button>
             <button class="btn btn-secondary" type="button" id="btnHint">Show Hint</button>
             <button class="btn btn-ghost" type="button" id="btnReset">Reset</button>
         </div>
 
         <div class="meta">
             <div class="left">
-                <span class="pill">Pass score: {{ (int)$level->pass_score }}%</span>
+                <span class="pill">Pass score: {{ $passScore }}%</span>
                 @if(!is_null($savedScore)) <span class="pill">Best: {{ (int)$savedScore }}%</span> @endif
                 <span class="pill">Stars: <span id="metaStars">0</span></span>
             </div>
@@ -259,11 +211,11 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
 
 <script>
 (function(){
-    // ---- Precomputed values from PHP ----
+    // ---- Precomputed from PHP ----
     const timeLimit    = {{ $timeLimit }};
-    const answerKey    = @json($answerKeyJs);
-    const explanations = @json($explanationsJs);
+    const correctOrder = @json($correctOrder);
     const hints        = @json($hintsForJs);
+    const passScore    = {{ $passScore }};
 
     // ---- State ----
     let timeRemaining = timeLimit;
@@ -278,10 +230,14 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
     const $progress   = document.getElementById('progressBar');
     const $hintCount  = document.getElementById('hintCount');
     const $toastWrap  = document.getElementById('toastWrap');
+
+    const $list       = document.getElementById('reorderList');
     const $btnCheck   = document.getElementById('btnCheck');
     const $btnHint    = document.getElementById('btnHint');
     const $btnReset   = document.getElementById('btnReset');
-    const $form       = document.getElementById('quizForm');
+    const $form       = document.getElementById('reorderForm');
+    const $scoreInp   = document.getElementById('finalScore');
+    const $ansInp     = document.getElementById('answersData');
 
     // ---- Helpers ----
     function fmtTime(sec){
@@ -303,10 +259,56 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
         return 0;
     }
     function updateProgressBar(){
-        const total = document.querySelectorAll('.q-card').length;
-        const answered = document.querySelectorAll('.q-option input:checked').length;
-        const pct = total ? Math.round(100 * answered / total) : 0;
+        // For reorder, progress = % of items that are currently at the correct index.
+        const current = getCurrentOrder();
+        let correct = 0;
+        for (let i=0;i<current.length;i++){
+            if (current[i] === (correctOrder[i] ?? null)) correct++;
+        }
+        const pct = current.length ? Math.round(100 * correct / current.length) : 0;
         $progress.style.width = pct + '%';
+    }
+    function getCurrentOrder(){
+        return Array.from($list.querySelectorAll('.item')).map(li => li.getAttribute('data-line'));
+    }
+
+    // ---- DnD logic (native HTML5) ----
+    let dragEl = null;
+    $list.addEventListener('dragstart', (e) => {
+        const li = e.target.closest('.item');
+        if (!li) return;
+        dragEl = li;
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', li.getAttribute('data-line') || ''); } catch(_){}
+    });
+    $list.addEventListener('dragend', (e) => {
+        const li = e.target.closest('.item');
+        if (li) li.classList.remove('dragging');
+        dragEl = null;
+        updateProgressBar();
+    });
+    $list.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (!dragEl) return;
+        const afterEl = getDragAfterElement($list, e.clientY);
+        if (afterEl == null){
+            $list.appendChild(dragEl);
+        } else {
+            $list.insertBefore(dragEl, afterEl);
+        }
+    });
+    function getDragAfterElement(container, y){
+        const els = [...container.querySelectorAll('.item:not(.dragging)')];
+        return els.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset){
+                return { offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
     // ---- Timer ----
@@ -327,28 +329,19 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
     }, 1000);
 
     // ---- Events ----
-    document.querySelectorAll('.q-option input').forEach(r => {
-        r.addEventListener('change', updateProgressBar);
-    });
-
     $btnHint.addEventListener('click', () => {
         if (submitted) return;
         hintsUsed++;
         $hintCount.textContent = hintsUsed;
-        const hint = hints[Math.floor(Math.random() * hints.length)] || 'Think about the lesson examples.';
+        const hint = hints[Math.floor(Math.random() * hints.length)] || 'Think about the typical loop order.';
         toast('Hint: ' + hint, 'ok');
     });
 
     $btnReset.addEventListener('click', () => {
         if (submitted) return;
-        if (confirm('Reset your selections?')){
-            document.querySelectorAll('.q-option input:checked').forEach(i => i.checked = false);
-            document.querySelectorAll('.q-card').forEach(c => {
-                c.classList.remove('correct','incorrect','show-explain');
-                const ex = c.querySelector('.q-explain'); if (ex) ex.textContent = '';
-            });
-            updateProgressBar();
-            toast('Cleared.', 'ok');
+        if (confirm('Reset the list to the initial shuffled order?')){
+            // Reload page (simplest & safest to preserve initial shuffle)
+            location.reload();
         }
     });
 
@@ -365,53 +358,34 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
         $btnReset.disabled = true;
         clearInterval(t);
 
-        const answers = [];
+        const current = getCurrentOrder();
+
+        // Score: percent of lines in the exact correct index.
         let correct = 0;
-        const cards = Array.from(document.querySelectorAll('.q-card'));
-
-        cards.forEach((card, i) => {
-            const chosen = card.querySelector('input[type=radio]:checked');
-            let val = -1;
-            let isCorrect = false;
-
-            if (chosen && Number.isFinite(parseInt(chosen.value))){
-                val = parseInt(chosen.value);
-                if (val === parseInt(answerKey[i])){
-                    isCorrect = true; correct++;
-                }
-            }
-            answers.push(val);
-
-            card.classList.add(isCorrect ? 'correct' : 'incorrect');
-            const ex = card.querySelector('.q-explain');
-            if (ex){
-                ex.textContent = explanations[i] || (isCorrect ? 'Correct.' : 'Check the lesson again.');
-                card.classList.add('show-explain');
-            }
-        });
-
-        const rawPct = cards.length ? Math.round((correct / cards.length) * 100) : 0;
-        const hintPenalty = hintsUsed * 5; // small nudge for using hints
+        for (let i=0;i<current.length;i++){
+            if (current[i] === (correctOrder[i] ?? null)) correct++;
+        }
+        const rawPct = current.length ? Math.round(100 * correct / current.length) : 0;
+        const hintPenalty = hintsUsed * 5;
         const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
 
-        // Update UI
+        // Update UI + stars
         $statScore.textContent = finalScore + '%';
-        const starCount = starsFor(finalScore);
-        $statStars.textContent = '★'.repeat(starCount) || '0';
-        if ($metaStars) $metaStars.textContent = '★'.repeat(starCount) || '0';
+        const stars = starsFor(finalScore);
+        $statStars.textContent = '★'.repeat(stars) || '0';
+        if ($metaStars) $metaStars.textContent = '★'.repeat(stars) || '0';
 
-        // Fill hidden fields and submit
-        document.getElementById('finalScore').value = finalScore;
-        document.getElementById('answersData').value = JSON.stringify(answers);
+        // Hidden fields
+        $scoreInp.value = finalScore;
+        $ansInp.value   = JSON.stringify(current);
 
-        const passReq = {{ (int)$level->pass_score }};
-        if (finalScore >= passReq){
+        if (finalScore >= passScore){
             toast(`Great job! Score ${finalScore}%`, 'ok');
         } else {
             toast(`Score ${finalScore}%. Keep practicing!`, 'err');
         }
 
-        // Submit after a small delay so students can see feedback
+        // Submit after a short delay so learners see feedback
         setTimeout(() => {
             if ($form.requestSubmit) $form.requestSubmit();
             else $form.submit();
@@ -425,6 +399,9 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
         if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
         if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
     });
+
+    // Init progress once
+    updateProgressBar();
 })();
 </script>
 </x-app-layout>

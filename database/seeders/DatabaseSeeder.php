@@ -17,7 +17,12 @@ class DatabaseSeeder extends Seeder
 
         $this->call(StageLevelSeeder::class);
         $this->call(Stage2VariablesSeeder::class);
-           $this->call(Stages3Seeder::class);
+           $this->call(Stages3Seeder::class);  
+           $this->call(Stage4DecisionsSeeder::class);  
+           $this->call(Stage5LoopsSeeder::class); 
+           $this->call(Stage6FunctionsSeeder::class);   
+           $this->call(Stage7CollectionsSeeder::class);  
+           $this->call(Stage8MiniProjectsSeeder::class); 
     }
     
 }

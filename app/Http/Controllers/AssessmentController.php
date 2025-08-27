@@ -33,7 +33,7 @@ class AssessmentController extends Controller
         return view('assessments.show', compact('assessment'));
     }
 
-   public function submit(Request $request, Assessment $assessment, ProgressUpdater $updater, StageGate $gate)
+  public function submit(Request $request, Assessment $assessment, ProgressUpdater $updater, StageGate $gate)
 {
     $assessment->load('stage');
     abort_unless($gate->isUnlocked($assessment->stage), 403, 'Stage is locked');
@@ -42,13 +42,11 @@ class AssessmentController extends Controller
         'answers' => 'required|array',
     ]);
 
-    // Normalize questions to array even if DB returns JSON
     $questions = $assessment->questions;
     if (!is_array($questions)) {
         $questions = json_decode($questions ?? '[]', true) ?: [];
     }
 
-    // Score it
     $correct = 0;
     foreach ($questions as $idx => $q) {
         $userAns = $data['answers'][$idx] ?? null;
@@ -58,12 +56,11 @@ class AssessmentController extends Controller
     }
     $score = count($questions) ? (int) floor(($correct / count($questions)) * 100) : 0;
 
-    // Save attempt
     $attempt = QuizAttempt::create([
         'user_id'     => Auth::id(),
         'stage_id'    => $assessment->stage_id,
         'level_id'    => null,
-        'kind'        => $assessment->type, // 'pre' or 'post'
+        'kind'        => $assessment->type,
         'score'       => $score,
         'passed'      => $score >= 50,
         'answers'     => $data['answers'],
@@ -73,16 +70,28 @@ class AssessmentController extends Controller
     // Update stage/level progress
     $updater->apply($attempt);
 
-    // ✅ ADD THIS: Redirect message for all assessments
-    $redirectMessage = "Assessment completed with {$score}% score. " . 
-                      ($attempt->passed ? "You passed! ✅" : "Try again! 🔄");
+    // 🔥 Ensure stage progress is marked as completed
+    $progress = UserStageProgress::firstOrCreate(
+        ['user_id' => Auth::id(), 'stage_id' => $assessment->stage_id],
+        ['unlocked_to_level' => 1, 'stars_per_level' => [], 'last_activity_at' => now()]
+    );
 
-    // Handle POST assessment (next stage unlock)
+    if ($assessment->type === 'pre') {
+        $progress->pre_completed_at = now();
+    } elseif ($assessment->type === 'post') {
+        $progress->post_completed_at = now();
+    }
+    $progress->last_activity_at = now();
+    $progress->save();
+
+  $redirectMessage = "🎉 You scored {$score}%. " .
+                   ($attempt->passed 
+                      ? "You passed ✅! You can now proceed to the next stage 🚀" 
+                      : "You need at least 50% to pass. Try again 🔄");
+
     if ($assessment->type === 'post' && $attempt->passed) {
         $nextStage = Stage::where('display_order', '>', $assessment->stage->display_order)
-            ->orderBy('display_order')
-            ->orderBy('id')
-            ->first();
+            ->orderBy('display_order')->orderBy('id')->first();
 
         if ($nextStage) {
             UserStageProgress::firstOrCreate(
@@ -98,8 +107,8 @@ class AssessmentController extends Controller
             ->with('status', "Post assessment passed ({$attempt->score}%). You've conquered the last stage!");
     }
 
-    // ✅ ADD THIS: Redirect for PRE assessments and failed POST assessments
     return to_route('stages.show', $assessment->stage_id)
         ->with('status', $redirectMessage);
 }
+
 }

@@ -82,10 +82,10 @@
 
     <style>
         :root {
-            --deep-purple: #1a0636;
+            --deep-purple: #45168786;
             --cosmic-purple: #4a1b6d;
             --space-blue: #162b6f;
-            --dark-space: #0a1028;
+            --dark-space: #7f19c39a;
             --neon-blue: #00b3ff;
             --neon-purple: #b967ff;
             --bright-pink: #ff2a6d;
@@ -309,7 +309,7 @@
         }
 
         .tooltip-custom {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(141, 31, 175, 0.8);
             color: white;
             padding: 8px 12px;
             border-radius: 6px;

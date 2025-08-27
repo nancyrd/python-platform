@@ -26,7 +26,7 @@
   }
 
   .nav-container{
-    background: rgba(255,255,255,.92);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--nav-primary-100);
     box-shadow: 0 2px 12px rgba(17,24,39,.06);

@@ -606,6 +606,25 @@
             .level-actions .btn {
                 width: 100%;
             }
+            .full-bleed-content {
+    width: 100vw;          /* take entire viewport width */
+    margin: 0;             /* no auto-centering */
+    padding: 24px;         /* internal padding for breathing space */
+    box-sizing: border-box;
+}
+
+/* Ensure rows stretch fully */
+.full-bleed-content .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.full-bleed-content .col,
+.full-bleed-content .col-md-6,
+.full-bleed-content .col-xl-4 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+}
         }
     </style>
 
@@ -622,7 +641,7 @@
                 <div class="floating-star" style="top: 15%; left: 85%;">⭐</div>
             </div>
 
-            <div class="container-xl px-3 px-md-4 py-3 py-md-4">
+            <div class="full-bleed-content">
 
                 @if(session('status'))
                     <div class="success-notification rounded-3 shadow-lg section-gap">
@@ -790,7 +809,7 @@
 
                     <div class="text-center">
                         @if($post)
-                            <a class="btn btn-final-boss" href="{{ route('assessments.show', $post) }}">
+                            <a class="btn btn-final-boss" href="{{ route('assessments.post1', $post) }}">
                                 <i class="fas fa-sword me-2"></i>
                                 Face Final Boss
                             </a>

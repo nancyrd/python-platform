@@ -195,7 +195,7 @@ class Stages3Seeder extends Seeder
         Level::updateOrCreate(
             ['stage_id' => $stage->id, 'index' => 3],
             [
-                'type'         => 'true/false',
+                'type'         => 'tf1',
                 'title'        => 'Safe or Not?',
                 'pass_score'   => 80,
                 'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes.",

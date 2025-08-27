@@ -106,68 +106,557 @@
         @keyframes arenaGlow{0%,100%{transform:rotate(0)}50%{transform:rotate(180deg)}}
         .challenge-title{text-align:center;font-size:2.5rem;font-weight:900;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:30px;position:relative;z-index:2}
         .challenge-description{text-align:center;font-size:1.2rem;color:rgba(255,255,255,.8);margin-bottom:24px;position:relative;z-index:2}
-        .match-pairs-container{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin:30px 0;position:relative;z-index:2}
-        .pairs-section{border-radius:20px;padding:30px;border:3px dashed var(--neon-purple);position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(40,10,70,.7) 0%,rgba(60,20,90,.7) 100%)}
-        .pairs-section::before{content:'🎯 DRAG FROM HERE';position:absolute;top:15px;right:20px;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));color:white;padding:8px 16px;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:1px}
-        .drop-section{border-radius:20px;padding:30px;border:3px dashed var(--neon-purple);position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(70,30,100,.7) 0%,rgba(90,40,120,.7) 100%)}
-        .drop-section::before{content:'🎯 DROP HERE';position:absolute;top:15px;right:20px;background:linear-gradient(45deg,var(--bright-pink),var(--neon-purple));color:white;padding:8px 16px;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:1px}
-        .section-title{text-align:center;font-size:1.5rem;font-weight:800;color:white;margin-bottom:25px}
-        .draggable-item{background:linear-gradient(135deg,rgba(30,10,60,.8) 0%,rgba(50,20,80,.8) 100%);border:3px solid var(--neon-blue);border-radius:15px;padding:20px;margin:15px 0;color:white;user-select:none;cursor:grab;transition:all .3s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 8px 25px rgba(0,179,255,.15);position:relative;overflow:hidden}
-        .draggable-item::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,179,255,.1),transparent);transition:left .5s ease}
-        .draggable-item:hover::before{left:100%}
-        .draggable-item:hover{transform:translateY(-8px) scale(1.02);box-shadow:0 15px 40px rgba(0,179,255,.25);border-color:var(--electric-blue)}
-        .draggable-item:active{cursor:grabbing;transform:scale(1.05);box-shadow:0 20px 50px rgba(0,179,255,.4);z-index:1000}
-        .draggable-item.dragging{transform:rotate(5deg) scale(1.1);opacity:.8;z-index:1000;box-shadow:0 25px 60px rgba(0,179,255,.5)}
-        .item-icon{font-size:2rem;margin-right:15px;vertical-align:middle}
-        .item-text{font-size:1.1rem;font-weight:600;vertical-align:middle}
-        .drop-zone{background:linear-gradient(135deg,rgba(30,10,60,.8) 0%,rgba(50,20,80,.8) 100%);border:3px dashed var(--neon-purple);border-radius:15px;padding:25px;margin:15px 0;min-height:100px;display:flex;flex-direction:column;transition:all .3s ease;position:relative;overflow:hidden}
-        .drop-zone-header{text-align:center;font-size:1.2rem;font-weight:800;color:var(--neon-purple);margin-bottom:15px;padding:8px 12px;background:rgba(0,0,0,0.3);border-radius:10px;text-shadow:0 0 10px rgba(185,103,255,0.7)}
-        .drop-zone-content{min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:10px;flex-grow:1}
-        .drop-zone-placeholder{color:rgba(255,255,255,.7);font-size:1.1rem;font-weight:600;text-align:center;opacity:.7;margin-top:auto;margin-bottom:auto}
-        .drop-zone.drag-over{background:linear-gradient(135deg,rgba(40,167,69,.3) 0%,rgba(56,239,125,.3) 100%);border-color:#28a745;border-style:solid;transform:scale(1.05);box-shadow:0 0 30px rgba(40,167,69,.4)}
-        .drop-zone.drag-over::before{content:'✨ DROP IT! ✨';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,.9);color:#28a745;padding:10px 20px;border-radius:25px;font-weight:800;font-size:1rem;letter-spacing:1px;animation:dropPulse .5s ease-in-out infinite alternate;z-index:10}
-        @keyframes dropPulse{0%{transform:translate(-50%,-50%) scale(1)}100%{transform:translate(-50%,-50%) scale(1.1)}}
-        .drop-zone.correct{background:linear-gradient(135deg,rgba(40,167,69,.3) 0%,rgba(56,239,125,.3) 100%);border-color:#28a745;border-style:solid;animation:correctDrop 1s ease}
-        @keyframes correctDrop{0%{transform:scale(1)}50%{transform:scale(1.1);box-shadow:0 0 50px rgba(40,167,69,.8)}100%{transform:scale(1)}}
-        .drop-zone.incorrect{background:linear-gradient(135deg,rgba(220,53,69,.3) 0%,rgba(255,106,0,.3) 100%);border-color:#dc3545;border-style:solid;animation:incorrectDrop .5s ease}
-        @keyframes incorrectDrop{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
-        .dropped-item{background:linear-gradient(135deg,rgba(40,167,69,.8) 0%,rgba(56,239,125,.8) 100%);border:3px solid #28a745;border-radius:15px;padding:20px;color:white;font-weight:600;box-shadow:0 8px 25px rgba(40,167,69,.3);animation:itemDrop .5s ease;position:relative;overflow:hidden;width:100%}
-        @keyframes itemDrop{0%{transform:scale(0) rotate(180deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
-        .sequences-section{border-radius:20px;padding:30px;border:3px dashed var(--neon-blue);margin:30px 0;position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(30,10,60,.7) 0%,rgba(50,20,80,.7) 100%)}
-        .sequences-section::before{content:'📋 ORDER THE STEPS';position:absolute;top:15px;right:20px;background:linear-gradient(45deg,var(--electric-blue),var(--neon-blue));color:white;padding:8px 16px;border-radius:20px;font-size:.8rem;font-weight:700;letter-spacing:1px}
-        .sequence-container{background:rgba(0,0,0,0.2);border-radius:15px;padding:20px;margin-bottom:20px}
-        .sequence-title{font-size:1.3rem;font-weight:800;color:var(--neon-blue);margin-bottom:15px;text-align:center}
-        .steps-container{display:flex;flex-direction:column;gap:10px;min-height:200px}
-        .step-item{background:linear-gradient(135deg,rgba(30,10,60,.8) 0%,rgba(50,20,80,.8) 100%);border:2px solid var(--neon-blue);border-radius:10px;padding:15px;display:flex;align-items:center;cursor:grab;transition:all .3s ease}
-        .step-item:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,179,255,.3)}
-        .step-item.dragging{opacity:0.5}
-        .step-content{display:flex;align-items:center;flex-grow:1}
-        .step-number{background:var(--neon-blue);color:white;width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;font-weight:bold}
-        .step-text{font-size:1rem;font-weight:600}
-        .step-handle{color:rgba(255,255,255,0.6);margin-left:10px}
-        .correct-sequence{border:2px solid #28a745;background:rgba(40,167,69,0.1)}
-        .incorrect-sequence{border:2px solid #dc3545;background:rgba(220,53,69,0.1)}
-        .controls-section{text-align:center;margin:40px 0;position:relative;z-index:2}
-        .btn-epic{background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));border:none;color:white;padding:18px 40px;border-radius:30px;font-size:1.2rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;transition:all .3s ease;box-shadow:0 8px 25px rgba(102,126,234,.3);position:relative;overflow:hidden;margin:0 10px}
-        .btn-epic:hover{transform:translateY(-5px) scale(1.05);box-shadow:0 15px 40px rgba(185,103,255,.5);color:white}
-        .btn-epic::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;background:rgba(255,255,255,.2);border-radius:50%;transition:all .6s ease;transform:translate(-50%,-50%)}
-        .btn-epic:hover::before{width:300px;height:300px}
-        .btn-reset{background:linear-gradient(45deg,var(--bright-pink),#ff6a00);box-shadow:0 8px 25px rgba(238,9,121,.3)}
-        .btn-reset:hover{box-shadow:0 15px 40px rgba(238,9,121,.5)}
-        .btn-hint{background:linear-gradient(45deg,#f093fb,#f5576c);box-shadow:0 8px 25px rgba(240,147,251,.3)}
-        .btn-hint:hover{box-shadow:0 15px 40px rgba(240,147,251,.5)}
-        .feedback-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;pointer-events:none}
-        .feedback-message{background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));color:white;padding:20px 40px;border-radius:25px;font-size:1.5rem;font-weight:800;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);animation:feedbackPop 2s ease;position:relative;overflow:hidden}
-        .feedback-message.error{background:linear-gradient(45deg,var(--bright-pink),#ff6a00)}
-        @keyframes feedbackPop{0%{transform:scale(0) rotate(180deg);opacity:0}20%{transform:scale(1.2) rotate(0);opacity:1}80%{transform:scale(1)}100%{transform:scale(0);opacity:0}}
-        .progress-bar-container{background:rgba(0,0,0,.1);height:12px;border-radius:10px;overflow:hidden;margin:20px 0;position:relative;z-index:2}
-        .progress-bar{height:100%;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));border-radius:10px;transition:width .8s cubic-bezier(.25,.46,.45,.94);position:relative;overflow:hidden}
-        .progress-bar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:progressShine 2s ease-in-out infinite}
-        @keyframes progressShine{0%{left:-100%}100%{left:100%}}
-        .completion-celebration{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
-        .confetti{position:absolute;width:10px;height:10px;background:var(--neon-purple);animation:confettiFall 3s linear infinite}
-        @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-        @media (max-width: 768px){.match-pairs-container{grid-template-columns:1fr;gap:30px}.level-stats{flex-direction:column;gap:10px}.stat-item{padding:10px;min-width:60px}.challenge-title{font-size:2rem}}
+        
+        /* NEW LAYOUT STYLES */
+        .game-layout-container {
+            display: flex;
+            gap: 30px;
+            margin: 30px 0;
+            position: relative;
+            z-index: 2;
+            flex-direction: column;
+        }
+        
+        .match-pairs-container {
+            display: flex;
+            gap: 30px;
+            min-height: 400px;
+        }
+        
+        .pairs-section, .drop-section {
+            flex: 1;
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px dashed var(--neon-purple);
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(40,10,70,.7) 0%, rgba(60,20,90,.7) 100%);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pairs-section::before {
+            content: '🎯 DRAG FROM HERE';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .drop-section::before {
+            content: '🎯 DROP HERE';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--bright-pink), var(--neon-purple));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 25px;
+        }
+        
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
+        .draggable-item {
+            background: linear-gradient(135deg, rgba(30,10,60,.8) 0%, rgba(50,20,80,.8) 100%);
+            border: 3px solid var(--neon-blue);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            user-select: none;
+            cursor: grab;
+            transition: all .3s cubic-bezier(.175,.885,.32,1.275);
+            box-shadow: 0 8px 25px rgba(0,179,255,.15);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100px;
+        }
+        
+        .draggable-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0,179,255,.1), transparent);
+            transition: left .5s ease;
+        }
+        
+        .draggable-item:hover::before {
+            left: 100%;
+        }
+        
+        .draggable-item:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,179,255,.25);
+            border-color: var(--electric-blue);
+        }
+        
+        .draggable-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+            box-shadow: 0 20px 50px rgba(0,179,255,.4);
+            z-index: 1000;
+        }
+        
+        .draggable-item.dragging {
+            transform: rotate(5deg) scale(1.1);
+            opacity: .8;
+            z-index: 1000;
+            box-shadow: 0 25px 60px rgba(0,179,255,.5);
+        }
+        
+        .item-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        
+        .item-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            vertical-align: middle;
+        }
+        
+        .drop-zone {
+            background: linear-gradient(135deg, rgba(30,10,60,.8) 0%, rgba(50,20,80,.8) 100%);
+            border: 3px dashed var(--neon-purple);
+            border-radius: 15px;
+            padding: 25px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            transition: all .3s ease;
+            position: relative;
+            overflow: hidden;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .drop-zone-header {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--neon-purple);
+            margin-bottom: 15px;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            text-shadow: 0 0 10px rgba(185,103,255,0.7);
+        }
+        
+        .drop-zone-content {
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-grow: 1;
+            width: 100%;
+        }
+        
+        .drop-zone-placeholder {
+            color: rgba(255,255,255,.7);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: center;
+            opacity: .7;
+        }
+        
+        .drop-zone.drag-over {
+            background: linear-gradient(135deg, rgba(40,167,69,.3) 0%, rgba(56,239,125,.3) 100%);
+            border-color: #28a745;
+            border-style: solid;
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(40,167,69,.4);
+        }
+        
+        .drop-zone.drag-over::before {
+            content: '✨ DROP IT! ✨';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,.9);
+            color: #28a745;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            animation: dropPulse .5s ease-in-out infinite alternate;
+            z-index: 10;
+        }
+        
+        @keyframes dropPulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .drop-zone.correct {
+            background: linear-gradient(135deg, rgba(40,167,69,.3) 0%, rgba(56,239,125,.3) 100%);
+            border-color: #28a745;
+            border-style: solid;
+            animation: correctDrop 1s ease;
+        }
+        
+        @keyframes correctDrop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); box-shadow: 0 0 50px rgba(40,167,69,.8); }
+            100% { transform: scale(1); }
+        }
+        
+        .drop-zone.incorrect {
+            background: linear-gradient(135deg, rgba(220,53,69,.3) 0%, rgba(255,106,0,.3) 100%);
+            border-color: #dc3545;
+            border-style: solid;
+            animation: incorrectDrop .5s ease;
+        }
+        
+        @keyframes incorrectDrop {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .dropped-item {
+            background: linear-gradient(135deg, rgba(40,167,69,.8) 0%, rgba(56,239,125,.8) 100%);
+            border: 3px solid #28a745;
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 8px 25px rgba(40,167,69,.3);
+            animation: itemDrop .5s ease;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        @keyframes itemDrop {
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        
+        .sequences-section {
+            border-radius: 20px;
+            padding: 30px;
+            border: 3px dashed var(--neon-blue);
+            margin: 30px 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(30,10,60,.7) 0%, rgba(50,20,80,.7) 100%);
+        }
+        
+        .sequences-section::before {
+            content: '📋 ORDER THE STEPS';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: linear-gradient(45deg, var(--electric-blue), var(--neon-blue));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: .8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .sequence-container {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .sequence-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--neon-blue);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .steps-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 200px;
+        }
+        
+        .step-item {
+            background: linear-gradient(135deg, rgba(30,10,60,.8) 0%, rgba(50,20,80,.8) 100%);
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            cursor: grab;
+            transition: all .3s ease;
+        }
+        
+        .step-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,179,255,.3);
+        }
+        
+        .step-item.dragging {
+            opacity: 0.5;
+        }
+        
+        .step-content {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        
+        .step-number {
+            background: var(--neon-blue);
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .step-text {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .step-handle {
+            color: rgba(255,255,255,0.6);
+            margin-left: 10px;
+        }
+        
+        .correct-sequence {
+            border: 2px solid #28a745;
+            background: rgba(40,167,69,0.1);
+        }
+        
+        .incorrect-sequence {
+            border: 2px solid #dc3545;
+            background: rgba(220,53,69,0.1);
+        }
+        
+        .controls-section {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .btn-epic {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border: none;
+            color: white;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all .3s ease;
+            box-shadow: 0 8px 25px rgba(102,126,234,.3);
+            position: relative;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+        
+        .btn-epic:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(185,103,255,.5);
+            color: white;
+        }
+        
+        .btn-epic::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,.2);
+            border-radius: 50%;
+            transition: all .6s ease;
+            transform: translate(-50%, -50%);
+        }
+        
+        .btn-epic:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-reset {
+            background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
+            box-shadow: 0 8px 25px rgba(238,9,121,.3);
+        }
+        
+        .btn-reset:hover {
+            box-shadow: 0 15px 40px rgba(238,9,121,.5);
+        }
+        
+        .btn-hint {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            box-shadow: 0 8px 25px rgba(240,147,251,.3);
+        }
+        
+        .btn-hint:hover {
+            box-shadow: 0 15px 40px rgba(240,147,251,.5);
+        }
+        
+        .feedback-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        .feedback-message {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            color: white;
+            padding: 20px 40px;
+            border-radius: 25px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,.3);
+            animation: feedbackPop 2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feedback-message.error {
+            background: linear-gradient(45deg, var(--bright-pink), #ff6a00);
+        }
+        
+        @keyframes feedbackPop {
+            0% { transform: scale(0) rotate(180deg); opacity: 0; }
+            20% { transform: scale(1.2) rotate(0); opacity: 1; }
+            80% { transform: scale(1); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .progress-bar-container {
+            background: rgba(0,0,0,.1);
+            height: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 10px;
+            transition: width .8s cubic-bezier(.25,.46,.45,.94);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.4), transparent);
+            animation: progressShine 2s ease-in-out infinite;
+        }
+        
+        @keyframes progressShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .completion-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--neon-purple);
+            animation: confettiFall 3s linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% { transform: translateY(-100vh) rotate(0); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            .match-pairs-container {
+                flex-direction: column;
+            }
+            
+            .level-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .stat-item {
+                padding: 10px;
+                min-width: 60px;
+            }
+            
+            .challenge-title {
+                font-size: 2rem;
+            }
+            
+            .items-container {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
     <div class="game-arena">
         <!-- Challenge Header -->
@@ -182,26 +671,32 @@
         <div class="progress-bar-container">
             <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
         </div>
+        
         <!-- Main Game Area -->
-        <div class="match-pairs-container">
-            <!-- Left Items Section -->
-            <div class="pairs-section">
-                <h3 class="section-title">🔍 Values</h3>
-                <div id="leftItemsContainer" class="items-container"></div>
+        <div class="game-layout-container">
+            <div class="match-pairs-container">
+                <!-- Left Items Section -->
+                <div class="pairs-section">
+                    <h3 class="section-title">🔍 Values</h3>
+                    <div id="leftItemsContainer" class="items-container"></div>
+                </div>
+                
+                <!-- Right Items Section -->
+                <div class="drop-section">
+                    <h3 class="section-title">🎯 Conversions</h3>
+                    <div id="rightItemsContainer" class="items-container"></div>
+                </div>
             </div>
-            <!-- Right Items Section -->
-            <div class="drop-section">
-                <h3 class="section-title">🎯 Conversions</h3>
-                <div id="rightItemsContainer" class="items-container"></div>
-            </div>
+            
+            <!-- Sequences Section -->
+            @if(!empty($sequences))
+                <div class="sequences-section">
+                    <h3 class="section-title">📋 Order the Steps</h3>
+                    <div id="sequencesContainer"></div>
+                </div>
+            @endif
         </div>
-        <!-- Sequences Section -->
-        @if(!empty($sequences))
-            <div class="sequences-section">
-                <h3 class="section-title">📋 Order the Steps</h3>
-                <div id="sequencesContainer"></div>
-            </div>
-        @endif
+        
         <!-- Game Controls -->
         <div class="controls-section">
             <button class="btn-epic" onclick="checkAnswers()">
@@ -217,15 +712,18 @@
                 Reset
             </button>
         </div>
+        
         <!-- Score Submission -->
         <form method="POST" action="{{ route('levels.submit',$level) }}" id="scoreForm" style="display:none;">
             @csrf
             <input type="hidden" name="score" id="finalScore" value="0">
         </form>
     </div>
+    
     <!-- Feedback + Celebration -->
     <div class="feedback-container" id="feedbackContainer"></div>
     <div class="completion-celebration" id="celebrationContainer"></div>
+    
     <!-- JS Game Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -264,6 +762,7 @@
                 this.timer = null;
                 this.init();
             }
+            
             init() {
                 this.generateGameElements();
                 this.setupEventListeners();
@@ -271,12 +770,14 @@
                 this.updateUI();
                 this.showFeedback("🎮 Quest Begins! 🎮", "success", 1500);
             }
+            
             generateGameElements() {
                 this.generatePairsGame();
                 if (this.sequences.length > 0) {
                     this.generateSequencesGame();
                 }
             }
+            
             generatePairsGame() {
                 const leftContainer = document.getElementById('leftItemsContainer');
                 const rightContainer = document.getElementById('rightItemsContainer');
@@ -297,6 +798,7 @@
                     rightContainer.appendChild(el);
                 });
             }
+            
             generateSequencesGame() {
                 const container = document.getElementById('sequencesContainer');
                 container.innerHTML = '';
@@ -328,6 +830,7 @@
                 // Add sortable functionality
                 this.setupSortableSequences();
             }
+            
             createLeftItem(item, index) {
                 const div = document.createElement('div');
                 div.className = 'draggable-item';
@@ -345,6 +848,7 @@
                 
                 return div;
             }
+            
             createRightItem(item, index) {
                 const div = document.createElement('div');
                 div.className = 'drop-zone';
@@ -368,6 +872,7 @@
                 
                 return div;
             }
+            
             createStepElement(step, index, sequenceIndex) {
                 const div = document.createElement('div');
                 div.className = 'step-item';
@@ -388,6 +893,7 @@
                 
                 return div;
             }
+            
             setupEventListeners() {
                 // Drag and drop for pairs
                 document.addEventListener('dragstart', this.handleDragStart.bind(this));
@@ -407,6 +913,7 @@
                 // Touch support
                 this.setupTouchEvents();
             }
+            
             handleDragStart(e) {
                 if (!e.target.classList.contains('draggable-item')) return;
                 e.target.classList.add('dragging');
@@ -416,19 +923,23 @@
                     this.showFeedback("🚀 Go!", "success", 800); 
                 }
             }
+            
             handleDragEnter(e) {
                 const dz = e.target.classList.contains('drop-zone') ? e.target : e.target.closest('.drop-zone');
                 if (!dz) return;
                 dz.classList.add('drag-over');
             }
+            
             handleDragLeave(e) {
                 const dz = e.target.classList.contains('drop-zone') ? e.target : e.target.closest('.drop-zone');
                 if (!dz) return;
                 dz.classList.remove('drag-over');
             }
+            
             handleDragEnd(e) { 
                 e.target.classList.remove('dragging'); 
             }
+            
             handleDrop(e) {
                 e.preventDefault();
                 const dz = e.target.classList.contains('drop-zone') ? e.target : e.target.closest('.drop-zone');
@@ -464,6 +975,7 @@
                     setTimeout(() => this.checkAnswers(), 600);
                 }
             }
+            
             setupSortableSequences() {
                 document.querySelectorAll('.steps-container').forEach(container => {
                     let draggedItem = null;
@@ -490,6 +1002,7 @@
                     });
                 });
             }
+            
             getDragAfterElement(container, y) {
                 const draggableElements = [...container.querySelectorAll('.step-item:not(.dragging)')];
                 
@@ -504,6 +1017,7 @@
                     }
                 }, { offset: Number.NEGATIVE_INFINITY }).element;
             }
+            
             removeDroppedItem(btn) {
                 const item = btn.closest('.dropped-item');
                 const zone = item.closest('.drop-zone');
@@ -521,12 +1035,14 @@
                 this.updateProgress();
                 this.showFeedback("🔄 Returned!", "info", 900);
             }
+            
             updateProgress() {
                 const total = this.totalPairs;
                 const placed = document.querySelectorAll('.dropped-item').length;
                 const pct = total ? Math.round((placed/total)*100) : 0;
                 document.getElementById('progressBar').style.width = pct+'%';
             }
+            
             checkAnswers() {
                 if (this.gameCompleted) return;
                 
@@ -599,6 +1115,7 @@
                 this.gameCompleted = true;
                 clearInterval(this.timer);
             }
+            
             completeGame(success=true){
                 this.gameCompleted = true;
                 clearInterval(this.timer);
@@ -607,6 +1124,7 @@
                     document.getElementById('scoreForm').submit();
                 }, 2400);
             }
+            
             startCelebration(){
                 const c = document.getElementById('celebrationContainer');
                 for(let i=0;i<100;i++){
@@ -621,6 +1139,7 @@
                     }, i*25);
                 }
             }
+            
             showHint(){
                 if (this.hintsUsed >= this.maxHints) { 
                     this.showFeedback('🔮 No more hints!', 'error', 1200); 
@@ -631,9 +1150,11 @@
                 const msg = hints.length ? hints[Math.floor(Math.random()*hints.length)] : 'Try matching carefully.';
                 this.showFeedback('💡 Hint: ' + msg, 'info', 2200);
             }
+            
             resetGame(){ 
                 if (confirm('Reset this level?')) location.reload(); 
             }
+            
             startTimer(){
                 this.timer = setInterval(()=>{
                     this.timeRemaining--;
@@ -645,6 +1166,7 @@
                     }
                 },1000);
             }
+            
             updateUI(){
                 document.getElementById('currentScore').textContent = this.score;
                 document.getElementById('starsEarned').textContent = this.getStars();
@@ -653,12 +1175,14 @@
                 document.getElementById('timeRemaining').textContent =
                     String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
             }
+            
             getStars(){
                 if (this.score >= 90) return '⭐⭐⭐';
                 if (this.score >= 70) return '⭐⭐';
                 if (this.score >= 50) return '⭐';
                 return '0';
             }
+            
             shuffleArray(a){
                 const x = [...a];
                 for (let i=x.length-1;i>0;i--){
@@ -667,6 +1191,7 @@
                 }
                 return x;
             }
+            
             showFeedback(msg, type="success", dur=2000){
                 const box = document.createElement('div');
                 box.className = `feedback-message ${type}`;
@@ -674,6 +1199,7 @@
                 document.getElementById('feedbackContainer').appendChild(box);
                 setTimeout(()=>box.remove(), dur);
             }
+            
             setupTouchEvents() {
                 let touchItem = null, touchOffset = {x:0,y:0};
                 
@@ -745,13 +1271,16 @@
                 });
             }
         }
+        
         // Helpers for buttons
         function checkAnswers(){ game.checkAnswers(); }
         function showHint(){ game.showHint(); }
         function resetGame(){ game.resetGame(); }
+        
         // Boot
         let game;
         document.addEventListener('DOMContentLoaded', ()=> { game = new MatchPairsGame(); });
+        
         // Dynamic keyframes used by effects
         const dyn = document.createElement('style');
         dyn.textContent = `
@@ -760,6 +1289,7 @@
         `;
         document.head.appendChild(dyn);
     </script>
+    
     <!-- Icons & Bootstrap -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">

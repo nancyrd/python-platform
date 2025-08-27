@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(StageLevelSeeder::class);
         $this->call(Stage2VariablesSeeder::class);
+           $this->call(Stages3Seeder::class);
     }
     
 }

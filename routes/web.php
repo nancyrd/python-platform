@@ -7,6 +7,10 @@ use App\Http\Controllers\StageController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\SupportController;
+use App\Http\Controllers\Admin\AdminStageController;
+use App\Http\Controllers\Admin\AdminLevelController;
+use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\AdminAssessmentController;
 use App\Models\Assessment;
 
 Route::get('/', function () {
@@ -75,4 +79,33 @@ Route::get('/debug-level/{level}', function(Level $level) {
     ];
 });
 Route::view('/contact', 'contact')->name('contact');
+
+
+
+
+
+// ---------------------
+// ADMIN ROUTES
+// ---------------------
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+
+    // Stage management
+    Route::resource('stages', AdminStageController::class);
+    Route::post('stages/reorder', [AdminStageController::class, 'reorder'])->name('stages.reorder');
+
+    // Level management
+    Route::resource('levels', AdminLevelController::class);
+    Route::post('levels/{stage}/reorder', [AdminLevelController::class, 'reorder'])->name('levels.reorder');
+
+    // Assessment management
+    Route::resource('assessments', AdminAssessmentController::class);
+
+
+     Route::resource('stages.levels', \App\Http\Controllers\Admin\AdminLevelController::class);
+    Route::post('stages/{stage}/levels/reorder', [\App\Http\Controllers\Admin\AdminLevelController::class, 'reorder'])->name('levels.reorder');
+});
+
 require __DIR__.'/auth.php';

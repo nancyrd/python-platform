@@ -23,6 +23,6 @@ class DatabaseSeeder extends Seeder
            $this->call(Stage6FunctionsSeeder::class);   
            $this->call(Stage7CollectionsSeeder::class);  
            $this->call(Stage8MiniProjectsSeeder::class); 
-    }
+       $this->call(AdminSeeder::class); }
     
 }

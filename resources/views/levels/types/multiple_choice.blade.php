@@ -69,6 +69,7 @@
     </div>
 </x-slot>
 
+
 <style>
 :root{
   --bg-1:#0a1028;
@@ -179,22 +180,15 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
         <div style="height:12px;"></div>
     @endif
 
-    <div class="lesson">
-        <h3>Lesson</h3>
-        <div style="white-space:pre-wrap; line-height:1.4;">{!! nl2br(e($level->instructions)) !!}</div>
-        @if(stripos($level->instructions, 'python') !== false)
-            <!-- Simple code block detection already covered by instructions text -->
-        @endif
-    </div>
 
-    <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
 
     <div class="lesson" style="margin-top:12px;">
         <h3>How to answer</h3>
-        <div style="white-space:pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
-        @if($introText)
-            <pre class="mt-2" style="white-space:pre-wrap;">{!! e($introText) !!}</pre>
-        @endif
+        <div style="white-space:pre-wrap;">{!! nl2br($uiInstrux) !!}</div>
+@if($introText)
+    <div class="intro-text mt-2" style="white-space:pre-wrap;">{!! $introText !!}</div>
+@endif
+
     </div>
 
     <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>

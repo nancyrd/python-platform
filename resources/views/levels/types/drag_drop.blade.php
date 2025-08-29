@@ -43,28 +43,48 @@
 
 <x-slot name="header">
     <div class="dd-header">
-        <div class="container-fluid">
-            <div class="row align-items-center g-3">
-                <div class="col-auto">
-                    <div class="lvl-badge"><span class="lvl-number">{{ $level->index }}</span></div>
+        <div class="hdr">
+            <!-- Left: badge + meta -->
+            <div class="hdr-left">
+                <div class="lvl-badge">
+                    <span class="lvl-number">{{ $level->index }}</span>
                 </div>
-                <div class="col">
-                    <div class="lvl-meta">
-                        <div class="lvl-stage">{{ $level->stage->title }}</div>
-                        <h2 class="lvl-title">{{ $level->title }}</h2>
+
+                <div class="hdr-meta">
+                    <div class="trail">
+                        <span class="trail-item">Stage <strong>{{ $level->stage->index ?? $level->stage_id }}</strong></span>
+                        <span class="dot">•</span>
+                        <span class="trail-item">Level <strong>{{ $level->index }}</strong></span>
+                        <span class="dot">•</span>
+                        <span class="trail-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
                     </div>
+
+                    <h1 class="hdr-title">{{ $level->stage->title }}</h1>
+                    <div class="hdr-sub">{{ $level->title }}</div>
                 </div>
-                <div class="col-auto">
-                    <div class="lvl-stats">
-                        <div class="stat"><div class="stat-label">Score</div><div class="stat-value" id="statScore">0%</div></div>
-                        <div class="stat"><div class="stat-label">Stars</div><div class="stat-value" id="statStars">0</div></div>
-                        <div class="stat"><div class="stat-label">Time</div><div class="stat-value" id="timeRemaining">--:--</div></div>
+            </div>
+
+            <!-- Right: compact stats -->
+            <div class="hdr-right">
+                <div class="lvl-stats">
+                    <div class="stat">
+                        <div class="stat-label">Score</div>
+                        <div class="stat-value" id="statScore">0%</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Stars</div>
+                        <div class="stat-value" id="statStars">0</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeRemaining">--:--</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </x-slot>
+
 
 <style>
 :root{
@@ -84,15 +104,94 @@ body{
 }
 
 /* Header */
-.dd-header{ background: rgba(10,16,40,.85); border-bottom:1px solid var(--border); padding:16px 0; }
-.lvl-badge{ width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-2),var(--accent-1)); display:flex;align-items:center;justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-.lvl-number{ font-weight:900;font-size:1.35rem;color:#0f0f1a; }
-.lvl-meta .lvl-stage{ font-size:.85rem;color:var(--muted); letter-spacing:.02em; }
-.lvl-meta .lvl-title{ margin:0;color:#fff;font-weight:800;letter-spacing:.2px; }
-.lvl-stats{ display:flex;gap:18px; }
-.stat{ min-width:90px;background:rgba(255,255,255,.06);border:1px solid var(--border);padding:10px 14px;border-radius:12px;text-align:center; }
-.stat-label{ font-size:.75rem;color:var(--muted); }
-.stat-value{ font-size:1.05rem;font-weight:800;color:#fff; }
+.dd-header{
+  background: rgba(10,16,40,.85);
+  border-bottom:1px solid var(--border);
+  padding:16px 0;
+}
+
+/* unified inner width so header/body/footer align */
+.hdr{
+  max-width:1160px;
+  margin:0 auto;
+  padding:0 16px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+/* left side = badge + meta stacked nicely */
+.hdr-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  min-width:0; /* allow text ellipsis */
+}
+
+.lvl-badge{
+  width:64px; height:64px; border-radius:16px;
+  background:linear-gradient(135deg,var(--accent-2),var(--accent-1));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  flex:0 0 auto;
+}
+.lvl-number{ font-weight:900; font-size:1.35rem; color:#0f0f1a; }
+
+.hdr-meta{ display:flex; flex-direction:column; gap:6px; min-width:0; }
+.trail{
+  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
+  font-size:.85rem; color:var(--muted);
+}
+.trail-item strong{ color:#fff; }
+.trail .type{ text-transform:capitalize; }
+.trail .dot{ opacity:.6; }
+
+.hdr-title{
+  margin:0; color:#fff; font-weight:900; letter-spacing:.2px;
+  font-size:1.25rem; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.hdr-sub{
+  color:var(--muted); font-size:.95rem; line-height:1.2;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* right stats */
+.hdr-right{ flex:0 0 auto; }
+.lvl-stats{ display:flex; gap:12px; }
+.stat{
+  min-width:84px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+  padding:8px 12px;
+  border-radius:12px;
+  text-align:center;
+}
+.stat-label{ font-size:.72rem; color:var(--muted); }
+.stat-value{ font-size:1rem; font-weight:800; color:#fff; }
+
+/* responsive */
+@media (max-width: 992px){
+  .hdr{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+  .hdr-right{ order:3; }
+  .lvl-stats{ justify-content:flex-start; }
+  .hdr-left{ order:1; }
+}
+
+@media (max-width: 640px){
+  .lvl-badge{ width:56px; height:56px; border-radius:14px; }
+  .hdr-title{ font-size:1.1rem; }
+  .hdr-sub{ font-size:.9rem; }
+  .lvl-stats{ gap:8px; }
+  .stat{ min-width:72px; padding:8px 10px; }
+}
+
 
 /* Layout */
 .wrap{ max-width:1160px; margin:22px auto; padding:0 16px; }
@@ -178,15 +277,7 @@ body{
         <div style="height:12px;"></div>
     @endif
 
-    <div class="card">
-        <h3>Lesson</h3>
-        <div style="white-space:pre-wrap; line-height:1.45;">{!! nl2br(e($level->instructions)) !!}</div>
-        @if($introText)
-            <pre class="mt-2" style="white-space:pre-wrap;">{!! e($introText) !!}</pre>
-        @endif
-    </div>
-
-    <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+   
 
     <div class="card">
         <h3>How to answer</h3>
@@ -204,7 +295,7 @@ body{
             <div class="source">
                 <div class="source-head">
                     <div class="source-title">Items to place</div>
-                    <div class="muted" style="color:var(--muted)">Drag each chip into its correct category below.</div>
+
                 </div>
                 <div class="chips" id="chipsBucket">
                     @foreach($allItems as $txt)

@@ -26,7 +26,7 @@ Level::updateOrCreate(
         'type'         => 'drag_drop',
         'title'        => 'What is Python? (Drag & Drop)',
         'pass_score'   => 50,
-        'instructions' => 'Programming means giving step-by-step instructions to a computer. Python is a beginner-friendly language used for calculations, data, websites, and AI.',
+        'instructions' => 'Programming means giving step-by-step instructions to a computer. Python is a beginner-friendly language used for calculations, data, websites, and AI.👇 Try these examples: copy each code into the console and press “Run” to see what happens.',
         'content'      => [
             'categories' => [
                 "💻 Programming" => [
@@ -60,6 +60,33 @@ Level::updateOrCreate(
             ],
             'time_limit' => 300,
             'max_hints'  => 4
+        ,
+        'examples' => [
+                [
+                    'title' => '1) Print a message',
+                    'code'  => 'print("Hello, Python!")',
+                    'explain' => 'The print() function displays text on the screen.',
+                    'expected_output' => "Hello, Python!"
+                ],
+                [
+                    'title' => '2) Math in Python',
+                    'code'  => "result = (3 + 5) * 2\nprint(result)",
+                    'explain' => 'Python can do arithmetic like a calculator.',
+                    'expected_output' => "16"
+                ],
+                [
+                    'title' => '3) Variables',
+                    'code'  => "name = 'Sara'\nage = 20\nprint(name, 'is', age, 'years old')",
+                    'explain' => 'Variables store data you can reuse.',
+                    'expected_output' => "Sara is 20 years old"
+                ],
+                [
+                    'title' => '4) Simple if',
+                    'code'  => "x = 7\nif x > 5:\n    print('x is big')\nelse:\n    print('x is small')",
+                    'explain' => 'if/else lets your program make decisions.',
+                    'expected_output' => "x is big"
+                ],
+            ],
         ],
     ]
 );
@@ -70,7 +97,7 @@ Level::updateOrCreate(
     [
         'type'         => 'multiple_choice',
         'title'        => 'Python Basics: print & simple math',
-'instructions' => 'In Python, the command print() shows text or numbers on the screen. 
+        'instructions' => 'In Python, the command print() shows text or numbers on the screen. 
 Put text inside quotes: print("Hello").
 
 You can also use math symbols inside print():
@@ -81,7 +108,6 @@ You can also use math symbols inside print():
 • / (slash) → divides numbers. Example: print(6 / 2) → 3.0  
 
 Tip: You can also use + to join text together. Example: print("Hi " + "there") → Hi there',
-
 
         'pass_score'   => 50,
         'content'      => [
@@ -143,7 +169,53 @@ Tip: You can also use + to join text together. Example: print("Hi " + "there") �
                 'print() shows things on the screen.'
             ],
             'time_limit'  => 180,
-            'max_hints'   => 4
+            'max_hints'   => 4,
+
+            // 👇 NEW: Examples (match Level 2 concept)
+            'examples' => [
+                [
+                    'title' => '1) Print a word',
+                    'code'  => 'print("Hello")',
+                    'explain' => 'Text goes in quotes.',
+                    'expected_output' => "Hello",
+                ],
+                [
+                    'title' => '2) Add numbers',
+                    'code'  => 'print(2 + 3)',
+                    'explain' => 'Use + for addition.',
+                    'expected_output' => "5",
+                ],
+                [
+                    'title' => '3) Subtract numbers',
+                    'code'  => 'print(5 - 2)',
+                    'explain' => 'Use - for subtraction.',
+                    'expected_output' => "3",
+                ],
+                [
+                    'title' => '4) Multiply numbers',
+                    'code'  => 'print(4 * 2)',
+                    'explain' => 'Use * for multiplication.',
+                    'expected_output' => "8",
+                ],
+                [
+                    'title' => '5) Divide numbers',
+                    'code'  => 'print(6 / 2)',
+                    'explain' => 'Division returns a decimal (float).',
+                    'expected_output' => "3.0",
+                ],
+                [
+                    'title' => '6) Join text',
+                    'code'  => 'print("Hi " + "there")',
+                    'explain' => 'Use + to join two strings.',
+                    'expected_output' => "Hi there",
+                ],
+                [
+                    'title' => '7) Mix label + math (with comma)',
+                    'code'  => 'print("Total:", 4 + 6)',
+                    'explain' => 'Comma prints items separated by a space.',
+                    'expected_output' => "Total: 10",
+                ],
+            ],
         ],
     ]
 );
@@ -177,46 +249,21 @@ print(2 + "3")
         'content'      => [
             'intro' => "Decide True or False: does the code really print the statement given, or not?",
             'questions' => [
-                // start with very simple confidence builders
                 ['code' => 'print("Hello")',                  'statement' => 'This prints Hello',        'answer' => true,  'explanation' => 'Strings in quotes print directly.'],
                 ['code' => 'print(10)',                       'statement' => 'This prints 10',           'answer' => true,  'explanation' => 'Numbers can print without quotes.'],
-
-                // text + number crash
                 ['code' => 'print("Age: " + 5)',              'statement' => 'This prints Age: 5',      'answer' => false, 'explanation' => 'You cannot join text + number directly. Convert with str().'],
-
-                // fixed version with str()
                 ['code' => 'print("Age: " + str(5))',         'statement' => 'This prints Age: 5',      'answer' => true,  'explanation' => 'str(5) makes the number into text.'],
-
-                // comma version
                 ['code' => 'print("Age:", 5)',                'statement' => 'This prints Age: 5',      'answer' => true,  'explanation' => 'Comma prints items separated by a space.'],
-
-                // string + string join
                 ['code' => 'print("2" + "3")',                'statement' => 'This prints 23',          'answer' => true,  'explanation' => 'Text + text joins together.'],
-
-                // int + str crash
                 ['code' => 'print(2 + "3")',                  'statement' => 'This prints 5',           'answer' => false, 'explanation' => 'int + str causes TypeError.'],
-
-                // repeat string
                 ['code' => 'print("Ha" * 3)',                 'statement' => 'This prints HaHaHa',      'answer' => true,  'explanation' => 'String * number repeats the string.'],
-
-                // f-string demo
                 ['code' => 'print(f"Score: {10}")',           'statement' => 'This prints Score: 10',   'answer' => true,  'explanation' => 'f-strings insert values inside {}.'],
-
-                // variable example
                 ['code' => "age = 7\nprint('Age:', age)",     'statement' => 'This prints Age: 7',      'answer' => true,  'explanation' => 'Comma lets you print variables easily.'],
-
-                // variable + string concat
                 ['code' => "age = '7'\nprint('Age: ' + age)", 'statement' => 'This prints Age: 7',      'answer' => true,  'explanation' => 'Both parts are text, so + works.'],
-
-                // extra reinforcement real-life
                 ['code' => 'print("Price: $" + str(12))',     'statement' => 'This prints Price: $12',  'answer' => true,  'explanation' => 'Convert number with str() when joining.'],
                 ['code' => 'print("Price: $", 12)',           'statement' => 'This prints Price: $ 12', 'answer' => true,  'explanation' => 'Comma prints items with a space.'],
-
-                // tricky false
                 ['code' => 'print("Hi " + 3)',                'statement' => 'This prints Hi 3',        'answer' => false, 'explanation' => 'TypeError: must convert 3 to str().'],
                 ['code' => 'print("2" * "3")',                'statement' => 'This prints 222',         'answer' => false, 'explanation' => 'You cannot multiply two strings.'],
-
-                // more f-string practice
                 ['code' => 'print(f"2 + 3 = {2 + 3}")',       'statement' => 'This prints 2 + 3 = 5',   'answer' => true,  'explanation' => 'Expression is evaluated inside {}.'],
                 ['code' => 'print("Name:", "Alex")',          'statement' => 'This prints Name: Alex',  'answer' => true,  'explanation' => 'Comma prints both items separated by space.'],
                 ['code' => 'print("Name:" + " " + "Alex")',   'statement' => 'This prints Name: Alex',  'answer' => true,  'explanation' => 'Manual space inside quotes works too.']
@@ -228,10 +275,51 @@ print(2 + "3")
                 'f-strings are shortcuts: f"My age is {7}".'
             ],
             'time_limit' => 240,
-            'max_hints'  => 4
+            'max_hints'  => 4,
+
+            // 👇 NEW: Examples (match Level 3 concept)
+            'examples' => [
+                [
+                    'title' => '1) Comma mixing',
+                    'code'  => 'print("Age:", 7)',
+                    'explain' => 'Easiest way to mix text + number; a space is added.',
+                    'expected_output' => 'Age: 7',
+                ],
+                [
+                    'title' => '2) Concatenation with str()',
+                    'code'  => 'print("Age: " + str(7))',
+                    'explain' => 'Convert number to text before using +.',
+                    'expected_output' => 'Age: 7',
+                ],
+                [
+                    'title' => '3) f-string shortcut',
+                    'code'  => 'print(f"Score: {10}")',
+                    'explain' => 'Embed the value inside {}.',
+                    'expected_output' => 'Score: 10',
+                ],
+                [
+                    'title' => '4) String + string',
+                    'code'  => 'print("2" + "3")',
+                    'explain' => 'Joining two strings gives 23.',
+                    'expected_output' => '23',
+                ],
+                [
+                    'title' => '5) Repeat a string',
+                    'code'  => 'print("Ha" * 3)',
+                    'explain' => 'String * number repeats the text.',
+                    'expected_output' => 'HaHaHa',
+                ],
+                [
+                    'title' => '6) This one crashes (on purpose)',
+                    'code'  => 'print("Age: " + 7)',
+                    'explain' => 'TypeError: you cannot join text + number without str().',
+                    // no expected_output so your "Check" won’t try to match it
+                ],
+            ],
         ],
     ]
 );
+
 
 
 // PRE assessment (aligned to print & types at a gentle level)
@@ -295,7 +383,7 @@ Assessment::updateOrCreate(
             // 3) Comma mixing (space awareness)
             [
                 'prompt'  => 'Exact output of: print("Age:", 7)',
-                'options' => ['Age:7', 'Age: 7', '"Age:", 7', 'Error'],
+                'options' => ['Age:,7', 'Age: 7', '"Age:", 7', 'Error'],
                 'correct' => 'Age: 7',
             ],
             // 4) str() + concatenation

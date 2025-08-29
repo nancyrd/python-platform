@@ -5,11 +5,11 @@
                 <i class="fas fa-brain me-3 fs-2 text-electric-blue"></i>
                 <div>
                     <h2 class="fw-bold text-white mb-1 fs-3">
-                        🧠 {{ strtoupper($assessment->type) }} COSMIC CHALLENGE
+                         {{ strtoupper($assessment->type) }} COSMIC CHALLENGE
                     </h2>
                     <p class="text-light opacity-75 mb-0">
                         <i class="fas fa-rocket me-2"></i>
-                        Stage: {{ $assessment->stage->title }} — Test your cosmic knowledge!
+                        {{ $assessment->stage->title }} — Test your cosmic knowledge!
                     </p>
                 </div>
             </div>

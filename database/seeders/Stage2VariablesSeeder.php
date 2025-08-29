@@ -82,13 +82,52 @@ Level::updateOrCreate(
                 'print("Label:", value) adds a space and never crashes.',
                 'Use int("7") or float("3.5") before doing math.',
             ],
+            'examples'   => [
+                [
+                    'title' => '1) Store and print a number',
+                    'code'  => "age = 7\nprint(age)",
+                    'explain' => 'Variables hold values. Printing a number needs no quotes.',
+                    'expected_output' => "7",
+                ],
+                [
+                    'title' => '2) Update a variable',
+                    'code'  => "count = 3\ncount = count + 2\nprint(count)",
+                    'explain' => 'Use the current value on the right to compute a new one.',
+                    'expected_output' => "5",
+                ],
+                [
+                    'title' => '3) Safest mix of text + number',
+                    'code'  => "price = 12\nprint(\"Price:\", price)",
+                    'explain' => 'Commas in print() automatically add a space and avoid TypeError.',
+                    'expected_output' => "Price: 12",
+                ],
+                [
+                    'title' => '4) Converting text to number',
+                    'code'  => "x = \"8.5\"\nprint(float(x) + 1.5)",
+                    'explain' => 'Turn text into a number before doing math.',
+                    'expected_output' => "10.0",
+                ],
+                [
+                    'title' => '5) If you really want + with text',
+                    'code'  => "score = 10\nprint(\"Score: \" + str(score))",
+                    'explain' => 'Convert the number to text with str() to concatenate.',
+                    'expected_output' => "Score: 10",
+                ],
+                [
+                    'title' => '6) f-strings shortcut',
+                    'code'  => "name = 'Mia'\nprint(f\"Hello, {name}\")",
+                    'explain' => 'f-strings let you embed variables inside text.',
+                    'expected_output' => "Hello, Mia",
+                ],
+            ],
             'questions'  => $this->mcqPool(),
         ],
     ]
 );
 
+
  
-       // ---------- LEVEL 2 (Drag & Drop) ----------
+     // ---------- LEVEL 2 (Drag & Drop) ----------
 Level::updateOrCreate(
     ['stage_id' => $stage->id, 'index' => 2],
     [
@@ -117,6 +156,26 @@ Tips:
                 'True/False without quotes are booleans.',
                 'Bare words (e.g., price) are names, not values.',
             ],
+            'examples'   => [
+                [
+                    'title' => '1) Check types with type()',
+                    'code'  => "print(type(3))\nprint(type(4.5))\nprint(type(\"hi\"))\nprint(type(True))",
+                    'explain' => 'type() tells you the data type of a value.',
+                    'expected_output' => "<class 'int'>\n<class 'float'>\n<class 'str'>\n<class 'bool'>",
+                ],
+                [
+                    'title' => '2) Quotes change the type',
+                    'code'  => "print(type(42))\nprint(type(\"42\"))",
+                    'explain' => 'Same digits, different types: number vs text.',
+                    'expected_output' => "<class 'int'>\n<class 'str'>",
+                ],
+                [
+                    'title' => '3) Convert before math',
+                    'code'  => "x = \"7\"\nprint(int(x) + 3)",
+                    'explain' => 'Convert strings to numbers to do arithmetic.',
+                    'expected_output' => "10",
+                ],
+            ],
             'categories'  => [
                 '🧮 int (whole numbers)' => ['3', '0', '-12', '42'],
                 '➗ float (decimals)'    => ['4.5', '0.0', '7.0', '2.5'],
@@ -128,115 +187,60 @@ Tips:
     ]
 );
 
+
  
-        // ---------- LEVEL 3 (True/False) ----------
+      // ---------- LEVEL 3 (Match Pairs) ----------
 Level::updateOrCreate(
     ['stage_id' => $stage->id, 'index' => 3],
     [
-        'type'         => 'true/false',
-        'title'        => 'True or False: Variables',
+        'type'         => 'match_pairs',
+        'title'        => 'Match Pairs: Variables & Types',
         'pass_score'   => 75,
-        'instructions' => "Each code block prints either True or False. Your job: pick what it prints.\nTips:\n- Quotes → string (str). type('3') == int is False\n- int('7') → 7, float('3.5') → 3.5, str(10) → '10'\n- Python is case-sensitive: Name ≠ name\n- '2' + '3' → '23'; 'Ha' * 3 → 'HaHaHa'\n- 6/2 is a float → type(6/2) == float",
+        'instructions' => "Match each item on the left with its correct partner on the right.\nTips:\n- Quotes → string (str)\n- int('7') → 7, float('3.5') → 3.5\n- True/False are booleans (no quotes)\n- Commas in print() safely mix text and numbers",
         'content'      => [
-            'intro'      => "Decide if each snippet prints True or False.",
-            'time_limit' => 220,
-            'max_hints'  => 3,
-            'hints'      => [
-                "Quotes mean it's a string.",
-                "Use int('7') / float('3.5') before math.",
-                "Case matters: Name vs name.",
-                "print(6/2) gives 3.0 → that's a float.",
+            'intro'       => "Click one card on the left, then the matching card on the right.",
+            'time_limit'  => 220,
+            'max_hints'   => 3,
+            'hints'       => [
+                "String digits (e.g., '7') are text until converted.",
+                "int has no dot; float has a dot.",
+                "Use int()/float() before math with text numbers.",
+                "True/False without quotes are booleans.",
             ],
-            'questions'  => [
+            // Each pair: left => right mapping
+            'pairs'       => [
+                ['left' => "Type of 3.0",                 'right' => "float"],
+                ['left' => "Type of '3'",                  'right' => "str"],
+                ['left' => "int('7') + 2",                'right' => "9"],
+                ['left' => "'2' + '3'",                   'right' => "23"],
+                ['left' => "float('3.5')",                'right' => "3.5"],
+                ['left' => "True (no quotes)",            'right' => "bool"],
+                ['left' => "print('Age:', 7)",            'right' => "Age: 7"],
+                ['left' => "str(10)",                     'right' => "'10'"],
+                ['left' => "Type of 6 / 2",               'right' => "float"],
+                ['left' => "'Ha' * 3",                    'right' => "HaHaHa"],
+                ['left' => "Name vs name (case matters)", 'right' => "different variables"],
+                ['left' => "int(True)",                   'right' => "1"],
+            ],
+            // Optional: examples panel (if your view supports it)
+            'examples'   => [
                 [
-                    'code'        => "x = '5'\nprint(int(x) + 1 == 6)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "int('5') is 5; 5 + 1 == 6 → True.",
+                    'title' => 'Booleans → numbers',
+                    'code'  => "print(int(True), int(False))",
+                    'explain' => 'True → 1, False → 0.',
+                    'expected_output' => "1 0",
                 ],
                 [
-                    'code'        => "Name = 'Sam'\nname = 'Sam'\nprint(Name == name)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'False',
-                    'explanation' => "Case-sensitive: Name and name are different variables.",
+                    'title' => 'Comma join in print()',
+                    'code'  => "age = 7\nprint('Age:', age)",
+                    'explain' => 'Commas are the safest way to mix text + numbers.',
+                    'expected_output' => "Age: 7",
                 ],
                 [
-                    'code'        => "x = 3.0\nprint(type(x) == float)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "3.0 is a float.",
-                ],
-                [
-                    'code'        => "print(type('3') == int)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'False',
-                    'explanation' => "'3' has quotes → it's a str, not int.",
-                ],
-                [
-                    'code'        => "print(int('7') + 2 == 9)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "7 + 2 = 9.",
-                ],
-                [
-                    'code'        => "print(float('3.5') == 3.5)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "float('3.5') parses to 3.5.",
-                ],
-                [
-                    'code'        => "x = 10\ny = x\ny = y + 1\nprint(x == 11)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'False',
-                    'explanation' => "x stays 10; only y was changed.",
-                ],
-                [
-                    'code'        => "print('2' + '3' == '23')",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "String + string concatenates.",
-                ],
-                [
-                    'code'        => "print('2' + str(3) == '5')",
-                    'options'     => ['True','False'],
-                    'correct'     => 'False',
-                    'explanation' => "'2' + '3' is '23', not '5'.",
-                ],
-                [
-                    'code'        => "print('Ha' * 3 == 'HaHaHa')",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "String repetition.",
-                ],
-                [
-                    'code'        => "print(type(6 / 2) == float)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "In Python 3, / returns float (3.0).",
-                ],
-                [
-                    'code'        => "print(int(True) == 1)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "True converts to 1.",
-                ],
-                [
-                    'code'        => "print(str(False) == 'False')",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "Boolean to string.",
-                ],
-                [
-                    'code'        => "name = 'Ali'\nprint('Hello, ' + name == 'Hello, Ali')",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "Concatenation matches exactly.",
-                ],
-                [
-                    'code'        => "print(bool('') == False)",
-                    'options'     => ['True','False'],
-                    'correct'     => 'True',
-                    'explanation' => "Empty string is falsy.",
+                    'title' => 'String vs number',
+                    'code'  => "print(type('3'), type(3))",
+                    'explain' => 'Quotes make text; no quotes is a number.',
+                    'expected_output' => "<class 'str'> <class 'int'>",
                 ],
             ],
         ],

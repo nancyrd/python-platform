@@ -11,333 +11,332 @@ class Stages3Seeder extends Seeder
 {
     public function run(): void
     {
-        // Get next order - won't disturb existing stages
-        $nextOrder = (int) (Stage::max('display_order') ?? 0) + 1;
-
-        // Create stage
-        $stage = Stage::firstOrCreate(
+        /**
+         * STAGE 3: Input & Casting
+         * Goal: Read text with input(), clean (.strip()), convert, then compute & print
+         */
+        $stage = Stage::query()->firstOrCreate(
             ['slug' => 'input-casting'],
-            ['title' => 'Stage 3: Input & Casting', 'display_order' => $nextOrder]
+            ['title' => 'Stage 3: Input & Casting', 'display_order' => 3]
         );
-        
-        // ---------- PRE ASSESSMENT ----------
+
+        // ---------- LEVEL 1 (Flip Cards — Input Essentials) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 1],
+            [
+                'type'         => 'flip_cards',
+                'title'        => 'Input Essentials',
+                'pass_score'   => 60,
+                'instructions' => "Flip to learn:\n• input() returns str\n• Use .strip() to remove spaces\n• When to use int() vs float()\n• Safe print with commas",
+                'content'      => [
+                    'intro'       => "Tap each card to reveal the concept and example.",
+                    'time_limit'  => 200,
+                    'max_hints'   => 3,
+                    'hints'       => [
+                        'input() always gives you text (str).',
+                        'Use .strip() before casting to remove extra spaces.',
+                        'Use int() for whole numbers, float() for decimals.',
+                        'Safe print: print(\"Label:\", value)',
+                    ],
+                    // Cards: front/back quick learning
+                    'cards'       => [
+                       [
+        'front' => 'Numbers with commas',
+        'back'  => "\"1,234\" ❌ int(\"1,234\")\n\nFix:\nint(\"1,234\".replace(\",\", \"\")) → 1234"
+    ],
+                        [
+                            'front' => 'Why .strip()?',
+                            'back'  => "\"  9  \".strip() → \"9\"\nRemoves leading/trailing spaces before casting."
+                        ],
+                        [
+                            'front' => 'int() vs float()',
+                            'back'  => "int(\"7\") → 7   (ok)\nint(\"7.0\") → error ❌\nfloat(\"7.0\") → 7.0 ✅"
+                        ],
+                        [
+                            'front' => 'Safe printing',
+                            'back'  => "print(\"Age:\", 7)  → Age: 7\nNo crash, no manual spaces needed."
+                        ],
+                        [
+                            'front' => 'Join text + number',
+                            'back'  => "\"Age: \" + str(7) → \"Age: 7\"\nOr better: print(\"Age:\", 7)"
+                        ],
+                    ],
+                    // Console-ready examples (work without interactive input)
+                    'examples'    => [
+                        [
+                            'title'   => 'Strip then cast',
+                            'code'    => "age_str = ' 9 '\nage = int(age_str.strip())\nprint('Next year:', age + 1)",
+                            'explain' => 'Clean spaces with .strip(), then int().',
+                            'expected_output' => "Next year: 10"
+                        ],
+                        [
+                            'title'   => 'Decimal text → float',
+                            'code'    => "price_str = '7.50'\nprice = float(price_str)\nprint('Total:', price * 2)",
+                            'explain' => 'Use float() for decimals.',
+                            'expected_output' => "Total: 15.0"
+                        ],
+                        [
+                            'title'   => 'Safe print with commas',
+                            'code'    => "name = 'Mia'\nage = 12\nprint('Student:', name, '| Age:', age)",
+                            'explain' => 'Comma inserts spaces and never crashes.',
+                            'expected_output' => "Student: Mia | Age: 12"
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // ---------- LEVEL 2 (Match Pairs — Pick the Right Conversion / Steps) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 2],
+            [
+                'type'         => 'match_pairs',
+                'title'        => 'Pick the Right Conversion',
+                'pass_score'   => 70,
+                'instructions' => "Match each value to the correct cast/result.\nBonus: includes typical mini-calculator steps.",
+                'content'      => [
+                    'intro'       => "Match value → correct cast (or outcome).",
+                    'time_limit'  => 240,
+                    'max_hints'   => 3,
+                    'hints'       => [
+                        'If it has a dot, use float().',
+                        'If it’s whole-number text, use int().',
+                        'Always .strip() before casting when spaces may exist.',
+                        'Use str() to join numbers with text.',
+                    ],
+                    // Primary pairs for the match_pairs view
+                    'pairs'       => [
+                        ['left' => '"7"',             'right' => 'int("7")'],
+                        ['left' => '"7.0"',           'right' => 'float("7.0")'],
+                        ['left' => '"  9  "',         'right' => 'int("  9  ".strip())'],
+                        ['left' => '10',     'right' => 'str(10)'],
+                        ['left' => '"3.5"',           'right' => 'float("3.5")'],
+                        ['left' => '"007"',           'right' => 'int("007")'],
+                        ['left' => 'Error',     'right' => 'int("12 apples")'], 
+                        ['left' => '" 5.0 "',         'right' => 'float(" 5.0 ".strip())'],
+                        ['left' => 'price = input()', 'right' => 'price.strip()  (clean before cast)'],
+                        ['left' => 'qty = input()', 'right' => 'qty = int(qty.strip())'],
+                    ],
+                    // Optional: mini-steps (if you later support reorder UI you can use this)
+                    'steps_demo'  => [
+                        'title' => 'Mini-calculator steps (reference)',
+                        'steps' => [
+                            '1) read = input()',
+                            '2) clean = read.strip()',
+                            '3) num = int(clean) or float(clean)',
+                            '4) compute using num',
+                            '5) print("Result:", value)',
+                        ]
+                    ],
+                    'examples'    => [
+                        [
+                            'title'   => 'Spaces + dot',
+                            'code'    => "txt = '  3.0  '\nnum = float(txt.strip())\nprint('Doubled:', num*2)",
+                            'explain' => 'Strip then float() for decimals.',
+                            'expected_output' => "Doubled: 6.0"
+                        ],
+                        [
+                            'title'   => 'Whole number text',
+                            'code'    => "s = '007'\nprint(int(s))",
+                            'explain' => 'int() handles leading zeros.',
+                            'expected_output' => "7"
+                        ],
+                        [
+                            'title'   => 'To text with str()',
+                            'code'    => "x = 10\nprint('X = ' + str(x))",
+                            'explain' => 'Use str() when joining with +.',
+                            'expected_output' => "X = 10"
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // ---------- LEVEL 3 (True/False — Safe or not?) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 3],
+            [
+                'type'         => 'tf1',
+                'title'        => 'Safe or Not?',
+                'pass_score'   => 75,
+                'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes.",
+                'content'      => [
+                    'intro'       => "True if it’s safe/correct; False if it errors or is unsafe.",
+                    'time_limit'  => 220,
+                    'max_hints'   => 3,
+                    'hints'       => [
+                        "Cast strings before math: int('7'), float('3.5').",
+                        "Use .strip() to remove spaces before casting.",
+                        "Safe print with commas: print('Age:', n).",
+                        "int('7.0') is invalid — use float('7.0') instead.",
+                    ],
+                    'examples'    => [
+                        [
+                            'title'   => 'Safe mixing with commas',
+                            'code'    => "age = 9\nprint('Age:', age)",
+                            'explain' => 'No TypeError; adds a space automatically.',
+                            'expected_output' => "Age: 9"
+                        ],
+                        [
+                            'title'   => 'Cast then compute',
+                            'code'    => "s = ' 5 '\nn = int(s.strip())\nprint(n + 1)",
+                            'explain' => 'Clean → cast → compute.',
+                            'expected_output' => "6"
+                        ],
+                    ],
+                    // Each question: code + options True/False + correct + explanation
+                    'questions'   => [
+                        [
+                            'code'        => "print(float('3.5') == 3.5)",
+                            'options'     => ['True','False'],
+                            'correct'     => 'True',
+                            'explanation' => "float('3.5') produces 3.5 → True.",
+                        ],
+                        [
+                            'code'        => "print(int('7.0'))",
+                            'options'     => ['True','False'],
+                            'correct'     => 'False',
+                            'explanation' => "int('7.0') raises ValueError; use float().",
+                        ],
+                        [
+                            'code'        => "age = ' 9 '\nprint('Age:', int(age.strip()))",
+                            'options'     => ['True','False'],
+                            'correct'     => 'True',
+                            'explanation' => "Strip then cast → safe print with comma.",
+                        ],
+                        [
+                            'code'        => "x = '3'\nprint('Sum: ' + (x + 2))",
+                            'options'     => ['True','False'],
+                            'correct'     => 'False',
+                            'explanation' => "TypeError: cannot add str and int directly.",
+                        ],
+                        [
+                            'code'        => "price = '7.0'\nprint('Price:', float(price))",
+                            'options'     => ['True','False'],
+                            'correct'     => 'True',
+                            'explanation' => "Convert to float before printing.",
+                        ],
+                        [
+                            'code'        => "s = ' 12 '\nprint(int(s) + 1)",
+                            'options'     => ['True','False'],
+                            'correct'     => 'False',
+                            'explanation' => "Must strip first; int(' 12 ') is OK in CPython, but teaching best-practice: use s.strip() before casting.",
+                        ],
+                        [
+                            'code'        => "n = 10\nprint('N=' + n)",
+                            'options'     => ['True','False'],
+                            'correct'     => 'False',
+                            'explanation' => "Join with str(n) or use commas.",
+                        ],
+                        [
+                            'code'        => "txt = '5.0'\nprint(int(float(txt)))",
+                            'options'     => ['True','False'],
+                            'correct'     => 'True',
+                            'explanation' => "Two-step cast works: '5.0' → 5.0 → 5.",
+                        ],
+                        [
+                            'code'        => "v = input()\nprint('V:', v)",
+                            'options'     => ['True','False'],
+                            'correct'     => 'True',
+                            'explanation' => "Printing raw input as text is always safe.",
+                        ],
+                        [
+                            'code'        => "w = input()\nprint(int(w) + 1)",
+                            'options'     => ['True','False'],
+                            'correct'     => 'False',
+                            'explanation' => "Unsafe without strip()/validation; may crash on spaces/non-digits.",
+                        ],
+                    ],
+                ],
+            ]
+        );
+
+        // ---------- PRE assessment ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'pre'],
             [
                 'title'     => 'Pre: Input & Casting Basics',
                 'questions' => json_encode([
                     [
-                        'prompt'  => 'What does input() return in Python?',
-                        'options' => ['int', 'float', 'str', 'bool'],
-                        'correct' => 'str'
+                        'prompt'  => 'input() returns…',
+                        'options' => ['int','float','str','bool'],
+                        'correct' => 'str',
                     ],
                     [
-                        'prompt'  => 'What does "  hello  ".strip() return?',
-                        'options' => ['"  hello  "', '"hello"', '" hello "', '"  hello"'],
-                        'correct' => '"hello"'
+                        'prompt'  => 'Best way to remove surrounding spaces:',
+                        'options' => ['trim()', '.strip()', '.clean()', 'removeSpaces()'],
+                        'correct' => '.strip()',
                     ],
                     [
-                        'prompt'  => 'Which function converts "7.5" to a decimal number?',
-                        'options' => ['int("7.5")', 'float("7.5")', 'str("7.5")', 'bool("7.5")'],
-                        'correct' => 'float("7.5")'
+                        'prompt'  => 'Which safely prints a number with a label?',
+                        'options' => [
+                            '"Age: " + 7',
+                            'print("Age:", 7)',
+                            'print("Age: " + 7)',
+                            'say("Age:", 7)'
+                        ],
+                        'correct' => 'print("Age:", 7)',
                     ],
                     [
-                        'prompt'  => 'What is the safest way to print text and numbers together?',
-                        'options' => ['Using + operator', 'Using commas in print()', 'Using str() with +', 'Both 2 and 3'],
-                        'correct' => 'Both 2 and 3'
+                        'prompt'  => 'Pick the correct cast for "7.0":',
+                        'options' => ['int("7.0")', 'float("7.0")', 'bool("7.0")', 'str(7.0) only'],
+                        'correct' => 'float("7.0")',
                     ],
                     [
-                        'prompt'  => 'What will int("7.0") do?',
-                        'options' => ['Return 7', 'Return 7.0', 'Cause an error', 'Return "7"'],
-                        'correct' => 'Cause an error'
-                    ]
+                        'prompt'  => 'To join text + number with +, use:',
+                        'options' => ['str()', 'int()', 'float()', 'join()'],
+                        'correct' => 'str()',
+                    ],
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]
         );
 
-        // ---------- LEVEL 1 (Flip Cards) ----------
-        Level::updateOrCreate(
-            ['stage_id' => $stage->id, 'index' => 1],
-            [
-                'type'         => 'flip_cards',
-                'title'        => 'Input Essentials',
-                'pass_score'   => 70,
-                'instructions' => "Flip to learn: input() returns str; use .strip(); when to use int() vs float(); safe print with commas.",
-                'content'      => [
-                    'intro'      => 'Flip the cards to learn about input handling and casting',
-                    'time_limit' => 300,
-                    'max_hints'  => 3,
-                    'hints'      => [
-                        'input() always returns a string, even for numbers',
-                        'Use .strip() to remove extra spaces from user input',
-                        'Use int() for whole numbers, float() for decimals',
-                        'Use commas in print() to safely mix text and numbers'
-                    ],
-                    'cards'      => [
-                        [
-                            'front' => 'What does input() return?',
-                            'back'  => 'Always returns a string (str), even if user enters numbers'
-                        ],
-                        [
-                            'front' => 'How to clean user input?',
-                            'back'  => 'Use .strip() to remove leading/trailing spaces: input().strip()'
-                        ],
-                        [
-                            'front' => 'When to use int()?',
-                            'back'  => 'For whole numbers: int("7") → 7, int("10") → 10'
-                        ],
-                        [
-                            'front' => 'When to use float()?',
-                            'back'  => 'For decimal numbers: float("3.5") → 3.5, float("7.0") → 7.0'
-                        ],
-                        [
-                            'front' => 'int("7.0") will...',
-                            'back'  => 'Cause ValueError - use float("7.0") instead'
-                        ],
-                        [
-                            'front' => 'Safe printing technique',
-                            'back'  => 'Use commas: print("Age:", age) - automatically adds space'
-                        ],
-                        [
-                            'front' => 'Alternative to commas',
-                            'back'  => 'Use str() with +: print("Age: " + str(age))'
-                        ],
-                        [
-                            'front' => 'Typical input workflow',
-                            'back'  => '1. Read with input(), 2. Clean with .strip(), 3. Convert with int()/float(), 4. Use the value'
-                        ]
-                    ],
-                ],
-            ]
-        );
-
-        // ---------- LEVEL 2 (Match Pairs) ----------
-        Level::updateOrCreate(
-            ['stage_id' => $stage->id, 'index' => 2],
-            [
-                'type'         => 'match_pairs',
-                'title'        => 'Pick the Right Conversion',
-                'pass_score'   => 75,
-                'instructions' => "Match value → correct cast or order steps for mini-calculator.",
-                'content'      => [
-                    'intro'      => 'Match the input values with the correct conversion method',
-                    'time_limit' => 240,
-                    'max_hints'  => 3,
-                    'hints'      => [
-                        'Numbers with decimals need float()',
-                        'Whole numbers without decimals need int()',
-                        'Use .strip() when input might have spaces',
-                        'Text without numbers stays as string'
-                    ],
-                    'pairs'      => [
-                        [
-                            'left'  => '"7"',
-                            'right' => 'int("7")'
-                        ],
-                        [
-                            'left'  => '"7.0"',
-                            'right' => 'float("7.0")'
-                        ],
-                        [
-                            'left'  => '" 9 "',
-                            'right' => 'int("9".strip())'
-                        ],
-                        [
-                            'left'  => '"3.5"',
-                            'right' => 'float("3.5")'
-                        ],
-                        [
-                            'left'  => '10',
-                            'right' => 'str(10)'
-                        ],
-                        [
-                            'left'  => '"hello"',
-                            'right' => 'No conversion needed'
-                        ],
-                        [
-                            'left'  => '"True"',
-                            'right' => 'bool("True") but careful: non-empty string is True'
-                        ],
-                        [
-                            'left'  => '""',
-                            'right' => 'Check if empty first'
-                        ]
-                    ],
-                    'sequences'  => [
-                        [
-                            'title' => 'Mini-calculator steps',
-                            'steps' => [
-                                'Read input with input()',
-                                'Clean with .strip()',
-                                'Convert to number with int() or float()',
-                                'Perform calculation',
-                                'Print result'
-                            ],
-                            'correct_order' => [0, 1, 2, 3, 4]
-                        ],
-                        [
-                            'title' => 'Age verification steps',
-                            'steps' => [
-                                'Convert to int()',
-                                'Check if age >= 18',
-                                'Read input with input()',
-                                'Print "Adult" or "Minor"',
-                                'Clean with .strip()'
-                            ],
-                            'correct_order' => [2, 4, 0, 1, 3]
-                        ]
-                    ]
-                ],
-            ]
-        );
-
-        // ---------- LEVEL 3 (True/False) ----------
-        Level::updateOrCreate(
-            ['stage_id' => $stage->id, 'index' => 3],
-            [
-                'type'         => 'tf1',
-                'title'        => 'Safe or Not?',
-                'pass_score'   => 80,
-                'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes.",
-                'content'      => [
-                    'intro'      => "Determine if each code snippet is safe or will cause an error",
-                    'time_limit' => 300,
-                    'max_hints'  => 3,
-                    'hints'      => [
-                        "input() returns string - need conversion for math",
-                        "int() fails on decimals, use float() instead",
-                        "Always clean input with .strip() when needed",
-                        "Use commas in print() for safe mixing of types"
-                    ],
-                    'questions'  => [
-                        [
-                            'code'        => 'float("3.5") == 3.5',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "float('3.5') correctly converts to 3.5",
-                        ],
-                        [
-                            'code'        => 'int("7.0")',
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "int('7.0') causes ValueError - use float() for decimals",
-                        ],
-                        [
-                            'code'        => 'age = input("Enter age: ")\nprint("Age:", age)',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - using comma in print() handles string conversion",
-                        ],
-                        [
-                            'code'        => 'price = input("Enter price: ")\ntotal = price * 1.1',
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Unsafe - price is string, need float() conversion first",
-                        ],
-                        [
-                            'code'        => 'name = input().strip()\nprint("Hello,", name)',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - using .strip() and comma in print()",
-                        ],
-                        [
-                            'code'        => 'num = " 5 "\nresult = int(num) + 2',
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Unsafe - spaces cause ValueError, need .strip() first",
-                        ],
-                        [
-                            'code'        => 'num = "5"\nresult = int(num.strip()) + 2',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - using .strip() and proper conversion",
-                        ],
-                        [
-                            'code'        => 'value = "3.14"\nprint("Value: " + value)',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - both are strings, + works fine",
-                        ],
-                        [
-                            'code'        => 'value = 3.14\nprint("Value: " + value)',
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Unsafe - cannot concatenate str and float with +",
-                        ],
-                        [
-                            'code'        => 'value = 3.14\nprint("Value:", value)',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - comma in print() handles conversion automatically",
-                        ],
-                        [
-                            'code'        => 'age = input("Age: ")\nif age >= 18:',
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Unsafe - comparing string with number, need int() conversion",
-                        ],
-                        [
-                            'code'        => 'age = int(input("Age: ").strip())\nif age >= 18:',
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Safe - proper input handling with .strip() and int()",
-                        ],
-                    ],
-                ],
-            ]
-        );
-
-        // ---------- POST ASSESSMENT ----------
+        // ---------- POST assessment ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'post'],
             [
-                'title'     => 'Post: Input & Casting Mastery',
+                'title'     => 'Post: Input, Strip, Cast, Print',
                 'questions' => json_encode([
                     [
-                        'prompt'  => 'What is the correct way to get an integer from user input?',
-                        'options' => [
-                            'int(input())',
-                            'int(input().strip())',
-                            'input().int()',
-                            'str(int(input()))'
-                        ],
-                        'correct' => 'int(input().strip())'
+                        'prompt'  => 'Exact output: s=" 9 "; print(int(s.strip())+1)',
+                        'options' => ['9', '10', ' 10 ', 'Error'],
+                        'correct' => '10',
                     ],
                     [
-                        'prompt'  => 'What does " 7 ".strip() return?',
-                        'options' => ['" 7 "', '"7"', '7', 'Error'],
-                        'correct' => '"7"'
-                    ],
-                    [
-                        'prompt'  => 'Which will cause a ValueError?',
+                        'prompt'  => 'Which line fails?',
                         'options' => [
+                            'float("3.5")',
                             'int("7")',
-                            'float("7.0")', 
                             'int("7.0")',
-                            'float("7")'
+                            'print("Total:", 12)'
                         ],
-                        'correct' => 'int("7.0")'
+                        'correct' => 'int("7.0")',
                     ],
                     [
-                        'prompt'  => 'What is the output of: print("Result:", 5 + 2)',
+                        'prompt'  => 'Safest pattern after input for a decimal number:',
                         'options' => [
-                            'Result:7',
-                            'Result: 7',
-                            '7',
-                            'Result:5+2'
+                            'n = input(); n = int(n)',
+                            'n = input(); n = float(n.strip())',
+                            'n = input(); print("N=" + n+1)',
+                            'n = input(); print(int(n)+".0")'
                         ],
-                        'correct' => 'Result: 7'
+                        'correct' => 'n = input(); n = float(n.strip())',
                     ],
                     [
-                        'prompt'  => 'How to safely calculate 10% tax on user input?',
+                        'prompt'  => 'Exact output: print("Price:", float("7.0"))',
+                        'options' => ['Price: 7', 'Price: 7.0', '"Price:", 7.0', 'Error'],
+                        'correct' => 'Price: 7.0',
+                    ],
+                    [
+                        'prompt'  => 'Which is safe for joining text + number?',
                         'options' => [
-                            'price = input() * 1.1',
-                            'price = float(input()) * 1.1',
-                            'price = input().float() * 1.1',
-                            'price = int(input()) * 1.1'
+                            '"X=" + 5',
+                            'print("X=", 5)',
+                            '"X=" + str(5)',
+                            'Both (2) and (3)'
                         ],
-                        'correct' => 'price = float(input()) * 1.1'
-                    ]
+                        'correct' => 'Both (2) and (3)',
+                    ],
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]
         );

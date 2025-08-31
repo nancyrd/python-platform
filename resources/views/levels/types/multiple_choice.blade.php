@@ -5,7 +5,6 @@
     // ===============================
     $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
     $savedScore    = $levelProgress->best_score ?? null;
-    $savedStars    = $levelProgress->stars ?? 0;
 
     // Content fallbacks
     $timeLimit  = (int)($level->content['time_limit'] ?? 180);
@@ -14,7 +13,7 @@
     $introText  = $level->content['intro'] ?? '';
     $uiInstrux  = $level->content['instructions'] ?? 'Choose the best answer for each question.';
 
-    // Default hints if none supplied
+    // Default hints
     $defaultHints = [
         "Read the code carefully and watch for small details like spaces and exact output.",
         "Recall Python basics from the lesson above before answering.",
@@ -23,45 +22,47 @@
     ];
     $hintsForJs = !empty($hints) ? $hints : $defaultHints;
 
-    // Build answer key and explanations arrays safely for JS
-    $answerKeyJs = array_map(function ($q) {
-        return $q['correct_answer'] ?? null;
-    }, $questions);
-
-    $explanationsJs = array_map(function ($q) {
-        return $q['explanation'] ?? '';
-    }, $questions);
+    // Build answer key & explanations arrays for JS
+    $answerKeyJs = array_map(fn($q) => $q['correct_answer'] ?? null, $questions);
+    $explanationsJs = array_map(fn($q) => $q['explanation'] ?? '', $questions);
 @endphp
 
 <x-slot name="header">
-    <div class="mcq-header">
-        <div class="container-fluid">
-            <div class="row align-items-center g-3">
-                <div class="col-auto">
-                    <div class="lvl-badge">
-                        <span class="lvl-number">{{ $level->index }}</span>
-                    </div>
+    <!-- Same header design as drag & drop -->
+    <div class="level-header">
+        <div class="header-container">
+            <!-- Left -->
+            <div class="header-left">
+                <div class="level-badge">
+                    <span class="level-number">{{ $level->index }}</span>
                 </div>
-                <div class="col">
-                    <div class="lvl-meta">
-                        <div class="lvl-stage">{{ $level->stage->title }}</div>
-                        <h2 class="lvl-title">{{ $level->title }}</h2>
+                <div class="level-info">
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item">Stage {{ $level->stage->index ?? $level->stage_id }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item">Level {{ $level->index }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
                     </div>
+                    <h1 class="stage-title">{{ $level->stage->title }}</h1>
+                    <div class="level-title">{{ $level->title }}</div>
                 </div>
-                <div class="col-auto">
-                    <div class="lvl-stats">
-                        <div class="stat">
-                            <div class="stat-label">Score</div>
-                            <div class="stat-value" id="statScore">0%</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-label">Stars</div>
-                            <div class="stat-value" id="statStars">0</div>
-                        </div>
-                        <div class="stat">
-                            <div class="stat-label">Time</div>
-                            <div class="stat-value" id="timeRemaining">--:--</div>
-                        </div>
+            </div>
+
+            <!-- Right stats -->
+            <div class="header-right">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Score</div>
+                        <div class="stat-value" id="statScore">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Stars</div>
+                        <div class="stat-value" id="statStars">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeRemaining">--:--</div>
                     </div>
                 </div>
             </div>
@@ -69,202 +70,276 @@
     </div>
 </x-slot>
 
-
 <style>
-:root{
-  --bg-1:#0a1028;
-  --bg-2:#14163b;
-  --ink:#e9e7ff;
-  --muted:#cfc8ff;
-  --accent-1:#00b3ff;
-  --accent-2:#b967ff;
-  --accent-3:#05d9e8;
-  --danger:#ff5a7a;
-  --ok:#35d19b;
-  --warn:#ffb020;
-  --card:#121735;
-  --border:rgba(255,255,255,.12);
+:root {
+    /* Purple palette */
+    --primary-purple: #7c3aed;
+    --secondary-purple: #a855f7;
+    --light-purple: #c084fc;
+    --purple-subtle: #f3e8ff;
+
+    /* Grays */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+
+    /* Semantic */
+    --success: #10b981;
+    --success-light: #dcfce7;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fecaca;
+
+    /* UI */
+    --background: #ffffff;
+    --border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+    --shadow:    0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
 }
 
-/* Layout backdrop */
-body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(185,103,255,.12), transparent 60%), linear-gradient(180deg, var(--bg-1), var(--bg-2)); color:var(--ink); }
+body {
+    background: linear-gradient(135deg,
+        rgba(124,58,237,.03) 0%,
+        rgba(168,85,247,.02) 50%,
+        rgba(248,250,252,1) 100%);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
 
-/* Header */
-.mcq-header{ background: rgba(10,16,40,.85); border-bottom:1px solid var(--border); padding:16px 0; }
-.lvl-badge{ width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--accent-2),var(--accent-1)); display:flex;align-items:center;justify-content:center; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-.lvl-number{ font-weight:900;font-size:1.35rem;color:#0f0f1a; }
-.lvl-meta .lvl-stage{ font-size:.85rem;color:var(--muted); letter-spacing:.02em; }
-.lvl-meta .lvl-title{ margin:0;color:#fff;font-weight:800;letter-spacing:.2px; }
+/* Header (same as drag & drop) */
+.level-header {
+    background: linear-gradient(135deg, rgba(124,58,237,.05) 0%, rgba(168,85,247,.03) 100%);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+.header-container { display:flex; align-items:center; justify-content:space-between; padding:1.5rem 2rem; gap:2rem; }
+.header-left { display:flex; align-items:center; gap:1.5rem; flex:1; min-width:0; }
+.level-badge { width:4rem; height:4rem; border-radius:1rem; background:linear-gradient(135deg, var(--primary-purple), var(--secondary-purple)); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); }
+.level-number { font-weight:900; font-size:1.25rem; color:#fff; }
+.level-info { flex:1; min-width:0; }
+.breadcrumb { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--text-muted); margin-bottom:.25rem; }
+.breadcrumb-item.type { text-transform:capitalize; color:var(--primary-purple); font-weight:500; }
+.separator{opacity:.6}
+.stage-title { font-size:1.5rem; font-weight:700; margin:0; line-height:1.2; color:var(--text-primary); }
+.level-title { font-size:1rem; color:var(--text-secondary); margin-top:.25rem; }
+.header-right { flex-shrink:0; }
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.stat-item { text-align:center; padding:.75rem 1rem; background:#fff; border:1px solid var(--border); border-radius:.75rem; box-shadow:var(--shadow-sm); min-width:5rem; }
+.stat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
+.stat-value { font-size:1.125rem; font-weight:700; color:var(--text-primary); margin-top:.25rem; }
 
-.lvl-stats{ display:flex;gap:18px; }
-.stat{ min-width:90px;background:rgba(255,255,255,.06);border:1px solid var(--border);padding:10px 14px;border-radius:12px;text-align:center; }
-.stat-label{ font-size:.75rem;color:var(--muted); }
-.stat-value{ font-size:1.05rem;font-weight:800;color:#fff; }
+/* Full-bleed helpers */
+.full-bleed { width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
+.edge-pad   { padding: 1.25rem clamp(12px, 3vw, 32px); }
 
-/* Container */
-.mcq-wrap{ max-width:1040px;margin:24px auto;padding:0 16px; }
+/* Containers & cards */
+.main-container { max-width:none; }
+.card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
+.card.accent { border-left:6px solid var(--primary-purple); background:linear-gradient(180deg, var(--purple-subtle), #fff); }
+.section-title { font-size:1.125rem; font-weight:700; margin:0 0 1rem 0; color:var(--text-primary); }
 
-/* Lesson panel */
-.lesson{ background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:16px;padding:18px 18px; }
-.lesson h3{ margin:0 0 8px 0;font-size:1.05rem;color:var(--accent-3);font-weight:800; }
-.lesson pre{ background:#0d1330;border:1px solid var(--border);border-radius:12px;padding:12px 14px; color:#cfeaff; overflow:auto; margin:10px 0 0 0; }
+/* Progress header */
+.items-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
+.items-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.items-title { font-size:1.05rem; font-weight:700; }
+.progress-container { flex:1; max-width:240px; }
+.progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
+.progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-purple), var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
 
-/* Progress bar */
-.progress-shell{ height:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:18px 0; }
-.progress-bar{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent-1),var(--accent-2)); transition:width .4s ease; }
+/* Questions grid */
+.q-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-top:1rem; }
+.q-card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
+.q-head { display:flex; justify-content:space-between; gap:.75rem; margin-bottom:.5rem; }
+.q-index { font-weight:800; color:var(--primary-purple); }
+.q-text { color:var(--text-primary); margin:.25rem 0 .5rem 0; font-weight:600; line-height:1.35; }
+.q-text code, .q-text .block {
+    background:#0f172a; color:#cfeaff; border:1px solid rgba(255,255,255,.08);
+    border-radius:.5rem; padding:.5rem .625rem; display:block; margin-top:.5rem;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; white-space:pre-wrap;
+}
 
-/* Question list */
-.q-list{ display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px; }
-@media(min-width:900px){ .q-list{ grid-template-columns:1fr 1fr; } }
-
-.q-card{ background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px; }
-.q-head{ display:flex;justify-content:space-between;gap:10px;margin-bottom:10px; }
-.q-index{ font-weight:800;color:var(--accent-2); }
-.q-score-dot{ width:10px;height:10px;border-radius:50%; background:rgba(255,255,255,.15); align-self:center; }
-
-.q-text{ color:#e7e5ff;margin:0 0 10px 0; font-weight:700; line-height:1.35; }
-.q-text code{ background:#0d1330;border:1px solid var(--border);border-radius:8px;padding:2px 6px;color:#bde0ff; }
-.q-text .block{ display:block;white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; background:#0d1330;border:1px dashed var(--border);border-radius:12px;padding:10px; color:#cfeaff; margin-top:8px; }
-
-.q-options{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
-.q-option{ position:relative; }
-.q-option input{ position:absolute; inset:0; opacity:0; }
-.q-option label{
-  display:block; padding:10px 12px; border:1px solid var(--border); border-radius:12px;
-  background:rgba(255,255,255,.03); cursor:pointer; color:#e9e7ff; font-weight:600;
+/* Options */
+.q-options { display:flex; flex-direction:column; gap:.5rem; }
+.q-option { position:relative; }
+.q-option input { position:absolute; inset:0; opacity:0; }
+.q-option label {
+  display:block; padding:.65rem .8rem; border:1px solid var(--border); border-radius:.75rem;
+  background:var(--gray-50); cursor:pointer; color:var(--text-primary); font-weight:600;
   transition: all .18s ease;
 }
-.q-option:hover label{ border-color:rgba(185,103,255,.55); background:rgba(185,103,255,.08); transform: translateY(-1px); }
-.q-option input:checked + label{ border-color:var(--accent-1); box-shadow:0 0 0 3px rgba(0,179,255,.2) inset; }
+.q-option:hover label{ border-color:var(--primary-purple); background:#fff; transform: translateY(-1px); box-shadow:var(--shadow); }
+.q-option input:checked + label{ border-color:var(--primary-purple); box-shadow:0 0 0 3px rgba(124,58,237,.18) inset; }
 
-.q-card.correct{ border-color:rgba(53,209,155,.65); box-shadow:0 0 0 3px rgba(53,209,155,.2) inset; }
-.q-card.incorrect{ border-color:rgba(255,90,122,.6); box-shadow:0 0 0 3px rgba(255,90,122,.18) inset; }
-.q-explain{ margin-top:10px; font-size:.95rem; color:#cfd7ff; border-top:1px dashed var(--border); padding-top:8px; display:none; }
+/* Result states */
+.q-card.correct   { border-color:rgba(16,185,129,.6); box-shadow:0 0 0 3px rgba(16,185,129,.18) inset; }
+.q-card.incorrect { border-color:rgba(239,68,68,.6);  box-shadow:0 0 0 3px rgba(239,68,68,.18)  inset; }
+.q-explain { margin-top:.5rem; font-size:.95rem; color:var(--text-secondary); border-top:1px dashed var(--border); padding-top:.5rem; display:none; }
 .q-card.show-explain .q-explain{ display:block; }
 
-/* Controls */
-.controls{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 6px 0; }
-.btn{
-  border:none; border-radius:12px; padding:12px 18px; font-weight:800; letter-spacing:.2px;
-  color:#0f1020; cursor:pointer; transition: transform .12s ease, box-shadow .2s ease;
+/* Buttons */
+.controls-container { display:flex; justify-content:center; gap:1rem; margin:1.5rem 0; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.5rem; border:none; border-radius:.75rem; font-weight:700; font-size:.875rem; cursor:pointer; transition:all .2s ease; text-decoration:none; }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
+.btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
+.btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
+.btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-ghost:hover:not(:disabled){ background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
+
+/* Meta bar (full-bleed) */
+.meta-container { display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-top:1px solid var(--border); font-size:.875rem; color:var(--text-muted); }
+.meta-left { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+.meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:500; }
+
+/* Toasts */
+.toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
+.toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:500; min-width:280px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
+.toast.ok   { border-left:4px solid var(--success);  background:linear-gradient(135deg,var(--success-light), #fff); }
+.toast.warn { border-left:4px solid var(--warning);  background:linear-gradient(135deg,var(--warning-light), #fff); }
+.toast.err  { border-left:4px solid var(--danger);   background:linear-gradient(135deg,var(--danger-light),  #fff); }
+@keyframes slideIn{ from{opacity:0; transform:translateX(100%)} to{opacity:1; transform:translateX(0)} }
+
+/* Responsive */
+@media (max-width:768px){
+  .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
+  .edge-pad{padding:1rem}
 }
-.btn:disabled{ opacity:.6; cursor:not-allowed; }
-.btn-primary{ background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#0e1126; }
-.btn-secondary{ background:linear-gradient(135deg,#5ad0ff,#a58aff); color:#0e1126; }
-.btn-ghost{ background:transparent; color:var(--ink); border:1px solid var(--border); }
-
-.btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
-
-/* Toast feedback */
-.toast-wrap{ position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px; z-index:1000; }
-.toast{
-  background:rgba(10,16,40,.9); border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:12px;
-  font-weight:700; min-width:220px;
-}
-.toast.ok{ border-color:rgba(53,209,155,.6); }
-.toast.warn{ border-color:rgba(255,176,32,.6); }
-.toast.err{ border-color:rgba(255,90,122,.6); }
-
-/* Footer meta */
-.meta{ display:flex; justify-content:space-between; gap:10px; margin-top:10px; color:var(--muted); font-size:.9rem; }
-.meta .left{ display:flex; gap:10px; align-items:center; }
-.meta .pill{ border:1px solid var(--border); padding:4px 8px; border-radius:999px; }
 </style>
 
-<div class="mcq-wrap">
+<!-- FULL-BLEED MAIN -->
+<div class="main-container full-bleed">
+
+    <!-- Completed banner -->
     @if($alreadyPassed)
-        <div class="lesson" style="border-left:4px solid var(--ok);">
-            <h3>Level Completed</h3>
-            <p class="m-0">You’ve already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}. You can <a href="{{ route('levels.show', $level) }}?replay=1">replay</a> to improve your stars.</p>
+    <div class="edge-pad">
+        <div class="card accent" style="margin-bottom: 1rem;">
+            <div class="section-title" style="color:var(--primary-purple)">Level Completed</div>
+            <p style="margin:0">
+                You’ve already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}.
+                You can <a href="{{ route('levels.show', $level) }}?replay=1" style="color:var(--primary-purple); text-decoration:underline;">replay</a> to improve your stars.
+            </p>
         </div>
-        <div style="height:12px;"></div>
+    </div>
     @endif
 
-
-
-    <div class="lesson" style="margin-top:12px;">
-        <h3>How to answer</h3>
-        <div style="white-space:pre-wrap;">{!! nl2br($uiInstrux) !!}</div>
-@if($introText)
-    <div class="intro-text mt-2" style="white-space:pre-wrap;">{!! $introText !!}</div>
-@endif
-
+    <!-- INSTRUCTIONS (TOP) -->
+    <div class="edge-pad">
+        <div class="card accent" id="instructionsCard" style="margin-bottom: 1.25rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                <div class="section-title">How to answer</div>
+                <button class="btn btn-ghost" type="button" id="toggleInstrux" aria-expanded="true">
+                    <i class="fas fa-chevron-up"></i> Collapse
+                </button>
+            </div>
+            <div id="instruxBody" style="white-space:pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
+            @if($introText)
+                <div class="mt-2" style="white-space:pre-wrap;">{!! $introText !!}</div>
+            @endif
+        </div>
     </div>
 
-    <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
-        @csrf
-        <input type="hidden" name="score" id="finalScore" value="0">
-        <input type="hidden" name="answers" id="answersData" value="[]">
+    <!-- QUIZ -->
+    <div class="edge-pad">
+        <form id="quizForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
+            @csrf
+            <input type="hidden" name="score" id="finalScore" value="0">
+            <input type="hidden" name="answers" id="answersData" value="[]">
 
-        <div class="q-list">
-            @foreach($questions as $i => $q)
-                <div class="q-card" data-q="{{ $i }}">
-                    <div class="q-head">
-                        <div class="q-index">Q{{ $i + 1 }}</div>
-                        <div class="q-score-dot" aria-hidden="true"></div>
+            <!-- Progress header -->
+            <div class="items-container">
+                <div class="items-header">
+                    <div class="items-title">Questions</div>
+                    <div class="progress-container">
+                        <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
                     </div>
-
-                    <p class="q-text">
-                        {!! $q['question'] !!}
-                        @php
-                            // If the author put raw "python\n..." in question text, format it nicely:
-                            $qtxt = $q['question'];
-                        @endphp
-                        @if(is_string($qtxt) && str_starts_with(trim($qtxt), 'What prints?') && str_contains($qtxt, "python"))
-                            @php
-                                $code = trim(preg_replace('/^.*?python/i', '', $qtxt));
-                            @endphp
-                            <span class="block">{{ $code }}</span>
-                        @endif
-                    </p>
-
-                    <div class="q-options">
-                        @foreach(($q['options'] ?? []) as $j => $opt)
-                            <div class="q-option">
-                                <input type="radio" id="q{{ $i }}_{{ $j }}" name="q{{ $i }}" value="{{ $j }}">
-                                <label for="q{{ $i }}_{{ $j }}">{{ $opt }}</label>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="q-explain" id="exp{{ $i }}"></div>
                 </div>
-            @endforeach
-        </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" type="button" id="btnCheck">Submit Answers</button>
-            <button class="btn btn-secondary" type="button" id="btnHint">Show Hint</button>
-            <button class="btn btn-ghost" type="button" id="btnReset">Reset</button>
-        </div>
-
-        <div class="meta">
-            <div class="left">
-                <span class="pill">Pass score: {{ (int)$level->pass_score }}%</span>
-                @if(!is_null($savedScore)) <span class="pill">Best: {{ (int)$savedScore }}%</span> @endif
-                <span class="pill">Stars: <span id="metaStars">0</span></span>
             </div>
-            <div>Tips used: <span id="hintCount">0</span></div>
-        </div>
-    </form>
+
+            <!-- Question grid -->
+            <div class="q-list">
+                @foreach($questions as $i => $q)
+                    <div class="q-card" data-q="{{ $i }}">
+                        <div class="q-head">
+                            <div class="q-index">Q{{ $i + 1 }}</div>
+                        </div>
+
+                        <p class="q-text">
+                            {!! $q['question'] !!}
+                            @php $qtxt = $q['question']; @endphp
+                            @if(is_string($qtxt) && str_starts_with(trim($qtxt), 'What prints?') && str_contains($qtxt, "python"))
+                                @php $code = trim(preg_replace('/^.*?python/i', '', $qtxt)); @endphp
+                                <span class="block">{{ $code }}</span>
+                            @endif
+                        </p>
+
+                        <div class="q-options">
+                            @foreach(($q['options'] ?? []) as $j => $opt)
+                                <div class="q-option">
+                                    <input type="radio" id="q{{ $i }}_{{ $j }}" name="q{{ $i }}" value="{{ $j }}">
+                                    <label for="q{{ $i }}_{{ $j }}">{{ $opt }}</label>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="q-explain" id="exp{{ $i }}"></div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-container">
+                <button class="btn btn-primary"   type="button" id="btnCheck"><i class="fas fa-check"></i> Submit Answers</button>
+                <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Show Hint</button>
+                <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset</button>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="toast-wrap" id="toastWrap"></div>
+<!-- FULL-BLEED META BAR -->
+<div class="meta-container full-bleed edge-pad">
+    <div class="meta-left">
+        <span class="meta-pill">Pass score: {{ (int)$level->pass_score }}%</span>
+        @if(!is_null($savedScore)) <span class="meta-pill">Best: {{ (int)$savedScore }}%</span> @endif
+        <span class="meta-pill">Stars: <span id="metaStars">0</span></span>
+    </div>
+    <div>Tips used: <span id="hintCount">0</span></div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastWrap"></div>
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
 (function(){
-    // ---- Precomputed values from PHP ----
+    // Data from PHP
     const timeLimit    = {{ $timeLimit }};
     const answerKey    = @json($answerKeyJs);
     const explanations = @json($explanationsJs);
     const hints        = @json($hintsForJs);
 
-    // ---- State ----
+    // State
     let timeRemaining = timeLimit;
     let hintsUsed = 0;
     let submitted  = false;
 
-    // ---- DOM ----
+    // DOM
     const $timer      = document.getElementById('timeRemaining');
     const $statScore  = document.getElementById('statScore');
     const $statStars  = document.getElementById('statStars');
@@ -277,25 +352,23 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
     const $btnReset   = document.getElementById('btnReset');
     const $form       = document.getElementById('quizForm');
 
-    // ---- Helpers ----
-    function fmtTime(sec){
-        const m = Math.floor(sec/60).toString().padStart(2,'0');
-        const s = (sec%60).toString().padStart(2,'0');
-        return `${m}:${s}`;
+    // Instructions collapse
+    const $toggleInstrux = document.getElementById('toggleInstrux');
+    const $instruxBody   = document.getElementById('instruxBody');
+    if ($toggleInstrux) {
+        $toggleInstrux.addEventListener('click', () => {
+            const hidden = $instruxBody.classList.toggle('d-none');
+            $toggleInstrux.innerHTML = hidden
+                ? '<i class="fas fa-chevron-down"></i> Expand'
+                : '<i class="fas fa-chevron-up"></i> Collapse';
+            $toggleInstrux.setAttribute('aria-expanded', String(!hidden));
+        });
     }
-    function toast(msg, kind='ok'){
-        const el = document.createElement('div');
-        el.className = `toast ${kind}`;
-        el.textContent = msg;
-        $toastWrap.appendChild(el);
-        setTimeout(() => el.remove(), 2200);
-    }
-    function starsFor(score){
-        if (score >= 90) return 3;
-        if (score >= 70) return 2;
-        if (score >= 50) return 1;
-        return 0;
-    }
+
+    // Helpers
+    function fmtTime(sec){ const m = String(Math.floor(sec/60)).padStart(2,'0'); const s = String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
+    function toast(msg, kind='ok'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=msg; $toastWrap.appendChild(el); setTimeout(()=>el.remove(),2200); }
+    function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
     function updateProgressBar(){
         const total = document.querySelectorAll('.q-card').length;
         const answered = document.querySelectorAll('.q-option input:checked').length;
@@ -303,36 +376,26 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
         $progress.style.width = pct + '%';
     }
 
-    // ---- Timer ----
+    // Timer
     $timer.textContent = fmtTime(timeRemaining);
     const t = setInterval(() => {
         timeRemaining--;
         $timer.textContent = fmtTime(timeRemaining);
-        if (timeRemaining === 60 || timeRemaining === 30 || timeRemaining === 10){
-            toast(`${timeRemaining}s left`, 'warn');
-        }
+        if ([60,30,10].includes(timeRemaining)) toast(`${timeRemaining}s left`, 'warn');
         if (timeRemaining <= 0){
             clearInterval(t);
-            if (!submitted){
-                toast('Time up — submitting…', 'warn');
-                submitNow();
-            }
+            if (!submitted){ toast('Time up — submitting…', 'warn'); submitNow(); }
         }
     }, 1000);
 
-    // ---- Events ----
-    document.querySelectorAll('.q-option input').forEach(r => {
-        r.addEventListener('change', updateProgressBar);
-    });
-
+    // Events
+    document.querySelectorAll('.q-option input').forEach(r => r.addEventListener('change', updateProgressBar));
     $btnHint.addEventListener('click', () => {
         if (submitted) return;
-        hintsUsed++;
-        $hintCount.textContent = hintsUsed;
+        hintsUsed++; $hintCount.textContent = hintsUsed;
         const hint = hints[Math.floor(Math.random() * hints.length)] || 'Think about the lesson examples.';
         toast('Hint: ' + hint, 'ok');
     });
-
     $btnReset.addEventListener('click', () => {
         if (submitted) return;
         if (confirm('Reset your selections?')){
@@ -341,22 +404,15 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
                 c.classList.remove('correct','incorrect','show-explain');
                 const ex = c.querySelector('.q-explain'); if (ex) ex.textContent = '';
             });
-            updateProgressBar();
-            toast('Cleared.', 'ok');
+            updateProgressBar(); toast('Cleared.', 'ok');
         }
     });
+    $btnCheck.addEventListener('click', () => { if (!submitted) submitNow(); });
 
-    $btnCheck.addEventListener('click', () => {
-        if (submitted) return;
-        submitNow();
-    });
-
-    // ---- Submit & grade ----
+    // Grade & submit
     function submitNow(){
         submitted = true;
-        $btnCheck.disabled = true;
-        $btnHint.disabled = true;
-        $btnReset.disabled = true;
+        $btnCheck.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
         clearInterval(t);
 
         const answers = [];
@@ -365,60 +421,46 @@ body{ background: radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12),
 
         cards.forEach((card, i) => {
             const chosen = card.querySelector('input[type=radio]:checked');
-            let val = -1;
-            let isCorrect = false;
-
+            let val = -1, isCorrect = false;
             if (chosen && Number.isFinite(parseInt(chosen.value))){
                 val = parseInt(chosen.value);
-                if (val === parseInt(answerKey[i])){
-                    isCorrect = true; correct++;
-                }
+                if (val === parseInt(answerKey[i])){ isCorrect = true; correct++; }
             }
             answers.push(val);
 
             card.classList.add(isCorrect ? 'correct' : 'incorrect');
             const ex = card.querySelector('.q-explain');
-            if (ex){
-                ex.textContent = explanations[i] || (isCorrect ? 'Correct.' : 'Check the lesson again.');
-                card.classList.add('show-explain');
-            }
+            if (ex){ ex.textContent = explanations[i] || (isCorrect ? 'Correct.' : 'Check the lesson again.'); card.classList.add('show-explain'); }
         });
 
         const rawPct = cards.length ? Math.round((correct / cards.length) * 100) : 0;
-        const hintPenalty = hintsUsed * 5; // small nudge for using hints
+        const hintPenalty = hintsUsed * 5;
         const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
 
-        // Update UI
         $statScore.textContent = finalScore + '%';
         const starCount = starsFor(finalScore);
-        $statStars.textContent = '★'.repeat(starCount) || '0';
-        if ($metaStars) $metaStars.textContent = '★'.repeat(starCount) || '0';
+        $statStars.textContent = starCount ? '★'.repeat(starCount) : '0';
+        if (document.getElementById('metaStars')) document.getElementById('metaStars').textContent = starCount ? '★'.repeat(starCount) : '0';
 
-        // Fill hidden fields and submit
         document.getElementById('finalScore').value = finalScore;
         document.getElementById('answersData').value = JSON.stringify(answers);
 
         const passReq = {{ (int)$level->pass_score }};
-        if (finalScore >= passReq){
-            toast(`Great job! Score ${finalScore}%`, 'ok');
-        } else {
-            toast(`Score ${finalScore}%. Keep practicing!`, 'err');
-        }
+        toast(finalScore >= passReq ? `Great job! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'ok' : 'err');
 
-        // Submit after a small delay so students can see feedback
-        setTimeout(() => {
-            if ($form.requestSubmit) $form.requestSubmit();
-            else $form.submit();
-        }, 900);
+        setTimeout(() => { if ($form.requestSubmit) $form.requestSubmit(); else $form.submit(); }, 900);
     }
 
-    // Keyboard helpers
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (submitted) return;
         if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
         if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
         if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
     });
+
+    // init
+    updateProgressBar();
 })();
 </script>
 </x-app-layout>

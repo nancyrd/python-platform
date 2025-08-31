@@ -17,8 +17,8 @@
     $defaultHints = [
         "Read each item and think: is it a condition, an action, or setup code?",
         "A good category question: 'Does this run only when a test is true?'",
-        "If the line changes a counter (e.g., i += 1), it’s usually an update/action.",
-        "If it imports or defines things, it’s typically not part of branching/looping itself.",
+        "If the line changes a counter (e.g., i += 1), it's usually an update/action.",
+        "If it imports or defines things, it's typically not part of branching/looping itself.",
     ];
     $hintsForJs = !empty($hints) ? $hints : $defaultHints;
 
@@ -42,40 +42,40 @@
 @endphp
 
 <x-slot name="header">
-    <div class="dd-header">
-        <div class="hdr">
-            <!-- Left: badge + meta -->
-            <div class="hdr-left">
-                <div class="lvl-badge">
-                    <span class="lvl-number">{{ $level->index }}</span>
+    <div class="level-header">
+        <div class="header-container">
+            <!-- Left side: Level info -->
+            <div class="header-left">
+                <div class="level-badge">
+                    <span class="level-number">{{ $level->index }}</span>
                 </div>
 
-                <div class="hdr-meta">
-                    <div class="trail">
-                        <span class="trail-item">Stage <strong>{{ $level->stage->index ?? $level->stage_id }}</strong></span>
-                        <span class="dot">•</span>
-                        <span class="trail-item">Level <strong>{{ $level->index }}</strong></span>
-                        <span class="dot">•</span>
-                        <span class="trail-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
+                <div class="level-info">
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item">Stage {{ $level->stage->index ?? $level->stage_id }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item">Level {{ $level->index }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
                     </div>
 
-                    <h1 class="hdr-title">{{ $level->stage->title }}</h1>
-                    <div class="hdr-sub">{{ $level->title }}</div>
+                    <h1 class="stage-title">{{ $level->stage->title }}</h1>
+                    <div class="level-title">{{ $level->title }}</div>
                 </div>
             </div>
 
-            <!-- Right: compact stats -->
-            <div class="hdr-right">
-                <div class="lvl-stats">
-                    <div class="stat">
+            <!-- Right side: Stats -->
+            <div class="header-right">
+                <div class="stats-grid">
+                    <div class="stat-item">
                         <div class="stat-label">Score</div>
                         <div class="stat-value" id="statScore">0%</div>
                     </div>
-                    <div class="stat">
+                    <div class="stat-item">
                         <div class="stat-label">Stars</div>
                         <div class="stat-value" id="statStars">0</div>
                     </div>
-                    <div class="stat">
+                    <div class="stat-item">
                         <div class="stat-label">Time</div>
                         <div class="stat-value" id="timeRemaining">--:--</div>
                     </div>
@@ -85,535 +85,487 @@
     </div>
 </x-slot>
 
-
 <style>
-:root{
-  --bg-1:#0a1028; --bg-2:#14163b;
-  --ink:#e9e7ff; --muted:#cfc8ff;
-  --accent-1:#00b3ff; --accent-2:#b967ff; --accent-3:#05d9e8;
-  --danger:#ff5a7a; --ok:#35d19b; --warn:#ffb020;
-  --card:#121735; --border:rgba(255,255,255,.12);
-  --chip:#171b3d; --chip-hover:#1f2450;
+:root {
+    /* Professional purple-based palette */
+    --primary-purple: #7c3aed;
+    --secondary-purple: #a855f7;
+    --light-purple: #c084fc;
+    --purple-subtle: #f3e8ff;
+
+    /* Neutral grays */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
+
+    /* Semantic colors */
+    --success: #10b981;
+    --success-light: #dcfce7;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fecaca;
+    --info: #3b82f6;
+    --info-light: #dbeafe;
+
+    /* UI */
+    --background: #ffffff;
+    --surface: #f8fafc;
+    --border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+    --shadow:    0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
 }
-body{
-  background:
-    radial-gradient(1200px 800px at 20% -10%, rgba(0,179,255,.12), transparent 60%),
-    radial-gradient(1000px 700px at 110% 10%, rgba(185,103,255,.12), transparent 60%),
-    linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  color:var(--ink);
+
+body {
+    background: linear-gradient(135deg,
+        rgba(124,58,237,.03) 0%,
+        rgba(168,85,247,.02) 50%,
+        rgba(248,250,252,1) 100%);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
 }
 
 /* Header */
-.dd-header{
-  background: rgba(10,16,40,.85);
-  border-bottom:1px solid var(--border);
-  padding:16px 0;
+.level-header {
+    background: linear-gradient(135deg,
+        rgba(124,58,237,.05) 0%,
+        rgba(168,85,247,.03) 100%);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+}
+.header-container { display:flex; align-items:center; justify-content:space-between; padding:1.5rem 2rem; gap:2rem; }
+.header-left { display:flex; align-items:center; gap:1.5rem; flex:1; min-width:0; }
+.level-badge { width:4rem; height:4rem; border-radius:1rem; background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); flex-shrink:0; }
+.level-number { font-weight:900; font-size:1.25rem; color:#fff; }
+.level-info { flex:1; min-width:0; }
+.breadcrumb { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--text-muted); margin-bottom:.25rem; }
+.breadcrumb-item.type { text-transform:capitalize; color:var(--primary-purple); font-weight:500; }
+.separator{opacity:.6}
+.stage-title { font-size:1.5rem; font-weight:700; margin:0; line-height:1.2; color:var(--text-primary); }
+.level-title { font-size:1rem; color:var(--text-secondary); margin-top:.25rem; }
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.stat-item { text-align:center; padding:.75rem 1rem; background:#fff; border:1px solid var(--border); border-radius:.75rem; box-shadow:var(--shadow-sm); min-width:5rem; }
+.stat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
+.stat-value { font-size:1.125rem; font-weight:700; color:var(--text-primary); margin-top:.25rem; }
+
+/* Full-bleed layout */
+.full-bleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+}
+.edge-pad { padding: 1.25rem clamp(12px, 3vw, 32px); }
+
+/* Main */
+.main-container { max-width:none; }
+.section-title { font-size:1.125rem; font-weight:700; margin:0 0 1rem 0; color:var(--text-primary); }
+
+/* Cards */
+.card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
+.card.accent {
+    border-left: 6px solid var(--primary-purple);
+    background: linear-gradient(180deg, var(--purple-subtle), #fff);
 }
 
-/* unified inner width so header/body/footer align */
-.hdr{
-  max-width:1160px;
-  margin:0 auto;
-  padding:0 16px;
+/* Game board */
+.game-board { display:flex; flex-direction:column; gap:2rem; }
 
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
+/* Items / progress */
+.items-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
+.items-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap; }
+.items-title { font-size:1.125rem; font-weight:600; color:var(--text-primary); }
+.progress-container { flex:1; max-width:220px; }
+.progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
+.progress-fill { height:100%; width:0%; background:linear-gradient(90deg,var(--primary-purple),var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
+.chips-container { display:flex; flex-wrap:wrap; gap:.75rem; min-height:3rem; }
+.chip { display:inline-flex; align-items:center; gap:.5rem; background:var(--gray-50); border:1px solid var(--border); color:var(--text-primary); padding:.75rem 1rem; border-radius:.75rem; cursor:grab; user-select:none; transition:all .2s ease; font-weight:500; }
+.chip:hover { background:var(--gray-100); border-color:var(--primary-purple); transform:translateY(-1px); box-shadow:var(--shadow); }
+.chip.dragging { opacity:.7; background:var(--purple-subtle); border-color:var(--primary-purple); cursor:grabbing; box-shadow:var(--shadow-lg); }
+.chip-badge { font-size:.75rem; color:var(--primary-purple); background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.2); padding:.125rem .5rem; border-radius:9999px; font-weight:500; }
 
-/* left side = badge + meta stacked nicely */
-.hdr-left{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  min-width:0; /* allow text ellipsis */
-}
+/* Categories */
+.categories-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; }
+.category-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); min-height:150px; }
+.category-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.category-name { font-size:1rem; font-weight:600; color:var(--text-primary); }
+.category-count { font-size:.875rem; color:var(--text-muted); }
+.drop-zone { min-height:100px; border:2px dashed var(--gray-300); border-radius:.75rem; padding:1rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-start; align-content:flex-start; transition:all .2s ease; }
+.drop-zone.drag-over { border-color:var(--primary-purple); background:rgba(124,58,237,.05); box-shadow: inset 0 0 0 1px var(--primary-purple); }
+.drop-zone:empty::after { content:'Drop items here'; color:var(--text-muted); font-style:italic; display:flex; align-items:center; justify-content:center; height:100%; width:100%; }
 
-.lvl-badge{
-  width:64px; height:64px; border-radius:16px;
-  background:linear-gradient(135deg,var(--accent-2),var(--accent-1));
-  display:flex; align-items:center; justify-content:center;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-  flex:0 0 auto;
-}
-.lvl-number{ font-weight:900; font-size:1.35rem; color:#0f0f1a; }
+/* Controls */
+.controls-container { display:flex; justify-content:center; gap:1rem; margin:2rem 0; flex-wrap:wrap; }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.5rem; border:none; border-radius:.75rem; font-weight:600; font-size:.875rem; cursor:pointer; transition:all .2s ease; text-decoration:none; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
+.btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
+.btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
+.btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-ghost:hover:not(:disabled){ background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
 
-.hdr-meta{ display:flex; flex-direction:column; gap:6px; min-width:0; }
-.trail{
-  display:flex; align-items:center; flex-wrap:wrap; gap:8px;
-  font-size:.85rem; color:var(--muted);
-}
-.trail-item strong{ color:#fff; }
-.trail .type{ text-transform:capitalize; }
-.trail .dot{ opacity:.6; }
-
-.hdr-title{
-  margin:0; color:#fff; font-weight:900; letter-spacing:.2px;
-  font-size:1.25rem; line-height:1.2;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-.hdr-sub{
-  color:var(--muted); font-size:.95rem; line-height:1.2;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-}
-
-/* right stats */
-.hdr-right{ flex:0 0 auto; }
-.lvl-stats{ display:flex; gap:12px; }
-.stat{
-  min-width:84px;
-  background:rgba(255,255,255,.06);
-  border:1px solid var(--border);
-  padding:8px 12px;
-  border-radius:12px;
-  text-align:center;
-}
-.stat-label{ font-size:.72rem; color:var(--muted); }
-.stat-value{ font-size:1rem; font-weight:800; color:#fff; }
-
-/* responsive */
-@media (max-width: 992px){
-  .hdr{
-    flex-direction:column;
-    align-items:stretch;
-    gap:12px;
-  }
-  .hdr-right{ order:3; }
-  .lvl-stats{ justify-content:flex-start; }
-  .hdr-left{ order:1; }
-}
-
-@media (max-width: 640px){
-  .lvl-badge{ width:56px; height:56px; border-radius:14px; }
-  .hdr-title{ font-size:1.1rem; }
-  .hdr-sub{ font-size:.9rem; }
-  .lvl-stats{ gap:8px; }
-  .stat{ min-width:72px; padding:8px 10px; }
-}
-
-
-/* Layout */
-.wrap{ max-width:1160px; margin:22px auto; padding:0 16px; }
-
-/* Lesson cards */
-.card{
-  background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:16px; padding:16px;
-}
-.card h3{ margin:0 0 8px 0; font-size:1.05rem; color:var(--accent-3); font-weight:800; }
-.card pre{ background:#0d1330;border:1px solid var(--border);border-radius:12px;padding:12px 14px; color:#cfeaff; overflow:auto; margin:10px 0 0 0; }
-
-/* Progress */
-.progress-shell{ height:12px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:18px 0; }
-.progress-bar{ height:100%; width:0%; background:linear-gradient(90deg,var(--accent-1),var(--accent-2)); transition:width .4s ease; }
-
-/* Board: top items, bottom categories */
-.board{ display:flex; flex-direction:column; gap:16px; }
-.source{
-  background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px;
-}
-.source-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-.source-title{ font-weight:800; color:#fff; }
-.chips{
-  display:flex; flex-wrap:wrap; gap:10px;
-}
-.chip{
-  user-select:none;
-  display:inline-flex; align-items:center; gap:8px;
-  background:var(--chip); border:1px solid var(--border); color:#e9e7ff;
-  padding:10px 12px; border-radius:12px; cursor:grab; transition: background .12s ease, transform .12s ease, border-color .12s ease;
-}
-.chip:hover{ background:var(--chip-hover); transform: translateY(-1px); border-color:rgba(185,103,255,.45); }
-.chip.dragging{ opacity:.75; border-color:var(--accent-1); box-shadow:0 0 0 3px rgba(0,179,255,.2) inset; cursor:grabbing; }
-.chip .badge{ display:inline-block; font-size:.75rem; color:#bfe9ff; background:rgba(0,179,255,.12); border:1px solid rgba(0,179,255,.28); padding:2px 6px; border-radius:999px; }
-
-/* Categories grid */
-.cats{
-  display:grid; gap:14px; grid-template-columns: 1fr;
-}
-@media(min-width:820px){ .cats{ grid-template-columns: 1fr 1fr; } }
-@media(min-width:1140px){ .cats{ grid-template-columns: 1fr 1fr 1fr; } }
-
-.cat{
-  background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px;
-  min-height: 120px; display:flex; flex-direction:column; gap:8px;
-}
-.cat-head{ display:flex; justify-content:space-between; align-items:center; }
-.cat-name{ font-weight:800; color:#fff; }
-.cat-count{ font-size:.85rem; color:var(--muted); }
-.cat-drop{
-  min-height:70px; border:1px dashed var(--border); border-radius:12px; padding:10px;
-  display:flex; flex-wrap:wrap; gap:10px;
-}
-.cat-drop.over{ border-color:var(--accent-1); background:rgba(0,179,255,.06); }
-
-/* Controls & meta */
-.controls{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 6px 0; }
-.btn{ border:none; border-radius:12px; padding:12px 18px; font-weight:800; letter-spacing:.2px; color:#0f1020; cursor:pointer; transition: transform .12s ease, box-shadow .2s ease; }
-.btn:disabled{ opacity:.6; cursor:not-allowed; }
-.btn-primary{ background:linear-gradient(135deg,var(--accent-1),var(--accent-2)); color:#0e1126; }
-.btn-secondary{ background:linear-gradient(135deg,#5ad0ff,#a58aff); color:#0e1126; }
-.btn-ghost{ background:transparent; color:var(--ink); border:1px solid var(--border); }
-.btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.25); }
-
-.meta{ display:flex; justify-content:space-between; gap:10px; margin-top:10px; color:var(--muted); font-size:.9rem; }
-.meta .left{ display:flex; gap:10px; align-items:center; }
-.meta .pill{ border:1px solid var(--border); padding:4px 8px; border-radius:999px; }
+/* Meta bar */
+.meta-container { display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-top:1px solid var(--border); font-size:.875rem; color:var(--text-muted); }
+.meta-left { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+.meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:500; }
 
 /* Toasts */
-.toast-wrap{ position:fixed; top:16px; right:16px; display:flex; flex-direction:column; gap:8px; z-index:1000; }
-.toast{ background:rgba(10,16,40,.9); border:1px solid var(--border); color:#fff; padding:10px 12px; border-radius:12px; font-weight:700; min-width:220px; }
-.toast.ok{ border-color:rgba(53,209,155,.6); }
-.toast.warn{ border-color:rgba(255,176,32,.6); }
-.toast.err{ border-color:rgba(255,90,122,.6); }
+.toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
+.toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:500; min-width:300px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
+.toast.success{ border-left:4px solid var(--success); background:linear-gradient(135deg,var(--success-light),#fff); }
+.toast.warning{ border-left:4px solid var(--warning); background:linear-gradient(135deg,var(--warning-light),#fff); }
+.toast.error{   border-left:4px solid var(--danger);  background:linear-gradient(135deg,var(--danger-light), #fff); }
+@keyframes slideIn{ from{opacity:0; transform:translateX(100%)} to{opacity:1; transform:translateX(0)} }
+
+/* Small */
+@media (max-width:768px){
+  .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
+  .stats-grid{gap:.5rem}
+  .edge-pad{padding:1rem}
+}
 </style>
 
-<div class="wrap">
+<!-- FULL-BLEED MAIN WRAP -->
+<div class="main-container full-bleed">
+
+    <!-- optional “passed” banner -->
     @if($alreadyPassed)
-        <div class="card" style="border-left:4px solid var(--ok);">
-            <h3>Level Completed</h3>
-            <p class="m-0">You’ve already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}. You can <a href="{{ route('levels.show', $level) }}?replay=1">replay</a> to improve your stars.</p>
+        <div class="edge-pad">
+            <div class="card accent" style="margin-bottom: 1rem;">
+                <div class="section-title" style="color:var(--primary-purple)">Level Completed</div>
+                <p style="margin:0">
+                    You've already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}.
+                    You can <a href="{{ route('levels.show', $level) }}?replay=1" style="color:var(--primary-purple); text-decoration: underline;">replay</a>
+                    to improve your stars.
+                </p>
+            </div>
         </div>
-        <div style="height:12px;"></div>
     @endif
 
-   
-
-    <div class="card">
-        <h3>How to answer</h3>
-        <div style="white-space:pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
+    <!-- INSTRUCTIONS ON TOP -->
+    <div class="edge-pad">
+        <div class="card accent" id="instructionsCard" style="margin-bottom: 1.25rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                <div class="section-title">Instructions</div>
+                <button class="btn btn-ghost" type="button" id="toggleInstrux" aria-expanded="true">
+                    <i class="fas fa-chevron-up"></i> Collapse
+                </button>
+            </div>
+            <div id="instruxBody" style="white-space: pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
+        </div>
     </div>
 
-    <form id="ddForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
-        @csrf
-        <input type="hidden" name="score" id="finalScore" value="0">
-        <input type="hidden" name="answers" id="answersData" value="{}">
+    <!-- GAME BOARD -->
+    <div class="edge-pad">
+        <div class="game-board">
 
-        <!-- Board -->
-        <div class="board" style="margin-top:14px;">
-            <!-- Top: Items bucket -->
-            <div class="source">
-                <div class="source-head">
-                    <div class="source-title">Items to place</div>
+            <form id="ddForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
+                @csrf
+                <input type="hidden" name="score"   id="finalScore"  value="0">
+                <input type="hidden" name="answers" id="answersData" value="{}">
 
+                <!-- Items -->
+                <div class="items-container">
+                    <div class="items-header">
+                        <div class="items-title">Items to Place</div>
+                        <div class="progress-container">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressBar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chips-container" id="chipsBucket">
+                        @foreach($allItems as $txt)
+                            <div class="chip" draggable="true" data-item="{{ $txt }}">
+                                <span class="chip-badge">drag</span>
+                                <span class="chip-text">{{ $txt }}</span>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                <div class="chips" id="chipsBucket">
-                    @foreach($allItems as $txt)
-                        <div class="chip" draggable="true" data-item="{{ $txt }}">
-                            <span class="badge">drag</span>
-                            <span class="txt">{{ $txt }}</span>
+
+                <!-- Categories -->
+                <div class="categories-grid" id="catsGrid">
+                    @foreach($categories as $catName => $items)
+                        <div class="category-container" data-category="{{ $catName }}">
+                            <div class="category-header">
+                                <div class="category-name">{{ $catName }}</div>
+                                <div class="category-count"><span class="count">0</span> placed</div>
+                            </div>
+                            <div class="drop-zone" data-drop="{{ $catName }}"></div>
                         </div>
                     @endforeach
                 </div>
-            </div>
 
-            <!-- Bottom: Categories grid -->
-            <div class="cats" id="catsGrid">
-                @foreach($categories as $catName => $items)
-                    <div class="cat" data-category="{{ $catName }}">
-                        <div class="cat-head">
-                            <div class="cat-name">{{ $catName }}</div>
-                            <div class="cat-count"><span class="count">0</span> placed</div>
-                        </div>
-                        <div class="cat-drop" data-drop="{{ $catName }}"></div>
-                    </div>
-                @endforeach
-            </div>
+                <!-- Controls -->
+                <div class="controls-container">
+                    <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
+                    <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
+                    <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
+                </div>
+            </form>
         </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" type="button" id="btnSubmit">Submit</button>
-            <button class="btn btn-secondary" type="button" id="btnHint">Hint</button>
-            <button class="btn btn-ghost" type="button" id="btnReset">Reset</button>
-        </div>
-
-        <div class="meta">
-            <div class="left">
-                <span class="pill">Pass score: {{ (int)$level->pass_score }}%</span>
-                @if(!is_null($savedScore)) <span class="pill">Best: {{ (int)$savedScore }}%</span> @endif
-                <span class="pill">Stars: <span id="metaStars">0</span></span>
-            </div>
-            <div>Tips used: <span id="hintCount">0</span></div>
-        </div>
-    </form>
+    </div>
 </div>
 
-<div class="toast-wrap" id="toastWrap"></div>
+<!-- FULL-BLEED META BAR -->
+<div class="meta-container full-bleed edge-pad">
+    <div class="meta-left">
+        <span class="meta-pill">Pass score: {{ (int)$level->pass_score }}%</span>
+        @if(!is_null($savedScore))
+            <span class="meta-pill">Best: {{ (int)$savedScore }}%</span>
+        @endif
+        <span class="meta-pill">Stars: <span id="metaStars">0</span></span>
+    </div>
+    <div>Tips used: <span id="hintCount">0</span></div>
+</div>
+
+<div class="toast-container" id="toastWrap"></div>
+
+<!-- Icons & minimal dependency -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
 (function(){
-  // ---- Data from PHP ----
-  const timeLimit  = {{ $timeLimit }};
-  const maxHints   = {{ $maxHints }};
-  const answerMap  = @json($answerMap); // {item: category}
-  const categories = @json(array_keys($categories));
+    // ---- Data from PHP ----
+    const timeLimit  = {{ $timeLimit }};
+    const maxHints   = {{ $maxHints }};
+    const answerMap  = @json($answerMap); // {item: category}
+    const categories = @json(array_keys($categories));
 
-  // ---- State ----
-  let timeRemaining = timeLimit;
-  let hintsUsed = 0;
-  let submitted = false;
+    // ---- State ----
+    let timeRemaining = timeLimit;
+    let hintsUsed = 0;
+    let submitted = false;
 
-  // ---- DOM ----
-  const $timer     = document.getElementById('timeRemaining');
-  const $statScore = document.getElementById('statScore');
-  const $statStars = document.getElementById('statStars');
-  const $metaStars = document.getElementById('metaStars');
-  const $progress  = document.getElementById('progressBar');
-  const $hintCount = document.getElementById('hintCount');
-  const $toastWrap = document.getElementById('toastWrap');
+    // ---- DOM ----
+    const $timer     = document.getElementById('timeRemaining');
+    const $statScore = document.getElementById('statScore');
+    const $statStars = document.getElementById('statStars');
+    const $metaStars = document.getElementById('metaStars');
+    const $progress  = document.getElementById('progressBar');
+    const $hintCount = document.getElementById('hintCount');
+    const $toastWrap = document.getElementById('toastWrap');
 
-  const $chipsBucket = document.getElementById('chipsBucket');
-  const $catsGrid    = document.getElementById('catsGrid');
-  const $btnSubmit   = document.getElementById('btnSubmit');
-  const $btnHint     = document.getElementById('btnHint');
-  const $btnReset    = document.getElementById('btnReset');
-  const $form        = document.getElementById('ddForm');
-  const $scoreInp    = document.getElementById('finalScore');
-  const $ansInp      = document.getElementById('answersData');
+    const $chipsBucket = document.getElementById('chipsBucket');
+    const $btnSubmit   = document.getElementById('btnSubmit');
+    const $btnHint     = document.getElementById('btnHint');
+    const $btnReset    = document.getElementById('btnReset');
+    const $form        = document.getElementById('ddForm');
+    const $scoreInp    = document.getElementById('finalScore');
+    const $ansInp      = document.getElementById('answersData');
 
-  // ---- Helpers ----
-  function fmtTime(sec){
-    const m = Math.floor(sec/60).toString().padStart(2,'0');
-    const s = (sec%60).toString().padStart(2,'0');
-    return `${m}:${s}`;
-  }
-  function toast(msg, kind='ok'){
-    const el = document.createElement('div');
-    el.className = `toast ${kind}`;
-    el.textContent = msg;
-    $toastWrap.appendChild(el);
-    setTimeout(() => el.remove(), 2200);
-  }
-  function starsFor(score){
-    if (score >= 90) return 3;
-    if (score >= 70) return 2;
-    if (score >= 50) return 1;
-    return 0;
-  }
-  function updateCounts(){
-    document.querySelectorAll('.cat').forEach(cat=>{
-      const n = cat.querySelectorAll('.cat-drop .chip').length;
-      const c = cat.querySelector('.count'); if (c) c.textContent = n;
-    });
-    const total = document.querySelectorAll('.chip').length;
-    const placed = document.querySelectorAll('.cat-drop .chip').length;
-    const pct = total ? Math.round(100 * placed / total) : 0;
-    $progress.style.width = pct + '%';
-  }
-  function currentPlacements(){
-    // Return { itemText: categoryName | null }
-    const m = {};
-    document.querySelectorAll('.chip').forEach(chip => {
-      const item = chip.getAttribute('data-item');
-      const parent = chip.parentElement;
-      if (parent && parent.hasAttribute('data-drop')){
-        m[item] = parent.getAttribute('data-drop');
-      } else {
-        m[item] = null;
-      }
-    });
-    return m;
-  }
+    // instructions collapse
+    const $toggleInstrux = document.getElementById('toggleInstrux');
+    const $instruxBody   = document.getElementById('instruxBody');
+    if ($toggleInstrux) {
+        $toggleInstrux.addEventListener('click', () => {
+            const hidden = $instruxBody.classList.toggle('d-none');
+            $toggleInstrux.innerHTML = hidden
+                ? '<i class="fas fa-chevron-down"></i> Expand'
+                : '<i class="fas fa-chevron-up"></i> Collapse';
+            $toggleInstrux.setAttribute('aria-expanded', String(!hidden));
+        });
+    }
 
-  // ---- Drag & Drop ----
-  let dragEl = null;
+    // ---- Helpers ----
+    function fmtTime(sec){
+        const m = Math.floor(sec/60).toString().padStart(2,'0');
+        const s = (sec%60).toString().padStart(2,'0');
+        return `${m}:${s}`;
+    }
+    function toast(msg, kind='success'){
+        const el = document.createElement('div');
+        el.className = `toast ${kind}`;
+        el.textContent = msg;
+        $toastWrap.appendChild(el);
+        setTimeout(() => el.remove(), 3000);
+    }
+    function starsFor(score){
+        if (score >= 90) return 3;
+        if (score >= 70) return 2;
+        if (score >= 50) return 1;
+        return 0;
+    }
+    function updateCounts(){
+        document.querySelectorAll('.category-container').forEach(cat=>{
+            const n = cat.querySelectorAll('.drop-zone .chip').length;
+            const c = cat.querySelector('.count');
+            if (c) c.textContent = n;
+        });
+        const total = document.querySelectorAll('.chip').length;
+        const placed = document.querySelectorAll('.drop-zone .chip').length;
+        const pct = total ? Math.round(100 * placed / total) : 0;
+        $progress.style.width = pct + '%';
+    }
+    function currentPlacements(){
+        const m = {};
+        document.querySelectorAll('.chip').forEach(chip => {
+            const item = chip.getAttribute('data-item');
+            const parent = chip.parentElement;
+            if (parent && parent.hasAttribute('data-drop')){
+                m[item] = parent.getAttribute('data-drop');
+            } else {
+                m[item] = null;
+            }
+        });
+        return m;
+    }
 
-  function onDragStart(e){
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    dragEl = chip;
-    chip.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-    try { e.dataTransfer.setData('text/plain', chip.getAttribute('data-item') || ''); } catch(_){}
-  }
-
-  function onDragEnd(e){
-    const chip = e.target.closest('.chip');
-    if (chip) chip.classList.remove('dragging');
-    dragEl = null;
-    updateCounts();
-  }
-
-  function allowDropZone(z){
-    z.addEventListener('dragover', e => {
-      e.preventDefault();
-      z.classList.add('over');
-    });
-    z.addEventListener('dragleave', () => z.classList.remove('over'));
-    z.addEventListener('drop', e => {
-      e.preventDefault();
-      z.classList.remove('over');
-      if (dragEl){
-        z.appendChild(dragEl);
+    // ---- Drag & Drop ----
+    let dragEl = null;
+    function onDragStart(e){
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        dragEl = chip;
+        chip.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        try { e.dataTransfer.setData('text/plain', chip.getAttribute('data-item') || ''); } catch(_){}
+    }
+    function onDragEnd(e){
+        const chip = e.target.closest('.chip');
+        if (chip) chip.classList.remove('dragging');
+        dragEl = null;
         updateCounts();
-      }
+    }
+    function allowDropZone(z){
+        z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('drag-over'); });
+        z.addEventListener('dragleave', () => z.classList.remove('drag-over'));
+        z.addEventListener('drop', e => {
+            e.preventDefault();
+            z.classList.remove('drag-over');
+            if (dragEl){ z.appendChild(dragEl); updateCounts(); }
+        });
+    }
+    document.querySelectorAll('.chip').forEach(ch => {
+        ch.addEventListener('dragstart', onDragStart);
+        ch.addEventListener('dragend', onDragEnd);
     });
-  }
+    allowDropZone($chipsBucket);
+    document.querySelectorAll('.drop-zone').forEach(allowDropZone);
 
-  // Make chips draggable
-  document.querySelectorAll('.chip').forEach(ch => {
-    ch.addEventListener('dragstart', onDragStart);
-    ch.addEventListener('dragend', onDragEnd);
-  });
-
-  // Make bucket a valid drop zone to “remove” placement
-  allowDropZone($chipsBucket);
-
-  // Category drop zones
-  document.querySelectorAll('.cat-drop').forEach(allowDropZone);
-
-  // Click-to-place (accessibility / mobile aid): click a chip to toggle a quick chooser menu
-  document.addEventListener('click', (e) => {
-    const chip = e.target.closest('.chip');
-    if (!chip) return;
-    // Build a small chooser
-    const menu = document.createElement('div');
-    menu.style.position='absolute';
-    menu.style.zIndex='100';
-    menu.style.background='rgba(13,19,48,.98)';
-    menu.style.border='1px solid var(--border)';
-    menu.style.borderRadius='10px';
-    menu.style.padding='8px';
-    menu.style.boxShadow='0 10px 22px rgba(0,0,0,.35)';
-    menu.style.top = (chip.getBoundingClientRect().bottom + window.scrollY + 6) + 'px';
-    menu.style.left = (chip.getBoundingClientRect().left + window.scrollX) + 'px';
-
-    const mkBtn = (label, cb)=>{
-      const b = document.createElement('button');
-      b.textContent = label;
-      b.className = 'btn btn-ghost';
-      b.style.display='block';
-      b.style.margin='6px 0';
-      b.onclick = (ev)=>{ ev.preventDefault(); cb(); document.body.removeChild(menu); };
-      return b;
-    };
-    categories.forEach(catName=>{
-      menu.appendChild(mkBtn(`Move to: ${catName}`, ()=>{
-        const z = document.querySelector(`.cat-drop[data-drop="${catName.replace(/"/g, '\\"')}"]`);
-        if (z) z.appendChild(chip);
-        updateCounts();
-      }));
+    // Click-to-place helper
+    document.addEventListener('click', (e) => {
+        const chip = e.target.closest('.chip');
+        if (!chip) return;
+        const menu = document.createElement('div');
+        Object.assign(menu.style, {
+            position:'absolute', zIndex:'1000', background:'#fff',
+            border:'1px solid var(--border)', borderRadius:'.75rem',
+            padding:'.5rem', boxShadow:'var(--shadow-lg)',
+            top:(chip.getBoundingClientRect().bottom + window.scrollY + 6)+'px',
+            left:(chip.getBoundingClientRect().left   + window.scrollX)+'px'
+        });
+        const mkBtn = (label, cb)=>{
+            const b = document.createElement('button');
+            b.textContent = label;
+            b.className = 'btn btn-secondary';
+            b.style.cssText = 'display:block;margin:.25rem 0;width:100%;text-align:left;';
+            b.onclick = (ev)=>{ ev.preventDefault(); cb(); try{document.body.removeChild(menu)}catch(_){ } };
+            return b;
+        };
+        categories.forEach(catName=>{
+            menu.appendChild(mkBtn(`Move to: ${catName}`, ()=>{
+                const z = document.querySelector(`.drop-zone[data-drop="${catName.replace(/"/g, '\\"')}"]`);
+                if (z) z.appendChild(chip);
+                updateCounts();
+            }));
+        });
+        menu.appendChild(mkBtn('Put back (top)', ()=>{ $chipsBucket.appendChild(chip); updateCounts(); }));
+        document.querySelectorAll('.__chipMenu').forEach(m=>m.remove());
+        menu.classList.add('__chipMenu');
+        document.body.appendChild(menu);
+        const onDoc = (ev)=>{ if (!menu.contains(ev.target)){ try{document.body.removeChild(menu)}catch(_){ } document.removeEventListener('click', onDoc); } };
+        setTimeout(()=>document.addEventListener('click', onDoc),0);
     });
-    menu.appendChild(mkBtn('Put back (top)', ()=>{
-      $chipsBucket.appendChild(chip);
-      updateCounts();
-    }));
 
-    // Remove any existing menu and place new
-    document.querySelectorAll('.__chipMenu').forEach(m=>m.remove());
-    menu.classList.add('__chipMenu');
-    document.body.appendChild(menu);
+    // ---- Timer ----
+    const $timerNode = document.getElementById('timeRemaining');
+    if ($timerNode) $timerNode.textContent = fmtTime(timeRemaining);
+    const timerInterval = setInterval(() => {
+        timeRemaining--;
+        if ($timerNode) $timerNode.textContent = fmtTime(timeRemaining);
+        if ([60,30,10].includes(timeRemaining)) toast(`${timeRemaining}s left`, 'warning');
+        if (timeRemaining <= 0){
+            clearInterval(timerInterval);
+            if (!submitted){ toast('Time up — submitting…', 'warning'); submitNow(); }
+        }
+    }, 1000);
 
-    // Auto-remove on outside click
-    const onDoc = (ev)=>{
-      if (!menu.contains(ev.target)){ try{ document.body.removeChild(menu); }catch(_){}
-        document.removeEventListener('click', onDoc);
-      }
-    };
-    setTimeout(()=>document.addEventListener('click', onDoc), 0);
-  });
+    // ---- Hints / Reset / Submit ----
+    $btnHint.addEventListener('click', ()=>{
+        if (submitted) return;
+        if (hintsUsed >= maxHints){ toast('No more hints available.', 'warning'); return; }
+        hintsUsed++; $hintCount.textContent = hintsUsed;
+        const hintsList = @json($hintsForJs);
+        const hint = hintsList[Math.floor(Math.random() * hintsList.length)] || 'Think about what category this line belongs to.';
+        toast('Hint: ' + hint, 'success');
+    });
+    $btnReset.addEventListener('click', ()=>{
+        if (submitted) return;
+        if (!confirm('Reset all placements?')) return;
+        document.querySelectorAll('.drop-zone .chip').forEach(ch => $chipsBucket.appendChild(ch));
+        updateCounts(); toast('All items reset.', 'success');
+    });
+    $btnSubmit.addEventListener('click', ()=>{ if (!submitted) submitNow(); });
 
-  // ---- Timer ----
-  $timer.textContent = fmtTime(timeRemaining);
-  const t = setInterval(() => {
-    timeRemaining--;
-    $timer.textContent = fmtTime(timeRemaining);
-    if (timeRemaining === 60 || timeRemaining === 30 || timeRemaining === 10){
-      toast(`${timeRemaining}s left`, 'warn');
+    // ---- Submit & Grade ----
+    function submitNow(){
+        submitted = true;
+        $btnSubmit.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
+        clearInterval(timerInterval);
+
+        const placed = currentPlacements();
+        let totalCount = 0, correct = 0;
+        for (const item in answerMap){ totalCount++; if (placed[item] && placed[item] === answerMap[item]) correct++; }
+        const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
+        const hintPenalty = hintsUsed * 5;
+        const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+
+        // update UI
+        if ($statScore) $statScore.textContent = finalScore + '%';
+        const stars = starsFor(finalScore);
+        const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
+        if ($statStars) $statStars.textContent = starDisplay;
+        if ($metaStars) $metaStars.textContent = starDisplay;
+
+        // hidden inputs
+        $scoreInp.value = finalScore;
+        $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct: correct });
+
+        // feedback
+        const passReq = {{ (int)$level->pass_score }};
+        if (finalScore >= passReq) toast(`Excellent! Score: ${finalScore}%`, 'success');
+        else toast(`Score: ${finalScore}%. Keep practicing!`, 'error');
+
+        // submit after short delay
+        setTimeout(()=>{ if ($form.requestSubmit) $form.requestSubmit(); else $form.submit(); }, 1200);
     }
-    if (timeRemaining <= 0){
-      clearInterval(t);
-      if (!submitted){
-        toast('Time up — submitting…', 'warn');
-        submitNow();
-      }
-    }
-  }, 1000);
 
-  // ---- Hints / Reset / Submit ----
-  document.getElementById('btnHint').addEventListener('click', ()=>{
-    if (submitted) return;
-    if (hintsUsed >= {{ $maxHints }}){
-      toast('No more hints available.', 'warn');
-      return;
-    }
-    hintsUsed++;
-    document.getElementById('hintCount').textContent = hintsUsed;
-    const list = @json($hintsForJs);
-    const hint = list[Math.floor(Math.random() * list.length)] || 'Think about what category this line belongs to.';
-    toast('Hint: ' + hint, 'ok');
-  });
+    // keyboard helpers
+    document.addEventListener('keydown', (e) => {
+        if (submitted) return;
+        if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
+        if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnHint.click(); }
+        if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnReset.click(); }
+    });
 
-  document.getElementById('btnReset').addEventListener('click', ()=>{
-    if (submitted) return;
-    if (!confirm('Reset all placements?')) return;
-    // Move all chips back to top
-    document.querySelectorAll('.cat-drop .chip').forEach(ch => $chipsBucket.appendChild(ch));
+    // init
     updateCounts();
-    toast('Cleared.', 'ok');
-  });
-
-  document.getElementById('btnSubmit').addEventListener('click', ()=>{
-    if (submitted) return;
-    submitNow();
-  });
-
-  // ---- Submit & Grade ----
-  function submitNow(){
-    submitted = true;
-    document.getElementById('btnSubmit').disabled = true;
-    document.getElementById('btnHint').disabled  = true;
-    document.getElementById('btnReset').disabled = true;
-    clearInterval(t);
-
-    const placed = currentPlacements(); // {item: category|null}
-    // Compute raw correctness: only items placed into exactly the right category count.
-    let totalCount = 0, correct = 0;
-    for (const item in answerMap){
-      totalCount++;
-      if (placed[item] && placed[item] === answerMap[item]) correct++;
-    }
-    const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
-    const hintPenalty = hintsUsed * 5;
-    const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-
-    // Update stars + UI
-    $statScore.textContent = finalScore + '%';
-    const stars = starsFor(finalScore);
-    $statStars.textContent = '★'.repeat(stars) || '0';
-    if ($metaStars) $metaStars.textContent = '★'.repeat(stars) || '0';
-
-    // Fill hidden fields
-    $scoreInp.value = finalScore;
-    // Save a compact answer record: only placed items with their target category
-    // { placements: { "item text": "Category or null" }, total, correct }
-    $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct });
-
-    // Feedback
-    const passReq = {{ (int)$level->pass_score }};
-    if (finalScore >= passReq){
-      toast(`Great job! Score ${finalScore}%`, 'ok');
-    } else {
-      toast(`Score ${finalScore}%. Keep practicing!`, 'err');
-    }
-
-    // Submit after a short delay so feedback is visible
-    setTimeout(()=>{
-      if ($form.requestSubmit) $form.requestSubmit();
-      else $form.submit();
-    }, 900);
-  }
-
-  // Keyboard helpers
-  document.addEventListener('keydown', (e) => {
-    if (submitted) return;
-    if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
-    if (e.key.toLowerCase() === 'h'){ e.preventDefault(); document.getElementById('btnHint').click(); }
-    if (e.key.toLowerCase() === 'r'){ e.preventDefault(); document.getElementById('btnReset').click(); }
-  });
-
-  // First counts
-  updateCounts();
 })();
 </script>
 </x-app-layout>

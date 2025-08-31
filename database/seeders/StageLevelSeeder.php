@@ -61,32 +61,80 @@ Level::updateOrCreate(
             'time_limit' => 300,
             'max_hints'  => 4
         ,
-        'examples' => [
-                [
-                    'title' => '1) Print a message',
-                    'code'  => 'print("Hello, Python!")',
-                    'explain' => 'The print() function displays text on the screen.',
-                    'expected_output' => "Hello, Python!"
-                ],
-                [
-                    'title' => '2) Math in Python',
-                    'code'  => "result = (3 + 5) * 2\nprint(result)",
-                    'explain' => 'Python can do arithmetic like a calculator.',
-                    'expected_output' => "16"
-                ],
-                [
-                    'title' => '3) Variables',
-                    'code'  => "name = 'Sara'\nage = 20\nprint(name, 'is', age, 'years old')",
-                    'explain' => 'Variables store data you can reuse.',
-                    'expected_output' => "Sara is 20 years old"
-                ],
-                [
-                    'title' => '4) Simple if',
-                    'code'  => "x = 7\nif x > 5:\n    print('x is big')\nelse:\n    print('x is small')",
-                    'explain' => 'if/else lets your program make decisions.',
-                    'expected_output' => "x is big"
-                ],
-            ],
+      'examples' => [
+    [
+        'title' => '1) What is Python?',
+        'code' => null,
+        'explain' => 'Python is a high-level, general-purpose programming language focused on readability and rapid development. It uses clear, concise syntax and runs on Windows, macOS, and Linux.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '2) Who uses Python?',
+        'code' => null,
+        'explain' => 'Software engineers, data scientists, machine-learning engineers, DevOps/SRE, QA automation engineers, cybersecurity analysts, researchers, educators, hobbyists, and many enterprises (e.g., tech, finance, healthcare, media).',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '3) What is Python used for?',
+        'code' => null,
+        'explain' => 'Common uses include web backends and APIs (Django, Flask, FastAPI), data analysis (pandas, NumPy), machine learning and AI (scikit-learn, PyTorch, TensorFlow), scripting and automation, DevOps/infra tooling, scientific computing, test automation, and simple desktop tools.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '4) How can people benefit from learning Python?',
+        'code' => null,
+        'explain' => 'It has a gentle learning curve, huge library ecosystem, and broad job market. You can quickly automate repetitive tasks, prototype ideas fast, and transition between domains (web, data, ML) without switching languages.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '5) Why is Python so popular?',
+        'code' => null,
+        'explain' => 'Readable syntax, extensive standard library, a massive third-party package index (PyPI), strong community support, and thriving ecosystems for data/ML and web development.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '6) What are Python’s main strengths and limitations?',
+        'code' => null,
+        'explain' => 'Strengths: readability, productivity, cross-platform support, huge libraries. Limitations: slower than compiled languages in tight loops, the GIL affects some multi-threaded CPU-bound workloads, and it’s not the first choice for mobile UIs or ultra-low-latency systems.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '7) Which industries use Python?',
+        'code' => null,
+        'explain' => 'Tech, finance and fintech, healthcare/biotech, media/streaming, retail/e-commerce, education/research, gaming tools, logistics, and government. It’s especially strong where data analysis and automation are important.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '8) Popular Python frameworks and libraries',
+        'code' => null,
+        'explain' => 'Web: Django, Flask, FastAPI. Data: pandas, NumPy. ML/AI: scikit-learn, PyTorch, TensorFlow. Viz: Matplotlib, Plotly, Seaborn. Automation/CLI: Click, Typer. Testing: pytest. Scraping: Requests, BeautifulSoup, Scrapy.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '9) How do you install Python and manage packages?',
+        'code' => null,
+        'explain' => 'Install from python.org or a distribution (e.g., Anaconda). Verify with “python --version”. Use virtual environments (python -m venv .venv; activate it) and install packages via “pip install package_name”.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '10) How does Python compare to other languages?',
+        'code' => null,
+        'explain' => 'Compared to C/C++/Rust it trades raw speed for developer speed. Compared to Java/C# it’s more dynamic and concise. Compared to JavaScript it excels in data/ML and server-side scripting, while JS dominates the browser.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '11) Real-world things you can build with Python',
+        'code' => null,
+        'explain' => 'Data dashboards, recommendation engines, chatbots, ETL pipelines, web APIs, automation scripts (rename files, scrape sites, send reports), simulation tools, and proof-of-concept ML models.',
+        'expected_output' => null,
+    ],
+    [
+        'title' => '12) How to start learning effectively',
+        'code' => null,
+        'explain' => 'Focus on core syntax (variables, types, control flow, functions), then practice small scripts that automate real tasks. Learn a package manager and a framework aligned with your goal (e.g., pandas for data, Django/FastAPI for web).',
+        'expected_output' => null,
+    ],
+],
         ],
     ]
 );

@@ -1,11 +1,10 @@
 <x-app-layout>
 @php
-    // Header stats (safe defaults)
+    // Safe header stats
     $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
     $savedScore    = $levelProgress->best_score ?? null;
-    $savedStars    = $levelProgress->stars ?? 0;
 
-    // Ensure we always have an array (even if content is stored as JSON text)
+    // Normalize content
     $content      = is_array($level->content) ? $level->content : (json_decode($level->content ?? '[]', true) ?: []);
     $intro        = $content['intro'] ?? null;
     $instructions = $content['instructions'] ?? null;
@@ -14,7 +13,7 @@
     $timeLimit    = (int)($content['time_limit'] ?? 300);
     $maxHints     = (int)($content['max_hints']  ?? 3);
 
-    // Normalize questions to a simple array the JS can use
+    // Flatten questions for JS
     $questions = [];
     foreach ($questionsRaw as $i => $q) {
         $questions[] = [
@@ -26,7 +25,6 @@
         ];
     }
 
-    // One clean payload for the frontend
     $payload = [
         'questions'  => $questions,
         'hints'      => $hints,
@@ -35,48 +33,41 @@
     ];
 @endphp
 
-{{-- Expose the payload ONCE (before the class) --}}
 <script>
   window.LEVEL_DATA = {!! json_encode($payload, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES) !!};
 </script>
 
 <x-slot name="header">
-    <div class="epic-level-header">
-        <div class="container-fluid">
-            <div class="row align-items-center">
-                <div class="col-auto">
-                    <div class="level-badge-container">
-                        <div class="level-badge">
-                            <span class="level-number">{{ $level->index }}</span>
-                        </div>
+    <!-- Same header design as the other blades -->
+    <div class="level-header">
+        <div class="header-container">
+            <div class="header-left">
+                <div class="level-badge"><span class="level-number">{{ $level->index }}</span></div>
+                <div class="level-info">
+                    <div class="breadcrumb">
+                        <span class="breadcrumb-item">Stage {{ $level->stage->index ?? $level->stage_id }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item">Level {{ $level->index }}</span>
+                        <span class="separator">•</span>
+                        <span class="breadcrumb-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
                     </div>
+                    <h1 class="stage-title">{{ $level->stage->title }}</h1>
+                    <div class="level-title">{{ $level->title }}</div>
                 </div>
-                <div class="col">
-                    <div class="level-info">
-                        <h2 class="level-title mb-1">{{ $level->stage->title }}</h2>
-                        <div class="level-subtitle">
-                            <i class="fas fa-gamepad me-2"></i>
-                            Level {{ $level->index }} • {{ strtoupper($level->type) }} Challenge
-                        </div>
+            </div>
+            <div class="header-right">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-label">Score</div>
+                        <div class="stat-value" id="statScore">0%</div>
                     </div>
-                </div>
-                <div class="col-auto">
-                    <div class="level-stats">
-                        <div class="stat-item me-3">
-                            <div class="stat-icon">🏆</div>
-                            <div class="stat-value" id="currentScore">0</div>
-                            <div class="stat-label">Score</div>
-                        </div>
-                        <div class="stat-item me-3">
-                            <div class="stat-icon">⭐</div>
-                            <div class="stat-value" id="starsEarned">0</div>
-                            <div class="stat-label">Stars</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-icon">⏱️</div>
-                            <div class="stat-value" id="timeRemaining">05:00</div>
-                            <div class="stat-label">Time</div>
-                        </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Stars</div>
+                        <div class="stat-value" id="statStars">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Time</div>
+                        <div class="stat-value" id="timeRemaining">--:--</div>
                     </div>
                 </div>
             </div>
@@ -85,391 +76,394 @@
 </x-slot>
 
 <style>
-  :root{
-    --deep-purple:#1a0636;--cosmic-purple:#4a1b6d;--space-blue:#162b6f;--dark-space:#0a1028;
-    --neon-blue:#00b3ff;--neon-purple:#b967ff;--electric-blue:#05d9e8;--gold-gradient:linear-gradient(135deg,#ffd700 0%,#ffed4a 100%);
-  }
-  body{background:linear-gradient(45deg,var(--deep-purple),var(--cosmic-purple),var(--space-blue),var(--dark-space));min-height:100vh;font-family:'Orbitron','Arial',sans-serif;color:#fff}
-  .epic-level-header{background:rgba(10,6,30,.9);backdrop-filter:blur(20px);border-bottom:3px solid var(--neon-purple);padding:20px 0;position:relative;overflow:hidden}
-  .epic-level-header::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(185,103,255,.1),transparent);animation:headerShine 4s ease-in-out infinite}
-  @keyframes headerShine{0%{left:-100%}50%,100%{left:100%}}
-  .level-badge{width:70px;height:70px;background:var(--gold-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 30px rgba(185,103,255,.6);animation:levelPulse 2s ease-in-out infinite;position:relative;z-index:2}
-  .level-number{font-size:1.8rem;font-weight:900;color:#333;text-shadow:1px 1px 2px rgba(0,0,0,.3)}
-  @keyframes levelPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05);box-shadow:0 0 40px rgba(185,103,255,.8)}}
-  .level-title{color:var(--neon-purple);font-size:1.8rem;font-weight:900;text-shadow:2px 2px 4px rgba(0,0,0,.5);letter-spacing:1px}
-  .level-subtitle{color:rgba(255,255,255,.85)}
-  .level-stats{display:flex;align-items:center}
-  .stat-item{text-align:center;color:#fff;background:rgba(255,255,255,.1);backdrop-filter:blur(10px);padding:15px;border-radius:15px;border:1px solid rgba(255,255,255,.2);min-width:80px}
-  .stat-icon{font-size:1.5rem;margin-bottom:5px}
-  .stat-value{font-size:1.2rem;font-weight:900;color:var(--neon-purple)}
-  .stat-label{font-size:.8rem;opacity:.8}
+:root {
+    /* Purple palette */
+    --primary-purple: #7c3aed;
+    --secondary-purple: #a855f7;
+    --light-purple: #c084fc;
+    --purple-subtle: #f3e8ff;
 
-  .game-arena{background:rgba(26,6,54,.7);backdrop-filter:blur(20px);border-radius:30px;margin:30px auto;padding:40px;max-width:1200px;box-shadow:0 20px 60px rgba(0,0,0,.3);border:2px solid rgba(185,103,255,.3);position:relative;overflow:hidden}
-  .challenge-title{text-align:center;font-size:2.4rem;font-weight:900;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:18px}
-  .challenge-description{text-align:center;font-size:1.05rem;color:rgba(255,255,255,.9);margin:8px auto 26px;max-width:900px}
-  .progress-bar-container{background:rgba(0,0,0,.1);height:12px;border-radius:10px;overflow:hidden;margin:18px 0}
-  .progress-bar{height:100%;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));border-radius:10px;transition:width .8s cubic-bezier(.25,.46,.45,.94);position:relative}
-  .progress-bar::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);animation:progressShine 2s ease-in-out infinite}
-  @keyframes progressShine{0%{left:-100%}100%{left:100%}}
-  .questions-container{margin:24px 0}
-  .question-card{background:linear-gradient(135deg,rgba(40,10,70,.7),rgba(60,20,90,.7));border-radius:22px;padding:20px;margin:16px 0;border:3px solid var(--neon-purple);position:relative;overflow:hidden;transition:all .3s;box-shadow:0 10px 30px rgba(185,103,255,.2)}
-  .question-card:hover{transform:translateY(-4px);box-shadow:0 20px 50px rgba(185,103,255,.3);border-color:var(--electric-blue)}
-  .question-header{display:flex;align-items:center;margin-bottom:12px}
-  .question-number{width:46px;height:46px;background:var(--gold-gradient);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:900;color:#333;margin-right:14px;box-shadow:0 0 18px rgba(255,215,0,.5)}
-  .question-text{color:#fff;font-size:1.15rem;font-weight:600;line-height:1.5;flex-grow:1}
-  .code-display{background:rgba(0,0,0,.85);border:2px solid var(--neon-blue);border-radius:14px;padding:14px;margin:10px 0 6px;font-family:'Courier New',monospace;color:#00ff00;font-size:1rem}
-  .code-display::before{content:'💻 Python Code';position:absolute;top:8px;right:12px;background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));color:#fff;padding:4px 10px;border-radius:12px;font-size:.75rem;font-weight:700}
-  .answer-buttons{display:flex;gap:14px;justify-content:center;margin-top:12px}
-  .answer-btn{flex:1;max-width:200px;padding:14px 20px;border:none;border-radius:18px;font-size:1.05rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all .2s;box-shadow:0 8px 25px rgba(0,0,0,.2)}
-  .answer-btn.true-btn{background:linear-gradient(135deg,#28a745,#20c997);color:#fff}
-  .answer-btn.false-btn{background:linear-gradient(135deg,#dc3545,#fd7e14);color:#fff}
-  .answer-btn:hover{transform:translateY(-5px) scale(1.03)}
-  .answer-btn.selected{transform:scale(1.06);box-shadow:0 0 26px rgba(255,255,255,.45);border:3px solid #fff}
-  .question-result{position:absolute;top:10px;right:15px;font-size:1.6rem;opacity:0;transition:opacity .3s}
-  .question-card.answered .question-result{opacity:1}
-  .controls-section{text-align:center;margin:24px 0}
-  .btn-epic{background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));border:none;color:#fff;padding:14px 28px;border-radius:28px;font-size:1.05rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;transition:all .25s;box-shadow:0 8px 25px rgba(102,126,234,.3);margin:0 8px}
-  .btn-epic:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 15px 40px rgba(185,103,255,.5)}
-  .btn-reset{background:linear-gradient(45deg,#ff2a6d,#ff6a00)}
-  .btn-hint{background:linear-gradient(45deg,#f093fb,#f5576c)}
-  .feedback-container{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;pointer-events:none}
-  .feedback-message{background:linear-gradient(45deg,var(--neon-blue),var(--neon-purple));color:#fff;padding:16px 28px;border-radius:22px;font-size:1.05rem;font-weight:800;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.3);animation:feedbackPop 2s ease;margin-bottom:8px}
-  .feedback-message.error{background:linear-gradient(45deg,#ff2a6d,#ff6a00)}
-  .feedback-message.warning{background:linear-gradient(45deg,#f093fb,#f5576c)}
-  @keyframes feedbackPop{0%{transform:scale(0) rotate(180deg);opacity:0}20%{transform:scale(1.2) rotate(0);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(0) rotate(-180deg);opacity:0}}
-  .completion-celebration{position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:9999}
-  .confetti{position:absolute;width:10px;height:10px;background:#b967ff;animation:confettiFall 3s linear infinite}
-  @keyframes confettiFall{0%{transform:translateY(-100vh) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-  @media (max-width:768px){.answer-buttons{flex-direction:column;gap:12px}.answer-btn{max-width:none}}
-</style>
+    /* Grays */
+    --gray-50: #f8fafc;
+    --gray-100: #f1f5f9;
+    --gray-200: #e2e8f0;
+    --gray-300: #cbd5e1;
+    --gray-400: #94a3b8;
+    --gray-500: #64748b;
+    --gray-600: #475569;
+    --gray-700: #334155;
+    --gray-800: #1e293b;
+    --gray-900: #0f172a;
 
-<div class="game-arena">
-    <h1 class="challenge-title">🎯 Cosmic True/False Challenge</h1>
+    /* Semantic */
+    --success: #10b981;
+    --success-light: #dcfce7;
+    --warning: #f59e0b;
+    --warning-light: #fef3c7;
+    --danger: #ef4444;
+    --danger-light: #fecaca;
 
-    @if($intro)
-      <p class="challenge-description">{!! nl2br(e($intro)) !!}</p>
-    @endif
-    @if($instructions)
-      <p class="challenge-description" style="opacity:.9">{!! nl2br(e($instructions)) !!}</p>
-    @endif
-
-    <div class="progress-bar-container">
-        <div class="progress-bar" id="progressBar" style="width:0%"></div>
-    </div>
-
-    <div class="questions-container" id="questionsContainer">
-      <!-- Filled by JS -->
-    </div>
-
-    <div class="controls-section">
-      <button class="btn-epic" onclick="checkAnswers()" id="checkBtn">
-        <i class="fas fa-magic me-2"></i> Check Answers
-      </button>
-      <button class="btn-epic btn-hint" onclick="showHint()">
-        <i class="fas fa-lightbulb me-2"></i> Hint
-      </button>
-      <button class="btn-epic btn-reset" onclick="resetGame()">
-        <i class="fas fa-redo me-2"></i> Reset
-      </button>
-    </div>
-
-    {{-- Hidden submit form --}}
-    <form method="POST" action="{{ route('levels.submit', $level) }}" id="scoreForm" style="display:none;">
-        @csrf
-        <input type="hidden" name="score" id="finalScore" value="0">
-        <input type="hidden" name="answers" id="answersPayload" value="">
-    </form>
-</div>
-
-<div class="feedback-container" id="feedbackContainer"></div>
-<div class="completion-celebration" id="celebrationContainer"></div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-<script>
-class EpicTrueFalseGame {
-  constructor() {
-    const data = window.LEVEL_DATA || {};
-    this.gameData = {
-      questions: Array.isArray(data.questions) ? data.questions : [],
-      hints: Array.isArray(data.hints) ? data.hints : []
-    };
-    this.maxScore = 100;
-    this.timeLimit = Number.isFinite(data.time_limit) ? data.time_limit : 300;
-    this.maxHints  = Number.isFinite(data.max_hints) ? data.max_hints : 3;
-
-    this.score = 0;
-    this.timeRemaining = this.timeLimit;
-    this.hintsUsed = 0;
-    this.gameStarted = false;
-    this.gameCompleted = false;
-    this.correctAnswers = 0;
-    this.totalQuestions = this.gameData.questions.length;
-    this.timer = null;
-
-    // { [id]: 1|0 }
-    this.userAnswers = {};
-
-    this.init();
-  }
-
-  init() {
-    this.generateQuestions();
-    this.setupKeys();
-    this.startTimer();
-    this.updateUI();
-
-    if (this.totalQuestions === 0) {
-      this.showFeedback("No questions available for this level.", "warning", 3000);
-      document.getElementById('checkBtn').disabled = true;
-    } else {
-      this.showFeedback("🎮 Epic Quest Begins! 🎮", "success", 1500);
-    }
-  }
-
-  generateQuestions() {
-    const container = document.getElementById('questionsContainer');
-    container.innerHTML = '';
-
-    this.gameData.questions.forEach((q, idx) => {
-      const card = document.createElement('div');
-      card.className = 'question-card';
-      card.dataset.questionId = q.id;
-
-      const codeHTML = q.code
-        ? `<div class="code-display"><pre>${this.escapeHtml(q.code)}</pre></div>`
-        : '';
-
-      card.innerHTML = `
-        <div class="question-result" id="result-${q.id}"></div>
-        <div class="question-header">
-          <div class="question-number">${idx + 1}</div>
-          <div class="question-text">${this.escapeHtml(q.text)}</div>
-        </div>
-        ${codeHTML}
-        <div class="answer-buttons">
-          <button class="answer-btn true-btn" data-answer="1" onclick="selectAnswer(${q.id}, true)">
-            <i class="fas fa-check me-2"></i> TRUE
-          </button>
-          <button class="answer-btn false-btn" data-answer="0" onclick="selectAnswer(${q.id}, false)">
-            <i class="fas fa-times me-2"></i> FALSE
-          </button>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  }
-
-  selectAnswer(questionId, answerBool) {
-    if (this.gameCompleted) return;
-
-    const value = answerBool ? 1 : 0;
-    const card = document.querySelector(`[data-question-id="${questionId}"]`);
-    const btns = card.querySelectorAll('.answer-btn');
-    btns.forEach(b => b.classList.remove('selected'));
-
-    const selectedBtn = card.querySelector(`[data-answer="${value}"]`);
-    if (selectedBtn) selectedBtn.classList.add('selected');
-
-    this.userAnswers[questionId] = value;
-
-    if (!this.gameStarted) {
-      this.gameStarted = true;
-      this.showFeedback("🚀 Adventure Started!", "success", 1200);
-    }
-
-    this.updateProgress();
-  }
-
-  setupKeys() {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') this.checkAnswers();
-      if (e.key === 'h' || e.key === 'H') this.showHint();
-      if (e.key === 'r' || e.key === 'R') this.resetGame();
-    });
-  }
-
-  showHint() {
-    if (this.hintsUsed >= this.maxHints) {
-      this.showFeedback("🔮 No more hints!", "error", 1600);
-      return;
-    }
-    this.hintsUsed++;
-
-    const hints = (this.gameData.hints && this.gameData.hints.length)
-      ? this.gameData.hints
-      : ["💡 Read the code and the statement carefully!"];
-    const hint = hints[(this.hintsUsed - 1) % hints.length];
-    this.showFeedback(`💡 Hint: ${hint}`, "info", 3000);
-
-    // Nudge unanswered
-    this.gameData.questions.forEach(q => {
-      if (!(q.id in this.userAnswers)) {
-        const card = document.querySelector(`[data-question-id="${q.id}"]`);
-        card.style.animation = 'pulse 1s ease-in-out 3';
-        setTimeout(() => card.style.animation = '', 2000);
-      }
-    });
-  }
-
-  updateProgress() {
-    const answered = Object.keys(this.userAnswers).length;
-    const pct = this.totalQuestions ? (answered / this.totalQuestions) * 100 : 0;
-    document.getElementById('progressBar').style.width = pct + '%';
-  }
-
-  checkAnswers() {
-    if (this.gameCompleted) return;
-    if (Object.keys(this.userAnswers).length !== this.totalQuestions) {
-      this.showFeedback("⚠️ Please answer all questions first!", "warning", 1800);
-      return;
-    }
-
-    let correct = 0;
-
-    this.gameData.questions.forEach(q => {
-      const user = this.userAnswers[q.id];         // 1|0
-      const correctVal = q.correct ? 1 : 0;        // 1|0
-      const isCorrect = user === correctVal;
-
-      const card = document.querySelector(`[data-question-id="${q.id}"]`);
-      const resultIcon = document.getElementById(`result-${q.id}`);
-      const correctBtn  = card.querySelector(`[data-answer="${correctVal}"]`);
-      const selectedBtn = card.querySelector(`[data-answer="${user}"]`);
-
-      card.classList.add('answered');
-
-      if (isCorrect) {
-        correct++;
-        resultIcon.textContent = '✅';
-        if (correctBtn) correctBtn.classList.add('selected'); // keep highlight
-      } else {
-        resultIcon.textContent = '❌';
-        if (selectedBtn) selectedBtn.classList.add('selected');
-        if (correctBtn)  { correctBtn.style.border = '3px solid #ffd700'; }
-      }
-
-      // Optional: show explanation below (if provided)
-      if (q.explanation) {
-        let ex = card.querySelector('.explanation');
-        if (!ex) {
-          ex = document.createElement('div');
-          ex.className = 'explanation';
-          ex.style.cssText = 'margin-top:8px;color:#e6d7ff;opacity:.95;font-size:.95rem;';
-          card.appendChild(ex);
-        }
-        ex.innerHTML = isCorrect
-          ? `<i class="fas fa-check-circle"></i> ${this.escapeHtml(q.explanation)}`
-          : `<i class="fas fa-times-circle"></i> ${this.escapeHtml(q.explanation)}`;
-      }
-    });
-
-    const percentage = Math.round((correct / this.totalQuestions) * 100);
-    this.score = Math.max(0, percentage - (this.hintsUsed * 5));
-    const timeBonus = Math.max(0, Math.floor(this.timeRemaining / 10));
-    this.score = Math.min(100, this.score + timeBonus);
-
-    this.updateUI();
-
-    if (percentage >= 80) {
-      this.showFeedback("🏆 LEGENDARY VICTORY! 🏆", "success", 3000);
-      this.startCelebration();
-    } else {
-      this.showFeedback(`🎯 Score: ${this.score}% — ${correct}/${this.totalQuestions} correct`, percentage >= 60 ? "warning" : "error", 3000);
-    }
-
-    this.completeGame();
-  }
-
-  completeGame() {
-    this.gameCompleted = true;
-    clearInterval(this.timer);
-
-    // Disable all buttons
-    document.querySelectorAll('.answer-btn').forEach(b => b.disabled = true);
-
-    // Submit score + answers map
-    setTimeout(() => {
-      document.getElementById('finalScore').value = this.score;
-      document.getElementById('answersPayload').value = JSON.stringify(this.userAnswers);
-      const form = document.getElementById('scoreForm');
-      if (form.requestSubmit) form.requestSubmit();
-      else form.submit();
-    }, 1500);
-  }
-
-  startCelebration() {
-    const wrap = document.getElementById('celebrationContainer');
-    for (let i = 0; i < 80; i++) {
-      setTimeout(() => {
-        const c = document.createElement('div');
-        c.className = 'confetti';
-        c.style.left = Math.random() * 100 + 'vw';
-        c.style.background = ['#ffd700','#ff6b6b','#4ecdc4','#45b7d1','#f9ca24'][Math.floor(Math.random()*5)];
-        c.style.animationDelay = Math.random() * 3 + 's';
-        wrap.appendChild(c);
-        setTimeout(() => c.remove(), 3200);
-      }, i * 25);
-    }
-  }
-
-  startTimer() {
-    this.timer = setInterval(() => {
-      this.timeRemaining--;
-      this.updateUI();
-
-      if (this.timeRemaining <= 0) {
-        clearInterval(this.timer);
-        this.showFeedback("⏰ Time's up! Submitting...", "error", 2000);
-        setTimeout(() => this.checkAnswers(), 800);
-      } else if (this.timeRemaining <= 60 && this.timeRemaining % 15 === 0) {
-        this.showFeedback(`⚠️ ${this.timeRemaining}s remaining!`, "warning", 1200);
-      }
-    }, 1000);
-  }
-
-  updateUI() {
-    document.getElementById('currentScore').textContent = this.score;
-    document.getElementById('starsEarned').textContent = this.getStars();
-    const m = Math.floor(this.timeRemaining / 60);
-    const s = this.timeRemaining % 60;
-    document.getElementById('timeRemaining').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-  }
-
-  getStars() {
-    if (this.score >= 90) return '⭐⭐⭐';
-    if (this.score >= 70) return '⭐⭐';
-    if (this.score >= 50) return '⭐';
-    return '0';
-  }
-
-  showFeedback(msg, type="success", dur=1800) {
-    const box = document.createElement('div');
-    box.className = `feedback-message ${type}`;
-    box.textContent = msg;
-    const host = document.getElementById('feedbackContainer');
-    host.appendChild(box);
-    setTimeout(()=>box.remove(), dur);
-  }
-
-  resetGame() {
-    if (confirm('🔄 Restart this level?')) location.reload();
-  }
+    /* UI */
+    --background: #ffffff;
+    --border: #e2e8f0;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+    --shadow:    0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
 }
 
-// Inline handlers for buttons
-let game;
-function selectAnswer(id, val){ game && game.selectAnswer(id, val); }
-function checkAnswers(){ game && game.checkAnswers(); }
-function showHint(){ game && game.showHint(); }
-function resetGame(){ game && game.resetGame(); }
+body {
+    background: linear-gradient(135deg,
+        rgba(124,58,237,.03) 0%,
+        rgba(168,85,247,.02) 50%,
+        rgba(248,250,252,1) 100%);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
 
-document.addEventListener('DOMContentLoaded', () => { game = new EpicTrueFalseGame(); });
-</script>
+/* Header (shared) */
+.level-header { background: linear-gradient(135deg, rgba(124,58,237,.05) 0%, rgba(168,85,247,.03) 100%); border-bottom:1px solid var(--border); backdrop-filter: blur(10px); }
+.header-container { display:flex; align-items:center; justify-content:space-between; padding:1.5rem 2rem; gap:2rem; }
+.header-left { display:flex; align-items:center; gap:1.5rem; flex:1; min-width:0; }
+.level-badge { width:4rem; height:4rem; border-radius:1rem; background:linear-gradient(135deg, var(--primary-purple), var(--secondary-purple)); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); }
+.level-number { font-weight:900; font-size:1.25rem; color:#fff; }
+.level-info { flex:1; min-width:0; }
+.breadcrumb { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--text-muted); margin-bottom:.25rem; }
+.breadcrumb-item.type { text-transform:capitalize; color:var(--primary-purple); font-weight:500; }
+.separator{opacity:.6}
+.stage-title { font-size:1.5rem; font-weight:700; margin:0; line-height:1.2; color:var(--text-primary); }
+.level-title { font-size:1rem; color:var(--text-secondary); margin-top:.25rem; }
+.header-right { flex-shrink:0; }
+.stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.stat-item { text-align:center; padding:.75rem 1rem; background:#fff; border:1px solid var(--border); border-radius:.75rem; box-shadow:var(--shadow-sm); min-width:5rem; }
+.stat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
+.stat-value { font-size:1.125rem; font-weight:700; color:var(--text-primary); margin-top:.25rem; }
+
+/* Full-bleed helpers */
+.full-bleed { width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
+.edge-pad   { padding: 1.25rem clamp(12px, 3vw, 32px); }
+
+/* Containers & cards */
+.main-container { max-width:none; }
+.card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
+.card.accent { border-left:6px solid var(--primary-purple); background:linear-gradient(180deg, var(--purple-subtle), #fff); }
+.section-title { font-size:1.125rem; font-weight:700; margin:0 0 1rem 0; color:var(--text-primary); }
+
+/* Progress header */
+.items-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
+.items-header { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+.items-title { font-size:1.05rem; font-weight:700; }
+.progress-container { flex:1; max-width:240px; }
+.progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
+.progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-purple), var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
+
+/* TF Questions */
+.tf-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-top:1rem; }
+.tf-card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); position:relative; }
+.tf-card.correct   { border-color:rgba(16,185,129,.6); box-shadow:0 0 0 3px rgba(16,185,129,.15) inset; }
+.tf-card.incorrect { border-color:rgba(239,68,68,.6);  box-shadow:0 0 0 3px rgba(239,68,68,.15) inset; }
+
+.tf-head { display:flex; gap:.75rem; align-items:center; margin-bottom:.5rem; }
+.tf-num  { width:2rem; height:2rem; border-radius:.5rem; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); }
+.tf-text { font-weight:700; color:var(--text-primary); line-height:1.35; }
+
+.tf-code { background:#0f172a; color:#cfeaff; border:1px solid rgba(255,255,255,.08); border-radius:.5rem; padding:.5rem .625rem; margin:.5rem 0 0; white-space:pre-wrap; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+
+.tf-actions { display:flex; gap:.5rem; margin-top:.75rem; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.65rem .9rem; border:none; border-radius:.75rem; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .18s ease; text-decoration:none; }
+.btn:disabled{ opacity:.5; cursor:not-allowed; }
+.btn-true  { background:linear-gradient(135deg,#10b981,#34d399); color:#fff; }
+.btn-false { background:linear-gradient(135deg,#ef4444,#f59e0b); color:#fff; }
+.btn-true:hover:not(:disabled), .btn-false:hover:not(:disabled){ transform:translateY(-2px); box-shadow:var(--shadow); }
+.btn.selected { outline:3px solid rgba(124,58,237,.35); }
+
+.tf-explain { display:none; margin-top:.5rem; color:var(--text-secondary); border-top:1px dashed var(--border); padding-top:.5rem; }
+.tf-card.show-explain .tf-explain { display:block; }
+
+/* Controls */
+.controls-container { display:flex; justify-content:center; gap:1rem; margin:1.5rem 0; flex-wrap:wrap; }
+.btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
+.btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+.btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
+.btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
+.btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
+.btn-ghost:hover:not(:disabled){ background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
+
+/* Meta bar */
+.meta-container { display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-top:1px solid var(--border); font-size:.875rem; color:var(--text-muted); }
+.meta-left { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+.meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:500; }
+
+/* Toasts */
+.toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
+.toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:500; min-width:280px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
+.toast.ok   { border-left:4px solid var(--success);  background:linear-gradient(135deg,var(--success-light), #fff); }
+.toast.warn { border-left:4px solid var(--warning);  background:linear-gradient(135deg,var(--warning-light), #fff); }
+.toast.err  { border-left:4px solid var(--danger);   background:linear-gradient(135deg,var(--danger-light),  #fff); }
+@keyframes slideIn{ from{opacity:0; transform:translateX(100%)} to{opacity:1; transform:translateX(0)} }
+
+/* Responsive */
+@media (max-width:768px){
+  .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
+  .edge-pad{padding:1rem}
+}
+</style>
+
+<!-- MAIN FULL-BLEED -->
+<div class="main-container full-bleed">
+
+    @if($alreadyPassed)
+    <div class="edge-pad">
+        <div class="card accent" style="margin-bottom: 1rem;">
+            <div class="section-title" style="color:var(--primary-purple)">Level Completed</div>
+            <p style="margin:0">
+                You’ve already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}.
+                You can <a href="{{ route('levels.show', $level) }}?replay=1" style="color:var(--primary-purple); text-decoration:underline;">replay</a> to improve your stars.
+            </p>
+        </div>
+    </div>
+    @endif
+
+    <!-- INSTRUCTIONS (TOP) -->
+    <div class="edge-pad">
+        <div class="card accent" id="instructionsCard" style="margin-bottom: 1.25rem;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                <div class="section-title">How to play</div>
+                <button class="btn btn-ghost" type="button" id="toggleInstrux" aria-expanded="true">
+                    <i class="fas fa-chevron-up"></i> Collapse
+                </button>
+            </div>
+            <div id="instruxBody" style="white-space:pre-wrap;">
+                {!! nl2br(e($instructions ?? 'Read the statement (and code if any), then choose TRUE or FALSE.')) !!}
+                @if($intro)
+                    <div class="mt-2" style="white-space:pre-wrap;">{!! nl2br(e($intro)) !!}</div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME -->
+    <div class="edge-pad">
+        <div class="items-container">
+            <div class="items-header">
+                <div class="items-title">Questions</div>
+                <div class="progress-container">
+                    <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tf-list" id="tfList"><!-- filled by JS --></div>
+
+        <div class="controls-container">
+            <button class="btn btn-primary"   type="button" id="btnCheck"><i class="fas fa-check"></i> Submit Answers</button>
+            <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Hint</button>
+            <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset</button>
+        </div>
+
+        <!-- Hidden submit -->
+        <form method="POST" action="{{ route('levels.submit', $level) }}" id="scoreForm" style="display:none;">
+            @csrf
+            <input type="hidden" name="score" id="finalScore" value="0">
+            <input type="hidden" name="answers" id="answersPayload" value="">
+        </form>
+    </div>
+</div>
+
+<!-- META BAR -->
+<div class="meta-container full-bleed edge-pad">
+    <div class="meta-left">
+        <span class="meta-pill">Pass score: {{ (int)$level->pass_score }}%</span>
+        @if(!is_null($savedScore)) <span class="meta-pill">Best: {{ (int)$savedScore }}%</span> @endif
+        <span class="meta-pill">Stars: <span id="metaStars">0</span></span>
+    </div>
+    <div>Tips used: <span id="hintCount">0</span></div>
+</div>
+
+<!-- Toasts -->
+<div class="toast-container" id="toastWrap"></div>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+<script>
+(function(){
+  // Data
+  const data       = window.LEVEL_DATA || {};
+  const questions  = Array.isArray(data.questions) ? data.questions : [];
+  const hints      = Array.isArray(data.hints) ? data.hints : [];
+  const timeLimit  = Number.isFinite(data.time_limit) ? data.time_limit : 300;
+  const maxHints   = Number.isFinite(data.max_hints)  ? data.max_hints  : 3;
+
+  // State
+  let answers = {}; // {id: 0|1}
+  let hintsUsed = 0;
+  let submitted = false;
+  let timeRemaining = timeLimit;
+
+  // DOM
+  const $tfList     = document.getElementById('tfList');
+  const $progress   = document.getElementById('progressBar');
+  const $timer      = document.getElementById('timeRemaining');
+  const $statScore  = document.getElementById('statScore');
+  const $statStars  = document.getElementById('statStars');
+  const $metaStars  = document.getElementById('metaStars');
+  const $hintCount  = document.getElementById('hintCount');
+  const $toastWrap  = document.getElementById('toastWrap');
+  const $btnCheck   = document.getElementById('btnCheck');
+  const $btnHint    = document.getElementById('btnHint');
+  const $btnReset   = document.getElementById('btnReset');
+
+  // Instructions collapse
+  const $toggleInstrux = document.getElementById('toggleInstrux');
+  const $instruxBody   = document.getElementById('instruxBody');
+  $toggleInstrux.addEventListener('click', () => {
+    const hidden = $instruxBody.classList.toggle('d-none');
+    $toggleInstrux.innerHTML = hidden
+      ? '<i class="fas fa-chevron-down"></i> Expand'
+      : '<i class="fas fa-chevron-up"></i> Collapse';
+    $toggleInstrux.setAttribute('aria-expanded', String(!hidden));
+  });
+
+  // Helpers
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+  function toast(msg, kind='ok'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=msg; $toastWrap.appendChild(el); setTimeout(()=>el.remove(),2200); }
+  function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
+  function fmtTime(sec){ const m=String(Math.floor(sec/60)).padStart(2,'0'); const s=String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
+  function updateProgress(){ const pct = questions.length ? Math.round(100 * Object.keys(answers).length / questions.length) : 0; $progress.style.width = pct + '%'; }
+
+  // Build UI
+  function render(){
+    $tfList.innerHTML = '';
+    questions.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'tf-card';
+      card.dataset.id = q.id;
+
+      card.innerHTML = `
+        <div class="tf-head">
+          <div class="tf-num">${i+1}</div>
+          <div class="tf-text">${escapeHtml(q.text)}</div>
+        </div>
+        ${q.code ? `<pre class="tf-code">${escapeHtml(q.code)}</pre>` : ''}
+        <div class="tf-actions">
+          <button type="button" class="btn btn-true"  data-val="1"><i class="fas fa-check"></i> TRUE</button>
+          <button type="button" class="btn btn-false" data-val="0"><i class="fas fa-times"></i> FALSE</button>
+        </div>
+        <div class="tf-explain"></div>
+      `;
+
+      const [bTrue, bFalse] = card.querySelectorAll('.btn');
+      [bTrue, bFalse].forEach(btn => btn.addEventListener('click', () => select(q.id, +btn.dataset.val, card)));
+      $tfList.appendChild(card);
+    });
+  }
+
+  function select(id, val, card){
+    if (submitted) return;
+    answers[id] = val;
+    card.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
+    const btn = card.querySelector(`.btn[data-val="${val}"]`);
+    if (btn) btn.classList.add('selected');
+    updateProgress();
+  }
+
+  // Timer
+  $timer.textContent = fmtTime(timeRemaining);
+  const t = setInterval(() => {
+    timeRemaining--;
+    $timer.textContent = fmtTime(timeRemaining);
+    if ([60,30,10].includes(timeRemaining)) toast(`${timeRemaining}s left`, 'warn');
+    if (timeRemaining <= 0){
+      clearInterval(t);
+      if (!submitted){ toast('Time up — submitting…', 'warn'); submitNow(); }
+    }
+  }, 1000);
+
+  // Buttons
+  $btnHint.addEventListener('click', () => {
+    if (submitted) return;
+    if (hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
+    hintsUsed++; $hintCount.textContent = hintsUsed;
+    const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Read the statement carefully.';
+    toast('Hint: ' + hint, 'ok');
+  });
+
+  $btnReset.addEventListener('click', () => {
+    if (submitted) return;
+    if (!confirm('Reset your selections?')) return;
+    answers = {};
+    document.querySelectorAll('.tf-card .btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.tf-card').forEach(c => { c.classList.remove('correct','incorrect','show-explain'); c.querySelector('.tf-explain').textContent=''; });
+    updateProgress(); toast('Cleared.', 'ok');
+  });
+
+  $btnCheck.addEventListener('click', () => { if (!submitted) submitNow(); });
+
+  // Keyboard helpers
+  document.addEventListener('keydown', (e) => {
+    if (submitted) return;
+    if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
+    if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
+    if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
+  });
+
+  // Grade & submit
+  function submitNow(){
+    if (Object.keys(answers).length !== questions.length){
+      return toast('Answer all questions first.', 'warn');
+    }
+
+    submitted = true;
+    $btnCheck.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
+    clearInterval(t);
+
+    let correct = 0;
+    questions.forEach(q => {
+      const card = document.querySelector(`.tf-card[data-id="${q.id}"]`);
+      const chosen = answers[q.id];          // 0|1
+      const truth  = q.correct ? 1 : 0;      // 0|1
+      const ok = chosen === truth;
+
+      if (ok) correct++; 
+      card.classList.add(ok ? 'correct' : 'incorrect');
+      const ex = card.querySelector('.tf-explain');
+      if (ex){
+        ex.textContent = q.explanation || (ok ? 'Correct.' : 'Re-check the statement.');
+        card.classList.add('show-explain');
+      }
+    });
+
+    const rawPct = Math.round(100 * correct / questions.length);
+    const hintPenalty = hintsUsed * 5;
+    let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+    // small time bonus
+    finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+
+    // UI
+    $statScore.textContent = finalScore + '%';
+    const s = starsFor(finalScore);
+    $statStars.textContent = s ? '★'.repeat(s) : '0';
+    if ($metaStars) $metaStars.textContent = s ? '★'.repeat(s) : '0';
+
+    // Send
+    document.getElementById('finalScore').value = finalScore;
+    document.getElementById('answersPayload').value = JSON.stringify(answers);
+
+    const passReq = {{ (int)$level->pass_score }};
+    toast(finalScore >= passReq ? `Great job! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'ok' : 'err');
+
+    setTimeout(() => {
+      const form = document.getElementById('scoreForm');
+      if (form.requestSubmit) form.requestSubmit(); else form.submit();
+    }, 900);
+  }
+
+  // Init
+  render();
+  updateProgress();
+})();
+</script>
 </x-app-layout>

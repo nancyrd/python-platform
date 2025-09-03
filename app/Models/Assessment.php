@@ -24,6 +24,8 @@ public function completePostAssessment(Request $request, Stage $stage)
         [
             'user_id' => $userId,
             'stage_id' => $stage->id,
+            'type', 'title',
+    'time_limit', 'instructions', 'questions',
         ],
         [
             'pre_completed_at' => now(), // Assuming pre is done

@@ -140,6 +140,7 @@ Level::updateOrCreate(
 );
 
 // Level 2 — Multiple Choice (print & operators)
+/*
 Level::updateOrCreate(
     ['stage_id' => $stage1->id, 'index' => 2],
     [
@@ -266,11 +267,279 @@ Tip: You can also use + to join text together. Example: print("Hi " + "there") �
             ],
         ],
     ]
+);*/
+
+Level::updateOrCreate(
+    ['stage_id' => $stage1->id, 'index' => 2],
+    [
+        'type'         => 'multiple_choice',
+        'title'        => 'Python Basics: print() Function and Data Types',
+        'instructions' => 'In Python, the print() function displays information on the screen. 
+Different types of data in Python include:
+• Text (called "strings") - always put in quotes: "Hello" or single quotes: \'World\'
+• Numbers (called "integers" for whole numbers, "floats" for decimals): 42 or 3.14
+• Boolean values (True or False) for yes/no answers
+
+You can print any of these types:
+• Text: print("Hello World")
+• Numbers: print(42)
+• Boolean: print(True)
+
+You can also use + to join text together. Example: print("Hi " + "there") → Hi there',
+
+
+
+        'pass_score'   => 50,
+        'content'      => [
+            'intro'        => "In Python, use <code>print()</code> to display information. Python has different data types: strings (text in quotes), integers (whole numbers), floats (decimals), and booleans (True/False).",
+            'instructions' => "Choose the correct answer for each question about print() and data types.",
+            'questions'    => [
+                [
+                    'question'        => 'How do you print the text Hello World?<br><code>print(___)</code>',
+                    'options'         => ['"Hello World"', 'Hello World', "'Hello World'"],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Text (strings) must be in quotes: print("Hello World")'
+                ],
+                [
+                    'question'        => 'What is the correct way to print a number?<br><code>print(___)</code>',
+                    'options'         => ['42', '"42"', "'42'"],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Numbers should not have quotes: print(42)'
+                ],
+                [
+                    'question'        => 'How do you print a boolean value?<br><code>print(___)</code>',
+                    'options'         => ['True', '"True"', "'True'"],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Boolean values (True/False) don\'t use quotes: print(True)'
+                ],
+                [
+                    'question'        => 'Which of these is a string in Python?',
+                    'options'         => ['"Python"', '42', 'True'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Strings are text values in quotes: "Python"'
+                ],
+                [
+                    'question'        => 'Which of these is an integer in Python?',
+                    'options'         => ['42', '"42"', '42.0'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Integers are whole numbers without quotes: 42'
+                ],
+                [
+                    'question'        => 'Which of these is a float in Python?',
+                    'options'         => ['3.14', '"3.14"', '3'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Floats are decimal numbers: 3.14'
+                ],
+                [
+                    'question'        => 'How do you print both text and a number together?<br><code>print(___, 42)</code>',
+                    'options'         => ['"The answer is:"', 'The answer is:', '"The answer is"'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use a comma to separate different data types: print("The answer is:", 42)'
+                ],
+                [
+                    'question'        => 'What will print("Python", 3.9) display?',
+                    'options'         => ['Python 3.9', '"Python" "3.9"', 'Python3.9'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'When using commas, Python adds a space between items: "Python 3.9"'
+                ],
+            ],
+            'hints'       => [
+                'Strings (text) need quotes',
+                'Numbers don\'t use quotes',
+                'Use commas to separate different types in print()',
+                'Boolean values are True or False without quotes'
+            ],
+            'time_limit'  => 180,
+            'max_hints'   => 4,
+            'examples' => [
+                [
+                    'title' => '1) Print a string',
+                    'code'  => 'print("Hello Python")',
+                    'explain' => 'Text strings must be in quotes.',
+                    'expected_output' => "Hello Python",
+                ],
+                [
+                    'title' => '2) Print an integer',
+                    'code'  => 'print(42)',
+                    'explain' => 'Integers are whole numbers without quotes.',
+                    'expected_output' => "42",
+                ],
+                [
+                    'title' => '3) Print a float',
+                    'code'  => 'print(3.14)',
+                    'explain' => 'Floats are decimal numbers.',
+                    'expected_output' => "3.14",
+                ],
+                [
+                    'title' => '4) Print a boolean',
+                    'code'  => 'print(True)',
+                    'explain' => 'Boolean values are either True or False.',
+                    'expected_output' => "True",
+                ],
+                [
+                    'title' => '5) Print multiple items with commas',
+                    'code'  => 'print("The value is", 42)',
+                    'explain' => 'Use commas to print multiple items. Python adds a space between them.',
+                    'expected_output' => "The value is 42",
+                ],
+                [
+                    'title' => '6) Print different data types',
+                    'code'  => 'print("Version:", 3.9, "is good")',
+                    'explain' => 'You can mix strings, numbers, and other types in one print statement.',
+                    'expected_output' => "Version: 3.9 is good",
+                ],
+                [
+                    'title' => '7) Print an empty line',
+                    'code'  => 'print()',
+                    'explain' => 'Using print() with nothing inside creates a blank line.',
+                    'expected_output' => "",
+                ],
+            ],
+        ],
+    ]
 );
+
+
+
+
+Level::updateOrCreate(
+    ['stage_id' => $stage1->id, 'index' => 3],
+    [
+        'type'         => 'multiple_choice',
+        'title'        => 'Python Math Operators',
+        'instructions' => 'In Python, you can perform mathematical operations just like using a calculator! Python uses special symbols for math:
+• + (plus) → adds numbers. Example: 2 + 3 = 5  
+• - (minus) → subtracts numbers. Example: 5 - 2 = 3  
+• * (star) → multiplies numbers. Example: 4 * 2 = 8  
+• / (slash) → divides numbers. Example: 6 / 2 = 3.0  
+• % (percent) → gives the remainder. Example: 7 % 3 = 1 (because 7 divided by 3 is 2 with a remainder of 1)
+• ** (double star) → raises to a power. Example: 2 ** 3 = 8 (2 to the power of 3)
+You can use these operations in print() to see the results!',
+        'pass_score'   => 50,
+        'content'      => [
+            'intro'        => "Python can do math just like a calculator! Use <code>+</code> (add), <code>-</code> (subtract), <code>*</code> (multiply), <code>/</code> (divide), <code>%</code> (remainder), and <code>**</code> (power).",
+            'instructions' => "Choose the correct answer for each math operation question.",
+            'questions'    => [
+                [
+                    'question'        => 'What is 5 + 3 in Python?<br><code>print(5 ___ 3)</code>',
+                    'options'         => ['+', '-', '*'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use + for addition: print(5 + 3) gives 8'
+                ],
+                [
+                    'question'        => 'What is 10 - 4 in Python?<br><code>print(10 ___ 4)</code>',
+                    'options'         => ['-', '+', '/'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use - for subtraction: print(10 - 4) gives 6'
+                ],
+                [
+                    'question'        => 'What is 6 * 7 in Python?<br><code>print(6 ___ 7)</code>',
+                    'options'         => ['*', '+', '-'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use * for multiplication: print(6 * 7) gives 42'
+                ],
+                [
+                    'question'        => 'What is 15 / 3 in Python?<br><code>print(15 ___ 3)</code>',
+                    'options'         => ['/', '*', '-'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use / for division: print(15 / 3) gives 5.0'
+                ],
+                [
+                    'question'        => 'What is the remainder of 10 divided by 3?<br><code>print(10 ___ 3)</code>',
+                    'options'         => ['%', '/', '*'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use % for remainder: print(10 % 3) gives 1 (because 10 ÷ 3 = 3 with remainder 1)'
+                ],
+                [
+                    'question'        => 'What is 2 to the power of 4 in Python?<br><code>print(2 ___ 4)</code>',
+                    'options'         => ['**', '*', '%'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use ** for powers: print(2 ** 4) gives 16 (2 × 2 × 2 × 2)'
+                ],
+                [
+                    'question'        => 'What does print(7 / 2) show in Python?',
+                    'options'         => ['3.5', '3', '3.0'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Division in Python gives a decimal (float) result: 7 / 2 = 3.5'
+                ],
+                [
+                    'question'        => 'Which operation would you use to find the remainder of 17 divided by 5?',
+                    'options'         => ['17 % 5', '17 / 5', '17 - 5'],
+                    'correct_answer'  => 0,
+                    'explanation'     => 'Use % to find the remainder: 17 % 5 = 2 (because 17 ÷ 5 = 3 with remainder 2)'
+                ],
+            ],
+            'hints'       => [
+                '+ adds numbers',
+                '- subtracts numbers',
+                '* multiplies numbers',
+                '/ divides numbers',
+                '% gives the remainder',
+                '** raises to a power'
+            ],
+            'time_limit'  => 180,
+            'max_hints'   => 4,
+            'examples' => [
+                [
+                    'title' => '1) Addition',
+                    'code'  => 'print(5 + 3)',
+                    'explain' => 'Use + to add numbers together.',
+                    'expected_output' => "8",
+                ],
+                [
+                    'title' => '2) Subtraction',
+                    'code'  => 'print(10 - 4)',
+                    'explain' => 'Use - to subtract one number from another.',
+                    'expected_output' => "6",
+                ],
+                [
+                    'title' => '3) Multiplication',
+                    'code'  => 'print(6 * 7)',
+                    'explain' => 'Use * to multiply numbers.',
+                    'expected_output' => "42",
+                ],
+                [
+                    'title' => '4) Division',
+                    'code'  => 'print(15 / 3)',
+                    'explain' => 'Use / to divide numbers. Division gives a decimal result.',
+                    'expected_output' => "5.0",
+                ],
+                [
+                    'title' => '5) Remainder',
+                    'code'  => 'print(10 % 3)',
+                    'explain' => 'Use % to find the remainder after division.',
+                    'expected_output' => "1",
+                ],
+                [
+                    'title' => '6) Power',
+                    'code'  => 'print(2 ** 4)',
+                    'explain' => 'Use ** to raise a number to a power (exponent).',
+                    'expected_output' => "16",
+                ],
+                [
+                    'title' => '7) Combining operations',
+                    'code'  => 'print(2 + 3 * 4)',
+                    'explain' => 'Python follows math rules: multiplication before addition. This equals 14, not 20.',
+                    'expected_output' => "14",
+                ],
+                [
+                    'title' => '8) Using parentheses',
+                    'code'  => 'print((2 + 3) * 4)',
+                    'explain' => 'Use parentheses to change the order: (2 + 3) happens first, then × 4.',
+                    'expected_output' => "20",
+                ],
+            ],
+        ],
+    ]
+);
+
+
+
+
 
 // Level 3 — True/False (mixing strings & numbers)
 Level::updateOrCreate(
-    ['stage_id' => $stage1->id, 'index' => 3],
+    ['stage_id' => $stage1->id, 'index' => 4],
     [
         'type'         => 'tf1',
         'title'        => 'print(): numbers + strings (True/False)',

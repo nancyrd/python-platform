@@ -66,6 +66,8 @@ Route::get('/assessments/post1', function () {
 });
 Route::get('/levels/{level}/instructions', [LevelController::class, 'instructions'])->name('levels.instructions');
 
+
+
 Route::post('/levels/execute-python', [\App\Http\Controllers\LevelController::class, 'executePython'])
     ->name('levels.executePython')
     ->middleware('throttle:12,1');
@@ -101,11 +103,30 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('levels/{stage}/reorder', [AdminLevelController::class, 'reorder'])->name('levels.reorder');
 
     // Assessment management
-    Route::resource('assessments', AdminAssessmentController::class);
 
 
      Route::resource('stages.levels', \App\Http\Controllers\Admin\AdminLevelController::class);
     Route::post('stages/{stage}/levels/reorder', [\App\Http\Controllers\Admin\AdminLevelController::class, 'reorder'])->name('levels.reorder');
+
+
+Route::prefix('stages/{stage}')->name('stages.')->group(function () {
+    Route::get('assessments/create', [AdminAssessmentController::class, 'create'])
+        ->name('assessments.create');   // admin.stages.assessments.create (expects {stage})
+
+    Route::post('assessments', [AdminAssessmentController::class, 'store'])
+        ->name('assessments.store');    // admin.stages.assessments.store
+
+    Route::get('assessments/{assessment}/edit', [AdminAssessmentController::class, 'edit'])
+        ->name('assessments.edit');
+
+    Route::put('assessments/{assessment}', [AdminAssessmentController::class, 'update'])
+        ->name('assessments.update');
+
+    Route::delete('assessments/{assessment}', [AdminAssessmentController::class, 'destroy'])
+        ->name('assessments.destroy');
 });
+    });
+
+
 
 require __DIR__.'/auth.php';

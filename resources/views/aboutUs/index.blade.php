@@ -1,199 +1,296 @@
 {{-- resources/views/about/index.blade.php --}}
 <x-app-layout>
-   
-
-    <!-- Page Styles (scoped to this page) -->
-    <style>
-      :root{
-        --primary-purple:#7B2CBF;
-        --secondary-purple:#9D4EDD;
-        --accent-purple:#5A189A;
-        --panel:#ffffff;
-        --bg:#fafafa;
-        --border:#d2b7f0;
-        --ink:#222;
-        --muted:#666;
-      }
-      body{ background: var(--bg); }
-
-      .au-wrap{ max-width: 1100px; margin: 2rem auto; padding: 1rem; }
-
-      /* Hero */
-      .au-hero{ text-align:center; margin: 2rem 0 2rem; }
-      .au-kicker{ display:inline-flex; gap:.5rem; align-items:center; padding:.35rem .7rem; border:1px solid var(--border); border-radius:999px; background:#fff; color:var(--accent-purple); font-weight:700; font-size:.85rem; }
-      .au-title{ color:var(--accent-purple); font-size:clamp(1.9rem, 1.2rem + 2.8vw, 3rem); margin:.7rem 0 .5rem; font-weight:900; letter-spacing:-.02em; }
-      .au-sub{ color:var(--muted); margin:0 auto; max-width: 760px; font-size:1.05rem; }
-
-      /* Stats */
-      .au-stats{ display:grid; grid-template-columns: repeat(2,1fr); gap:14px; margin:1.5rem auto 2.2rem; max-width:720px; }
-      @media (min-width: 900px){ .au-stats{ grid-template-columns: repeat(4,1fr);} }
-      .stat{ background:#fff; border:2px solid var(--border); border-radius:18px; padding:1rem; text-align:center; box-shadow:0 0 10px rgba(0,0,0,.04); }
-      .stat .num{ font-weight:900; font-size:1.6rem; color:var(--primary-purple); }
-      .stat .label{ color:var(--muted); font-size:.9rem; }
-
-      /* Two-column sections */
-      .grid-2{ display:grid; grid-template-columns:1fr; gap:24px; margin: 2.2rem 0; }
-      @media (min-width: 960px){ .grid-2{ grid-template-columns: 1.1fr .9fr; } }
-
-      .panel{ background: var(--panel); border: 2px solid var(--border); border-radius: 18px; box-shadow: 0 0 10px rgba(0,0,0,.05); padding: 1.25rem; }
-      .panel h3{ margin:0 0 .65rem; color:var(--primary-purple); font-size:1.3rem; }
-      .panel p{ color:var(--ink); margin:.4rem 0; }
-
-      /* Feature grid */
-      .feature-grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
-      @media (min-width: 900px){ .feature-grid{ grid-template-columns: repeat(3,1fr);} }
-      .feature{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:1rem; }
-      .feature h4{ margin:.2rem 0 .4rem; color:var(--ink); font-size:1.05rem; }
-      .feature p{ margin:0; color:var(--muted); font-size:.98rem; }
-
-      /* Timeline */
-      .timeline{ position:relative; padding-left:1rem; }
-      .timeline::before{ content:""; position:absolute; left:.35rem; top:.25rem; bottom:.25rem; width:3px; background:linear-gradient(180deg, var(--secondary-purple), var(--accent-purple)); border-radius:3px; }
-      .t-item{ position:relative; margin:0 0 1rem 0; padding-left:1.2rem; }
-      .t-item::before{ content:""; position:absolute; left:-.1rem; top:.35rem; width:.7rem; height:.7rem; border-radius:999px; background:var(--accent-purple); box-shadow:0 0 0 4px rgba(157,78,221,.2); }
-      .t-title{ margin:0; font-weight:800; color:var(--ink); }
-      .t-sub{ margin:.15rem 0 0; color:var(--muted); font-size:.95rem; }
-
-      /* Team */
-      .team{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
-      @media (min-width: 900px){ .team{ grid-template-columns: repeat(4,1fr);} }
-      .member{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:1rem; text-align:center; }
-      .avatar{ width:72px; height:72px; border-radius:999px; background:#f3e9ff; margin:0 auto .6rem; display:flex; align-items:center; justify-content:center; font-weight:900; color:var(--accent-purple); }
-      .role{ color:var(--muted); font-size:.9rem; margin:.1rem 0 0; }
-
-      /* CTA */
-      .cta{ margin: 2.6rem 0; text-align:center; background: linear-gradient(135deg, #fff, #fbf6ff); border:2px solid var(--border); border-radius:22px; padding:1.6rem; }
-      .cta h3{ margin:.2rem 0 .6rem; color:var(--accent-purple); font-size:1.6rem; }
-      .btn{ border:none; cursor:pointer; font-weight:800; border-radius:999px; padding:.9rem 1.6rem; transition: transform .15s, box-shadow .2s, background .2s; }
-      .btn-primary{ background: var(--secondary-purple); color:#fff; }
-      .btn-primary:hover{ background:var(--accent-purple); transform:translateY(-1px); box-shadow:0 8px 18px rgba(90,24,154,.3); }
-
-      .muted{ color:var(--muted); }
-    </style>
-
-    <div class="au-wrap">
-      <!-- HERO -->
-      <section class="au-hero">
-        <span class="au-kicker">Non‑CS? No problem! 🐍</span>
-        <h1 class="au-title">We teach Python for real‑world careers — no computer science degree required.</h1>
-        <p class="au-sub">
-          Our mission is to open the door to tech‑powered jobs for students and professionals from non‑CS backgrounds.
-          We turn complex topics into friendly, guided steps you can master — at your pace, with support when you need it.
-        </p>
-      </section>
-
-      <!-- QUICK STATS -->
-      <div class="au-stats">
-        <div class="stat"><div class="num">30k+</div><div class="label">Learners</div></div>
-        <div class="stat"><div class="num">92%</div><div class="label">Course Completion</div></div>
-        <div class="stat"><div class="num">4.8/5</div><div class="label">Learner Rating</div></div>
-        <div class="stat"><div class="num">100+ hrs</div><div class="label">Hands‑on Practice</div></div>
-      </div>
-
-      <!-- MISSION + HOW WE TEACH -->
-      <div class="grid-2">
-        <section class="panel">
-          <h3>Our mission</h3>
-          <p>Make Python the most accessible skill for non‑CS students. Whether you study biology, business, art, education, or law — we help you apply Python directly to your field.</p>
-          <p>We believe in <strong>practice‑first learning</strong>, personal feedback, and projects that showcase your abilities to employers and graduate programs.</p>
-        </section>
-        <section class="panel">
-          <h3>How we teach</h3>
-          <div class="feature-grid">
-            <div class="feature">
-              <h4>Guided Paths</h4>
-              <p>From zero to job‑ready: fundamentals → data analysis → automation → mini‑capstone.</p>
+  {{-- Header (same purple system + layout as previous stages) --}}
+  <x-slot name="header">
+    <div class="level-header">
+      <div class="header-container">
+        <div class="header-left">
+          <div class="level-badge">
+            <span class="level-number">ℹ︎</span>
+          </div>
+          <div class="level-info">
+            <div class="breadcrumb">
+              <span class="breadcrumb-item">Home</span>
+              <span class="separator">•</span>
+              <span class="breadcrumb-item type">About</span>
             </div>
-            <div class="feature">
-              <h4>Non‑CS Friendly</h4>
-              <p>No heavy theory. Just clear explanations, analogies, and step‑by‑step practice.</p>
+            <h1 class="stage-title">{{ config('app.name', 'Platform') }}</h1>
+            <div class="level-title">We teach Python for real-world careers — no CS degree required</div>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Learners</div>
+              <div class="stat-value">30k+</div>
             </div>
-            <div class="feature">
-              <h4>Portfolio Projects</h4>
-              <p>Build real projects (reports, dashboards, scripts) aligned to your major or career goals.</p>
+            <div class="stat-item">
+              <div class="stat-label">Completion</div>
+              <div class="stat-value">92%</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Rating</div>
+              <div class="stat-value">4.8/5</div>
             </div>
           </div>
-        </section>
+        </div>
+      </div>
+    </div>
+  </x-slot>
+
+  <style>
+    :root {
+      /* Same shared palette */
+      --primary-purple: #7c3aed;
+      --secondary-purple: #a855f7;
+      --light-purple: #c084fc;
+      --purple-subtle: #f3e8ff;
+
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-700: #334155;
+      --gray-800: #1e293b;
+      --gray-900: #0f172a;
+
+      --success: #10b981;
+      --success-light: #dcfce7;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fecaca;
+
+      --background: #ffffff;
+      --surface: #f8fafc;
+      --border: #e2e8f0;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.05);
+      --shadow:    0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+    }
+
+    body {
+      background: linear-gradient(135deg,
+        rgba(124,58,237,.03) 0%,
+        rgba(168,85,247,.02) 50%,
+        rgba(248,250,252,1) 100%);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    /* Header (shared) */
+    .level-header { background: linear-gradient(135deg, rgba(124,58,237,.05), rgba(168,85,247,.03)); border-bottom:1px solid var(--border); backdrop-filter: blur(10px); }
+    .header-container { display:flex; align-items:center; justify-content:space-between; padding:1.5rem 2rem; gap:2rem; }
+    .header-left { display:flex; align-items:center; gap:1.5rem; flex:1; min-width:0; }
+    .level-badge { width:4rem; height:4rem; border-radius:1rem; background:linear-gradient(135deg, var(--primary-purple), var(--secondary-purple)); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-md); }
+    .level-number { font-weight:900; font-size:1.25rem; color:#fff; }
+    .level-info { flex:1; min-width:0; }
+    .breadcrumb { display:flex; align-items:center; gap:.5rem; font-size:.875rem; color:var(--text-muted); margin-bottom:.25rem; }
+    .breadcrumb-item.type { color:var(--primary-purple); font-weight:500; text-transform:capitalize; }
+    .separator{opacity:.6}
+    .stage-title { font-size:1.5rem; font-weight:700; margin:0; color:var(--text-primary); }
+    .level-title { font-size:1rem; color:var(--text-secondary); margin-top:.25rem; }
+    .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    .stat-item { text-align:center; padding:.75rem 1rem; background:#fff; border:1px solid var(--border); border-radius:.75rem; box-shadow:var(--shadow-sm); min-width:6rem; }
+    .stat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
+    .stat-value { font-size:1.125rem; font-weight:800; color:var(--text-primary); margin-top:.25rem; }
+
+    /* Full-bleed helpers (shared) */
+    .full-bleed { width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
+    .edge-pad { padding: 1.25rem clamp(12px, 3vw, 32px); }
+
+    /* Cards (shared) */
+    .card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm); }
+    .card.accent { border-left:6px solid var(--primary-purple); background:linear-gradient(180deg, var(--purple-subtle), #fff); }
+    .section-title { font-size:1.125rem; font-weight:800; margin:0 0 .75rem 0; color:var(--text-primary); }
+
+    /* About-specific layout */
+    .about-wrap { max-width:1120px; margin: 1rem auto 2rem; }
+    .grid-2 { display:grid; grid-template-columns:1fr; gap:1rem; }
+    @media (min-width: 960px){ .grid-2 { grid-template-columns: 1.1fr .9fr; } }
+
+    /* Feature grid */
+    .feature-grid { display:grid; grid-template-columns:1fr; gap:.75rem; }
+    @media (min-width: 900px){ .feature-grid{ grid-template-columns: repeat(3,1fr);} }
+    .feature { background:#fff; border:1px solid var(--border); border-radius:.75rem; padding:1rem; box-shadow:var(--shadow-sm); }
+    .feature h4{ margin:.25rem 0 .35rem; color:var(--text-primary); font-weight:800; font-size:1.02rem; }
+    .feature p{ margin:0; color:var(--text-secondary); }
+
+    /* Timeline */
+    .timeline { position:relative; padding-left:1rem; }
+    .timeline::before{ content:""; position:absolute; left:.4rem; top:.35rem; bottom:.35rem; width:3px; background:linear-gradient(180deg, var(--secondary-purple), var(--primary-purple)); border-radius:3px; }
+    .t-item{ position:relative; margin:0 0 .85rem 0; padding-left:1rem; }
+    .t-item::before{ content:""; position:absolute; left:-.1rem; top:.3rem; width:.65rem; height:.65rem; border-radius:999px; background:var(--primary-purple); box-shadow:0 0 0 4px rgba(124,58,237,.15); }
+    .t-title{ margin:0; font-weight:800; color:var(--text-primary); }
+    .t-sub{ margin:.15rem 0 0; color:var(--text-secondary); font-size:.95rem; }
+
+    /* Team */
+    .team{ display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+    @media (min-width: 900px){ .team{ grid-template-columns: repeat(4,1fr);} }
+    .member{ background:#fff; border:1px solid var(--border); border-radius:.75rem; padding:1rem; text-align:center; box-shadow:var(--shadow-sm); }
+    .avatar{ width:72px; height:72px; border-radius:999px; background:var(--purple-subtle); margin:0 auto .6rem; display:flex; align-items:center; justify-content:center; font-weight:900; color:#5827c7; }
+    .role{ color:var(--text-muted); font-size:.9rem; margin:.1rem 0 0; }
+
+    /* CTA + Buttons (shared look) */
+    .cta { text-align:center; background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm); }
+    .cta h3 { margin:.2rem 0 .4rem; color:var(--text-primary); font-size:1.25rem; font-weight:900; }
+    .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.25rem; border:none; border-radius:.75rem; font-weight:800; font-size:.95rem; cursor:pointer; transition:all .18s ease; text-decoration:none; }
+    .btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
+    .btn-primary:hover{ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+    .btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
+    .btn-secondary:hover{ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
+
+    /* Spacing helpers */
+    .stack { display:grid; gap:1rem; }
+  </style>
+
+  <!-- MAIN CONTENT -->
+  <div class="about-wrap full-bleed edge-pad stack">
+
+    <!-- HERO / INTRO -->
+    <section class="card accent">
+      <div class="section-title">Non-CS? No problem! 🐍</div>
+      <h2 style="margin:.25rem 0 .5rem; font-size: clamp(1.6rem, 1rem + 2vw, 2.1rem); font-weight:900; letter-spacing:-.02em;">
+        We teach Python for real-world careers — no computer science degree required.
+      </h2>
+      <p style="color:var(--text-secondary); max-width: 880px; margin:0;">
+        Our mission is to open the door to tech-powered jobs for students and professionals from non-CS backgrounds.
+        We turn complex topics into friendly, guided steps you can master — at your pace, with support when you need it.
+      </p>
+    </section>
+
+    <!-- QUICK STATS (matches header style) -->
+    <section class="card">
+      <div class="section-title">By the numbers</div>
+      <div class="stats-grid" style="grid-template-columns: repeat(4,1fr);">
+        <div class="stat-item"><div class="stat-label">Learners</div><div class="stat-value">30k+</div></div>
+        <div class="stat-item"><div class="stat-label">Completion</div><div class="stat-value">92%</div></div>
+        <div class="stat-item"><div class="stat-label">Rating</div><div class="stat-value">4.8/5</div></div>
+        <div class="stat-item"><div class="stat-label">Practice</div><div class="stat-value">100+ hrs</div></div>
+      </div>
+    </section>
+
+    <!-- MISSION + HOW WE TEACH -->
+    <section class="grid-2">
+      <div class="card">
+        <div class="section-title">Our mission</div>
+        <p style="margin:.25rem 0; color:var(--text-primary);">
+          Make Python the most accessible skill for non-CS students. Whether you study biology, business, art, education, or law — we help you apply Python directly to your field.
+        </p>
+        <p style="margin:.25rem 0; color:var(--text-primary);">
+          We believe in <strong>practice-first learning</strong>, personal feedback, and projects that showcase your abilities to employers and graduate programs.
+        </p>
       </div>
 
-      <!-- WHAT MAKES US DIFFERENT -->
-      <section class="panel">
-        <h3>What makes us different</h3>
+      <div class="card">
+        <div class="section-title">How we teach</div>
         <div class="feature-grid">
           <div class="feature">
-            <h4>Contextual Lessons</h4>
-            <p>Apply Python to your domain: finance models, lab data, marketing analytics, classroom tools, and more.</p>
+            <h4>Guided Paths</h4>
+            <p>From zero to job-ready: fundamentals → data analysis → automation → mini-capstone.</p>
           </div>
           <div class="feature">
-            <h4>Hands‑on, Not Just Videos</h4>
-            <p>Short lessons, instant practice, auto‑grading, and instructor feedback keep you moving.</p>
+            <h4>Non-CS Friendly</h4>
+            <p>No heavy theory. Just clear explanations, analogies, and step-by-step practice.</p>
           </div>
           <div class="feature">
-            <h4>Career Support</h4>
-            <p>Resume templates, project reviews, and mock interviews tailored to non‑CS profiles.</p>
+            <h4>Portfolio Projects</h4>
+            <p>Build real projects (reports, dashboards, scripts) aligned to your major or career goals.</p>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-      <!-- TIMELINE -->
-      <div class="grid-2">
-        <section class="panel">
-          <h3>Our story</h3>
-          <div class="timeline">
-            <div class="t-item">
-              <p class="t-title">2022 — The idea</p>
-              <p class="t-sub">We started tutoring non‑CS students 1:1 and saw how much materials assumed prior background.</p>
-            </div>
-            <div class="t-item">
-              <p class="t-title">2023 — The first cohort</p>
-              <p class="t-sub">Pilot course with 120 learners from 8 majors. 90% completion and dozens of internships.</p>
-            </div>
-            <div class="t-item">
-              <p class="t-title">2024 — Project‑based platform</p>
-              <p class="t-sub">Launched our hands‑on platform with instant feedback and capstone reviews.</p>
-            </div>
-            <div class="t-item">
-              <p class="t-title">2025 — University partnerships</p>
-              <p class="t-sub">Integrated with career centers and programs to support thousands more learners.</p>
-            </div>
+    <!-- WHAT MAKES US DIFFERENT -->
+    <section class="card">
+      <div class="section-title">What makes us different</div>
+      <div class="feature-grid">
+        <div class="feature">
+          <h4>Contextual Lessons</h4>
+          <p>Apply Python to your domain: finance models, lab data, marketing analytics, classroom tools, and more.</p>
+        </div>
+        <div class="feature">
+          <h4>Hands-on, Not Just Videos</h4>
+          <p>Short lessons, instant practice, auto-grading, and instructor feedback keep you moving.</p>
+        </div>
+        <div class="feature">
+          <h4>Career Support</h4>
+          <p>Resume templates, project reviews, and mock interviews tailored to non-CS profiles.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE + TEAM -->
+    <section class="grid-2">
+      <div class="card">
+        <div class="section-title">Our story</div>
+        <div class="timeline">
+          <div class="t-item">
+            <p class="t-title">2022 — The idea</p>
+            <p class="t-sub">We started tutoring non-CS students 1:1 and saw how much materials assumed prior background.</p>
           </div>
-        </section>
-        <section class="panel">
-          <h3>Meet the team</h3>
-          <div class="team">
-            <div class="member"><div class="avatar">AB</div><strong>Amal B.</strong><div class="role">Curriculum Lead</div></div>
-            <div class="member"><div class="avatar">KM</div><strong>Kareem M.</strong><div class="role">Data Mentor</div></div>
-            <div class="member"><div class="avatar">SN</div><strong>Sara N.</strong><div class="role">Student Success</div></div>
-            <div class="member"><div class="avatar">YZ</div><strong>Yousef Z.</strong><div class="role">Platform Engineer</div></div>
+          <div class="t-item">
+            <p class="t-title">2023 — The first cohort</p>
+            <p class="t-sub">Pilot course with 120 learners from 8 majors. 90% completion and dozens of internships.</p>
           </div>
-        </section>
+          <div class="t-item">
+            <p class="t-title">2024 — Project-based platform</p>
+            <p class="t-sub">Launched our hands-on platform with instant feedback and capstone reviews.</p>
+          </div>
+          <div class="t-item">
+            <p class="t-title">2025 — University partnerships</p>
+            <p class="t-sub">Integrated with career centers and programs to support thousands more learners.</p>
+          </div>
+        </div>
       </div>
 
-      <!-- MICRO FAQ (optional) -->
-      <section class="panel">
-        <h3>Questions we get a lot</h3>
-        <details>
-          <summary><strong>Do I need prior coding experience?</strong></summary>
-          <p class="muted">No. We start from absolute zero and build up with small, practical steps.</p>
-        </details>
-        <details>
-          <summary><strong>How much time per week?</strong></summary>
-          <p class="muted">4–6 hours is typical. You can go faster or slower depending on your schedule.</p>
-        </details>
-        <details>
-          <summary><strong>Will I build a portfolio?</strong></summary>
-          <p class="muted">Yes—every path includes projects you can showcase on LinkedIn or in applications.</p>
-        </details>
-      </section>
-
-      <!-- CTA -->
-      <section class="cta">
-        <h3>Start your Python journey today</h3>
-        <p class="muted">Join thousands of non‑CS learners who’ve already taken the first step.</p>
-        <div style="margin-top:.8rem; display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap;">
-          <a href="{{ route('register') }}" class="btn btn-primary">Create your free account</a>
-          <a href="{{ route('dashboard') }}" class="btn" style="border:2px solid var(--border); background:#fff;">Explore learning paths</a>
+      <div class="card">
+        <div class="section-title">Meet the team</div>
+        <div class="team">
+          <div class="member"><div class="avatar">AB</div><strong>Amal B.</strong><div class="role">Curriculum Lead</div></div>
+          <div class="member"><div class="avatar">KM</div><strong>Kareem M.</strong><div class="role">Data Mentor</div></div>
+          <div class="member"><div class="avatar">SN</div><strong>Sara N.</strong><div class="role">Student Success</div></div>
+          <div class="member"><div class="avatar">YZ</div><strong>Yousef Z.</strong><div class="role">Platform Engineer</div></div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <!-- MICRO FAQ -->
+    <section class="card">
+      <div class="section-title">Questions we get a lot</div>
+      <details style="margin:.25rem 0;">
+        <summary style="font-weight:800; color:var(--text-primary); cursor:pointer;">Do I need prior coding experience?</summary>
+        <p style="color:var(--text-secondary); margin:.4rem 0 0;">No. We start from absolute zero and build up with small, practical steps.</p>
+      </details>
+      <details style="margin:.25rem 0;">
+        <summary style="font-weight:800; color:var(--text-primary); cursor:pointer;">How much time per week?</summary>
+        <p style="color:var(--text-secondary); margin:.4rem 0 0;">4–6 hours is typical. You can go faster or slower depending on your schedule.</p>
+      </details>
+      <details style="margin:.25rem 0;">
+        <summary style="font-weight:800; color:var(--text-primary); cursor:pointer;">Will I build a portfolio?</summary>
+        <p style="color:var(--text-secondary); margin:.4rem 0 0;">Yes—every path includes projects you can showcase on LinkedIn or in applications.</p>
+      </details>
+    </section>
+
+    <!-- CTA -->
+    <section class="card accent">
+      <h3 class="section-title" style="margin-bottom:.25rem;">Start your Python journey today</h3>
+      <p style="color:var(--text-secondary); margin:0 0 .75rem;">Join thousands of non-CS learners who’ve already taken the first step.</p>
+      <div style="margin-top:.5rem; display:flex; gap:.6rem; flex-wrap:wrap;">
+        <a href="{{ route('register') }}" class="btn btn-primary"><i class="fas fa-user-plus"></i> Create your free account</a>
+        <a href="{{ route('dashboard') }}" class="btn btn-secondary"><i class="fas fa-compass"></i> Explore learning paths</a>
+      </div>
+    </section>
+
+  </div>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </x-app-layout>

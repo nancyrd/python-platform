@@ -1,6 +1,6 @@
 <x-app-layout>
 @php
-    // --- Instructions + content normalization ---
+    // --- Normalize content & metadata ---
     $instructions = $level->instructions;
     $content = $level->content;
 
@@ -13,13 +13,31 @@
         $instructions = $content['instructions'] ?? ($content['intro'] ?? null);
     }
 
-    // Examples
-    $examples = is_array($content) ? ($content['examples'] ?? []) : [];
+    // Build instruction steps (array of strings)
+    $instructionSteps = [];
+    if (is_array($instructions)) {
+        $instructionSteps = array_values(array_filter(array_map(fn($s)=>is_string($s)?trim($s):'', $instructions)));
+    } elseif (is_string($instructions)) {
+        // split by: blank lines OR lines of --- OR headings
+        $instructionSteps = array_values(array_filter(array_map('trim',
+            preg_split('/(\R{2,}|^\s*[-]{3,}\s*$|^#+\s.*$)/m', $instructions)
+        )));
+        if (!$instructionSteps) $instructionSteps = [trim($instructions)];
+    }
 
-    // NEW: optional meta pulled from content
+    // Examples (array of dicts)
+    $examples = is_array($content) ? ($content['examples'] ?? []) : [];
+    // If examples is a single dict, wrap it
+    if ($examples && array_keys($examples) !== range(0, count($examples) - 1)) {
+        $examples = [$examples];
+    }
+
     $estimatedTime  = is_array($content) ? ($content['estimated_time'] ?? null) : null;
     $goals          = is_array($content) ? ($content['goals'] ?? []) : [];
     $prerequisites  = is_array($content) ? ($content['prerequisites'] ?? []) : [];
+
+    // Optional single expected_output (fallback when example lacks its own)
+    $globalExpected = is_array($content) ? ($content['expected_output'] ?? null) : null;
 @endphp
 
 <x-slot name="header">
@@ -42,225 +60,97 @@
   </div>
 </x-slot>
 
-{{-- FULL-BLEED STYLES (scoped so it won’t affect your global navbar) --}}
 <style>
-/* ====== LESSON SCOPE (won’t touch your global nav) ====== */
+/* ===== Scoped purple theme ===== */
 .lesson-scope{
-  /* Theme tokens for this view only */
-  --deep:#0c1026; --cosmic:#2b1b57; --space:#14245a; --dark:#0a1028;
-  --nblue:#00b3ff; --npurple:#b967ff; --green:#00ff88; --warn:#ff9500; --err:#ff3366;
-  --ink:#f6f7ff; --muted:rgba(238,240,255,.86); --dim:rgba(238,240,255,.65);
-  --surface-1: rgba(17,22,54,.72);
-  --surface-2: rgba(12,18,46,.55);
-  --surface-3: rgba(255,255,255,.05);
-  --border-1: rgba(255,255,255,.14);
-  --border-2: rgba(255,255,255,.08);
-  --ring: rgba(0,179,255,.55);
-  --shadow: 0 10px 28px rgba(0,0,0,.35);
-  --radius: 14px; --radius-lg: 18px; --headerH: 80px;
-
-  /* Unified spacing & type scale */
-  --space-sm: 12px; --space-md: 18px; --space-lg: 24px; --space-xl: 32px;
-  --font-sm: 0.9rem; --font-md: 1rem; --font-lg: 1.2rem; --font-xl: 1.6rem; --font-xxl: 2rem;
+  --ink:#F7F4FF; --muted:#D9D2F5; --dim:#BDADEB;
+  --bg0:#0C0720; --bg1:#1A1036; --bg2:#221551; --bg3:#2C1B6E;
+  --p50:#F5ECFF; --p100:#EBDAFF; --p200:#D6B8FF; --p300:#C396FF;
+  --p400:#AE75FF; --p500:#9A53FF; --p600:#7C39E6; --p700:#632FBA; --p800:#4A248D; --p900:#311A61;
+  --a:#B967FF; --b:#7A2EA5; --g:#19C37D; --warn:#FFB020; --err:#FF5A7A;
+  --ring: rgba(186,160,255,.55);
+  --shadow: 0 12px 34px rgba(28,0,65,.35), 0 0 0 1px rgba(186,160,255,.10);
+  --radius:14px; --radius-lg:18px;
 }
 
-/* Shared inner container to keep header / body / footer same width */
-.lesson-scope .lesson-container{
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
+/* Background + container */
+.lesson-scope{background: radial-gradient(900px 600px at 10% -5%, rgba(186,160,255,.12), transparent 55%),
+                         radial-gradient(900px 600px at 110% 0%, rgba(148,87,235,.14), transparent 55%),
+                         linear-gradient(45deg,var(--bg0),var(--bg1) 40%,var(--bg2) 75%,var(--bg0));
+              color:var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+              -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale}
+.lesson-scope .lesson-container{max-width:1100px;margin:0 auto;padding:0 16px}
 
-/* Background + base text only inside the lesson area */
-.lesson-scope{
-  background:
-    radial-gradient(900px 600px at 15% -10%, rgba(0,179,255,.10), transparent 55%),
-    radial-gradient(900px 600px at 110% 0%, rgba(185,103,255,.12), transparent 55%),
-    linear-gradient(45deg,var(--deep),var(--cosmic) 40%,var(--space) 75%,var(--dark));
-  color:var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height:1.5;
-  font-family: ui-sans-serif, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-}
+/* Header band */
+.lesson-scope .game-header-container{background:linear-gradient(135deg,var(--bg1),var(--bg2));border-bottom:1px solid rgba(186,160,255,.25);padding:14px 0}
+.lesson-scope .stage-title{font-weight:900;letter-spacing:.2px;background:linear-gradient(45deg,#fff,#E6D8FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lesson-scope .btn-back-to-map{background:linear-gradient(135deg,var(--p500),var(--p700));
+  color:#fff;border:0;padding:10px 16px;border-radius:12px;font-weight:800;box-shadow:var(--shadow);text-decoration:none;display:inline-flex;gap:.55rem;align-items:center}
+.lesson-scope .btn-back-to-map:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.lesson-scope .btn-back-to-map:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
-/* Header band (scoped) */
-.lesson-scope .game-header-container{
-  background:linear-gradient(135deg,var(--deep),var(--cosmic));
-  border-bottom:1px solid var(--border-1);
-  padding: var(--space-md) 0; /* vertical; horizontal comes from .lesson-container */
-}
-.lesson-scope .stage-title{
-  font-size: var(--font-xl); font-weight:900;
-  background:linear-gradient(45deg,#bfefff, #e2ccff);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  letter-spacing:.2px;
-}
-.lesson-scope .btn-back-to-map{
-  background:linear-gradient(135deg,var(--nblue),var(--npurple));
-  color:#fff; border:0; padding:10px 16px; border-radius:10px; font-weight:800;
-  box-shadow: var(--shadow);
-  transition: transform .12s ease, box-shadow .2s ease, opacity .12s ease;
-  text-decoration:none;
-  display:inline-flex; align-items:center; gap:.5rem;
-}
-.lesson-scope .btn-back-to-map:hover{ transform: translateY(-1px); filter: brightness(1.05); }
-.lesson-scope .btn-back-to-map:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; }
+/* Bands */
+.lesson-scope .full-bleed{margin-left:calc(50% - 50vw);margin-right:calc(50% - 50vw);width:100vw}
+.lesson-scope .band{background:linear-gradient(135deg, rgba(34,21,81,.95), rgba(22,11,56,.96));border-top:1px solid rgba(186,160,255,.18);border-bottom:1px solid rgba(186,160,255,.18)}
+.lesson-scope .band-inner{min-height:calc(100vh - 80px);display:flex;flex-direction:column}
+.lesson-scope .band-body{padding:22px 0}
 
-/* Layout bands */
-.lesson-scope .full-bleed { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); width:100vw; }
-.lesson-scope .band{
-  background:linear-gradient(135deg, rgba(26,6,54,.94), rgba(35,21,73,.96));
-  border-top:1px solid var(--border-1); border-bottom:1px solid var(--border-1);
-}
-.lesson-scope .band-inner{ min-height: calc(100vh - var(--headerH)); display:flex; flex-direction:column; }
-.lesson-scope .band-header{
-  background:linear-gradient(135deg, rgba(0,179,255,.18), rgba(185,103,255,.18));
-  padding:22px 24px; text-align:center; border-bottom:1px solid var(--border-2);
-}
-.lesson-scope .band-title{ margin:0; font-size:2.05rem; font-weight:900; }
+/* Cards / sections */
+.lesson-scope .section{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid rgba(186,160,255,.25); border-radius: var(--radius); padding:18px; box-shadow:var(--shadow); margin-bottom:16px}
+.lesson-scope .section h3{margin:0 0 .75rem 0; font-weight:900; display:flex; align-items:center; gap:10px}
+.lesson-scope .chip{font-size:.78rem;padding:3px 8px;border-radius:999px;border:1px solid rgba(186,160,255,.30);color:var(--ink);background:rgba(186,160,255,.10)}
 
-/* Use lesson-container for width; band-body just handles vertical spacing */
-.lesson-scope .band-body{
-  padding: var(--space-lg) 0;
-  font-size: var(--font-md);
-  line-height: 1.6;
+/* Step viewer (Instructions) */
+.step-viewer{display:flex;flex-direction:column;gap:14px}
+.step-surface{background:rgba(255,255,255,.05);border:1px solid rgba(186,160,255,.25);border-radius:var(--radius);padding:16px;min-height:140px}
+.step-text{white-space:pre-wrap;line-height:1.7;color:var(--p100)}
+.step-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.step-controls .left, .step-controls .right{display:flex;gap:8px;align-items:center}
+.btn-ghost, .btn-solid{
+  appearance:none;background:rgba(186,160,255,.12);color:#fff;border:1px solid rgba(186,160,255,.35);
+  padding:10px 14px;border-radius:12px;font-weight:800;cursor:pointer;transition:transform .1s ease, filter .15s ease;display:inline-flex;gap:.5rem;align-items:center;text-decoration:none
 }
+.btn-ghost:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn-ghost:disabled{opacity:.5;cursor:not-allowed}
+.btn-solid{background:linear-gradient(135deg,var(--p500),var(--p700));border:0}
+.btn-solid:hover{transform:translateY(-1px);filter:brightness(1.06)}
 
-/* Sections & cards */
-.lesson-scope .section{
-  background: var(--surface-1);
-  border:1px solid var(--border-1);
-  border-radius: var(--radius);
-  padding:18px; margin-bottom:18px; box-shadow: var(--shadow);
-}
-.lesson-scope .section h3{
-  color:#e9ecff; margin:0 0 .8rem 0; font-weight:800; display:flex; align-items:center; gap:8px;
-}
-.lesson-scope .section h3 .chip{
-  font-size:.78rem; padding:3px 8px; border-radius:999px; border:1px solid var(--border-2); color:var(--ink);
-  background:rgba(255,255,255,.05);
-}
-.lesson-scope .cardish{
-  background: var(--surface-2);
-  border:1px solid var(--border-2);
-  border-radius: var(--radius);
-  padding:14px;
-}
-.lesson-scope .instructions-content{ white-space:pre-wrap; line-height:1.7; color:var(--muted); }
-.lesson-scope .instructions-content code{
-  background: rgba(0,255,136,.14); color:#aafad9; padding:2px 6px; border-radius:6px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
+.progress-dots{display:flex;gap:6px;align-items:center}
+.progress-dots .dot{width:10px;height:10px;border-radius:999px;background:rgba(186,160,255,.25);border:1px solid rgba(186,160,255,.35)}
+.progress-dots .dot.active{background:var(--p500);box-shadow:0 0 0 4px rgba(154,83,255,.15)}
 
-/* Panels */
-.lesson-scope .glance{ display:grid; gap:12px; grid-template-columns:1fr; margin-bottom:18px; }
-@media(min-width:820px){ .lesson-scope .glance{ grid-template-columns: 1.2fr 1fr; } }
-.lesson-scope .list-plain{ margin:0; padding-left:1.15rem; }
-.lesson-scope .list-plain li{ margin:.22rem 0; color:var(--muted); }
+/* At-a-glance */
+.grid-2{display:grid;gap:14px;grid-template-columns:1fr}
+@media(min-width:860px){.grid-2{grid-template-columns:1.1fr .9fr}}
+.cardish{background:rgba(255,255,255,.05);border:1px solid rgba(186,160,255,.2);border-radius:var(--radius);padding:14px}
+.list-plain{margin:0;padding-left:1.2rem;color:var(--p100)}
+.callout{border-radius:12px;padding:12px 14px;border:1px solid rgba(186,160,255,.35);background:rgba(186,160,255,.10);color:var(--p50)}
 
-/* Stepper */
-.lesson-scope .stepper{ counter-reset: step; display:grid; gap:12px; }
-.lesson-scope .step{
-  display:flex; gap:12px; align-items:flex-start;
-  background: var(--surface-3); border:1px solid var(--border-2);
-  border-radius:12px; padding:12px;
-}
-.lesson-scope .step::before{
-  counter-increment: step; content: counter(step);
-  min-width:28px; height:28px; display:flex; align-items:center; justify-content:center;
-  border-radius:999px; font-weight:900; background:linear-gradient(135deg,#9be4ff,#e0bcff); color:#0b0f26;
-}
+/* Python console */
+.py-console{background:linear-gradient(180deg, rgba(12,7,32,.9), rgba(12,7,32,.92));border:1px solid rgba(186,160,255,.25);
+  border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);margin:20px 0}
+.py-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 16px;background:linear-gradient(90deg, rgba(122,46,165,.4), rgba(154,83,255,.25));border-bottom:1px solid rgba(186,160,255,.25)}
+.py-title{font-weight:900}
+.py-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn-console{appearance:none;background:rgba(186,160,255,.12);color:#fff;border:1px solid rgba(186,160,255,.35);padding:10px 12px;border-radius:10px;font-weight:800;cursor:pointer;transition:.1s;display:inline-flex;gap:.5rem;align-items:center}
+.btn-console:hover{transform:translateY(-1px)}
+.btn-console:disabled{opacity:.55;cursor:not-allowed}
+.io .code{display:flex;gap:10px;align-items:stretch;padding:14px}
+.io textarea#code{width:100%;min-height:190px;background:#0B0920;color:#EDE6FF;border:1px solid rgba(186,160,255,.25);
+  outline:none;border-radius:12px;padding:12px;line-height:1.55;font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.96rem;resize:vertical}
+.io textarea#code:focus{box-shadow:0 0 0 2px var(--ring)}
+.copy-right{display:flex;flex-direction:column;gap:8px}
+.out{width:100%;border-top:1px solid rgba(186,160,255,.25);background:#0B0A1E;color:#F3EEFF;padding:14px;max-height:280px;overflow:auto;white-space:pre-wrap;font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.ok{color:#BFFFEA} .err{color:#FFD1DD}
 
-/* Callouts */
-.lesson-scope .callout{ border-radius:12px; padding:12px 14px; border:1px solid; }
-.lesson-scope .callout.info{ background:rgba(0,179,255,.10); border-color:rgba(0,179,255,.42); color:#dff5ff; }
-.lesson-scope .callout.warn{ background:rgba(255,149,0,.10); border-color:rgba(255,149,0,.45); color:#ffe9cc; }
-.lesson-scope .callout.good{ background:rgba(0,255,136,.10); border-color:rgba(0,255,136,.45); color:#d3ffe9; }
+.console-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;border-top:1px solid rgba(186,160,255,.2);background:rgba(186,160,255,.06)}
+.console-meta{display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;font-size:.78rem;padding:4px 8px;border-radius:999px;background:rgba(154,83,255,.18);border:1px solid rgba(154,83,255,.35);color:#fff}
 
-/* Console */
-.lesson-scope .py-console{
-  background:#0a1028; border:1px solid var(--border-1);
-  border-radius: var(--radius-lg); overflow:hidden; margin:20px 0; box-shadow: var(--shadow);
-}
-.lesson-scope .py-head{
-  display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 16px;
-  background:linear-gradient(135deg, rgba(5,217,232,.25), rgba(0,179,255,.25));
-  border-bottom:1px solid var(--border-1);
-}
-.lesson-scope .py-title{ font-weight:800; }
-.lesson-scope .py-actions{ display:flex; gap:8px; flex-wrap:wrap; }
-
-/* Button look for both <button> and <a> when used as console buttons */
-.lesson-scope .btn-console,
-.lesson-scope a.btn-console{
-  appearance:none; -webkit-appearance:none;
-  background: rgba(255,255,255,.14); color:#f8f9ff; border:1px solid var(--border-1);
-  padding:10px 14px; border-radius:10px; font-weight:700; cursor:pointer;
-  transition: transform .12s ease, box-shadow .2s ease, background .12s ease, opacity .12s ease;
-  text-decoration:none; display:inline-flex; align-items:center; gap:.5rem;
-}
-.lesson-scope .btn-console:hover{ transform: translateY(-1px); background: rgba(255,255,255,.18); }
-.lesson-scope .btn-console:active{ transform: translateY(0); }
-.lesson-scope .btn-console:disabled{ opacity:.55; cursor:not-allowed; }
-.lesson-scope .btn-console:focus-visible{ outline:2px solid var(--ring); outline-offset:2px; }
-
-.lesson-scope .io .code{ padding: 14px; display:flex; gap:10px; align-items:stretch; }
-.lesson-scope .io .code textarea{
-  width:100%; min-height:170px; background:#070c22; color:#bfffe9; border:1px solid var(--border-2);
-  outline:none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.03);
-  border-radius:10px; padding:12px; line-height:1.55;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:.96rem; resize:vertical;
-}
-.lesson-scope .io .code textarea:focus{ box-shadow: 0 0 0 2px var(--ring); }
-
-.lesson-scope .copy-right{ display:flex; flex-direction:column; gap:8px; }
-.lesson-scope .out{
-  width:100%; border-top:1px solid var(--border-2); background:#060b1c;
-  padding:14px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  max-height:280px; overflow:auto; white-space:pre-wrap; color:#e7efff;
-}
-.lesson-scope .ok{ color:#b2ffe6; } .lesson-scope .err{ color:#ffcbd7; }
-
-/* Footer (uses lesson-container) */
-.lesson-scope .band-footer{
-  font-size: var(--font-sm);
-  padding: var(--space-md) 0 var(--space-lg);
-}
-.lesson-scope .band-footer .lesson-container{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
-.lesson-scope .band-footer a{ text-decoration:none; }
-
-/* Collapsible */
-.lesson-scope .collapse-wrap.collapsed .collapse-body{
-  max-height: 140px; overflow: hidden;
-  mask-image: linear-gradient(#000 70%, transparent);
-  -webkit-mask-image: linear-gradient(#000 70%, transparent);
-}
-.lesson-scope .collapse-toggle{ margin-top:10px; }
-
-/* Scrollbars (WebKit) */
-.lesson-scope .out::-webkit-scrollbar,
-.lesson-scope textarea::-webkit-scrollbar{ width:10px; height:10px; }
-.lesson-scope .out::-webkit-scrollbar-thumb,
-.lesson-scope textarea::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.18); border-radius:10px; }
-.lesson-scope .out::-webkit-scrollbar-thumb:hover,
-.lesson-scope textarea::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.26); }
-
-/* MOBILE ADJUSTMENTS */
-@media (max-width: 768px) {
-  .lesson-scope .game-header-container { padding: var(--space-sm) 0; }
-  .lesson-scope .lesson-container { padding: 0 12px; }
-
-  .lesson-scope .stage-title { font-size: var(--font-lg); }
-  .lesson-scope .band-body { padding: var(--space-md) 0; font-size: var(--font-sm); }
-  .lesson-scope .band-footer { padding: var(--space-md) 0 var(--space-md); }
-}
-
-/* DESKTOP LARGER */
-@media (min-width: 1200px) {
-  .lesson-scope .stage-title { font-size: var(--font-xxl); }
-  .lesson-scope .band-body { font-size: var(--font-lg); }
-}
+/* Footer */
+.lesson-scope .band-footer{padding:18px 0 26px;text-align:center}
+.lesson-scope .band-footer a{margin:0 6px}
 </style>
 
 <div class="page-wrap lesson-scope">
@@ -270,112 +160,84 @@
       <div class="lesson-container">
         <div class="band-body">
 
-          {{-- NEW: At a glance --}}
+          {{-- At a glance --}}
           @if($estimatedTime || !empty($goals) || !empty($prerequisites))
-            <div class="glance">
-              <div class="cardish">
-                <h3>🧭 At a glance</h3>
-                <div class="stepper">
-                  @if($estimatedTime)
-                    <div class="step"><div><strong>Estimated time:</strong> {{ $estimatedTime }}</div></div>
-                  @endif
-                  @if(!empty($goals))
-                    <div class="step">
-                      <div>
-                        <strong>Learning goals</strong>
-                        <ul class="list-plain">
-                          @foreach($goals as $g)<li>{{ $g }}</li>@endforeach
-                        </ul>
-                      </div>
-                    </div>
-                  @endif
-                  @if(!empty($prerequisites))
-                    <div class="step">
-                      <div>
-                        <strong>Prerequisites</strong>
-                        <ul class="list-plain">
-                          @foreach($prerequisites as $p)<li>{{ $p }}</li>@endforeach
-                        </ul>
-                      </div>
-                    </div>
-                  @endif
+          <div class="grid-2">
+            <div class="cardish">
+              <h3>🧭 At a glance</h3>
+              <div class="list-plain" style="padding-left:0">
+                @if($estimatedTime)<div class="badge">⏱ Estimated: {{ $estimatedTime }}</div>@endif
+              </div>
+              @if(!empty($goals))
+                <div class="section" style="margin-top:12px">
+                  <strong>Learning goals</strong>
+                  <ul class="list-plain">
+                    @foreach($goals as $g)<li>{{ $g }}</li>@endforeach
+                  </ul>
                 </div>
-              </div>
-              <div class="cardish">
-                <h3>🚀 What you’ll do</h3>
-                <ol class="list-plain" style="padding-left:1.1rem;">
-                  <li>Read the short lesson below.</li>
-                  <li>Copy an example into the Python console and run it.</li>
-                  <li>Compare your output with the expected result.</li>
-                  <li>Start the level activity to earn stars.</li>
-                </ol>
-                <div class="callout info" style="margin-top:10px;">Tip: You can use <em>Copy &amp; Run</em> on any example to auto-paste and execute.</div>
-              </div>
-            </div>
-          @endif
-
-          {{-- Instructions (collapsible if long) --}}
-          @if($instructions)
-            @php $isLong = mb_strlen($instructions) > 420; @endphp
-            <div class="section collapse-wrap {{ $isLong ? 'collapsed' : '' }}" id="lessonBox">
-              <h3>📋 Instructions <span class="chip">Lesson</span></h3>
-              <div class="instructions-content collapse-body">{!! nl2br(e($instructions)) !!}</div>
-              @if($isLong)
-                <button class="btn-console collapse-toggle" data-target="#lessonBox">Show more</button>
+              @endif
+              @if(!empty($prerequisites))
+                <div class="section" style="margin-top:12px">
+                  <strong>Prerequisites</strong>
+                  <ul class="list-plain">
+                    @foreach($prerequisites as $p)<li>{{ $p }}</li>@endforeach
+                  </ul>
+                </div>
               @endif
             </div>
+            <div class="cardish">
+              <h3>🚀 Flow</h3>
+              <ol class="list-plain">
+                <li>Read each instruction step and click <strong>Next</strong>.</li>
+                <li>Use the console’s <strong>Next/Back</strong> to iterate examples.</li>
+                <li>Click <strong>Check Answer</strong> to compare output.</li>
+                <li>Start the level activity to earn stars.</li>
+              </ol>
+              <div class="callout" style="margin-top:10px">Tip: <em>Copy &amp; Run</em> on an example will paste and execute it.</div>
+            </div>
+          </div>
           @endif
 
-          {{-- Examples --}}
-          @if(!empty($examples))
-            <div class="section">
-              <h3>🧪 Try These Examples <span class="chip">Copy → Run</span></h3>
-              <div style="display:grid; gap:14px;">
-                @foreach($examples as $i => $ex)
-                  @php
-                    $exTitle   = $ex['title'] ?? ('Example '.($i+1));
-                    $exCode    = $ex['code']  ?? '';
-                    $exExplain = $ex['explain'] ?? null;
-                    $exExpected= $ex['expected_output'] ?? null;
-                  @endphp
-                  <div class="cardish">
-                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-                      <h4 style="margin:0; font-weight:800;">{{ $exTitle }}</h4>
-                      <div>
-                        <button class="btn-console" data-action="copy" data-code="{{ base64_encode($exCode) }}">📋 Copy to Console</button>
-                        <button class="btn-console" data-action="copyrun" data-code="{{ base64_encode($exCode) }}">▶ Copy & Run</button>
-                        @if($exExpected)
-                          <button class="btn-console" data-action="expected" data-expected="{{ e($exExpected) }}">👀 Expected</button>
-                        @endif
-                      </div>
-                    </div>
-                    @if($exExplain)
-                      <div style="margin:.5rem 0 .25rem; color:var(--muted);">{{ $exExplain }}</div>
-                    @endif
-                    <pre class="mt-2" style="white-space:pre-wrap;"><code>{{ $exCode }}</code></pre>
-                  </div>
-                @endforeach
-              </div>
-              <div class="callout good" style="margin-top:12px;">
-                Pro tip: Edit the code after running it. Try changing numbers or text and see how the output changes.
+          {{-- Instructions: Step Viewer --}}
+          @if(count($instructionSteps) > 0)
+          <div class="section" id="instructionsSection"
+               data-total="{{ count($instructionSteps) }}">
+            <h3>📋 Instructions <span class="chip">Step-by-Step</span></h3>
+
+            {{-- steps rendered as hidden blocks; JS flips visibility --}}
+            <div class="step-viewer" id="instrViewer">
+              @foreach($instructionSteps as $i => $step)
+                <div class="step-surface step"
+                     data-step="{{ $i }}"
+                     style="{{ $i === 0 ? '' : 'display:none' }}">
+                  <div class="step-text">{!! nl2br(e($step)) !!}</div>
+                </div>
+              @endforeach
+
+              <div class="step-controls">
+                <div class="left">
+                  <button class="btn-ghost" id="instrPrev" disabled>⬅ Back</button>
+                </div>
+                <div class="progress-dots" id="instrDots">
+                  @for($i=0;$i<count($instructionSteps);$i++)
+                    <span class="dot {{ $i===0?'active':'' }}" data-dot="{{ $i }}"></span>
+                  @endfor
+                </div>
+                <div class="right">
+                  <button class="btn-solid" id="instrNext">{{ count($instructionSteps) > 1 ? 'Next ➡' : 'Done' }}</button>
+                </div>
               </div>
             </div>
+          </div>
           @endif
 
-          {{-- Hints --}}
-          @php
-            $hints = $level->hints;
-            if (empty($hints) && is_array($content)) $hints = $content['hints'] ?? null;
-            if (is_string($hints)) {
-                $decodedHints = json_decode($hints, true);
-                if (json_last_error() === JSON_ERROR_NONE) $hints = $decodedHints;
-            }
-          @endphp
-
-          {{-- Python console --}}
-          <div class="py-console">
+          {{-- Python console with Example stepper --}}
+          <div class="py-console" id="consoleBox"
+               data-example-count="{{ count($examples) }}">
             <div class="py-head">
-              <div class="py-title">🐍 Python Console <span id="status" style="font-weight:600;">(loading…)</span></div>
+              <div class="py-title">
+                🐍 Python Console <span id="status" style="font-weight:700;opacity:.85">(loading…)</span>
+              </div>
               <div class="py-actions">
                 <button class="btn-console" id="btnCopyMain">📋 Copy</button>
                 <button class="btn-console" id="btnRun">▶ Run</button>
@@ -383,6 +245,23 @@
                 <button class="btn-console" id="btnClear">🗑 Clear</button>
               </div>
             </div>
+
+            {{-- Example metadata (title / explain) --}}
+            <div class="console-nav" id="consoleNav" style="{{ count($examples) ? '' : 'display:none' }}">
+              <div class="console-meta">
+                <span class="badge" id="exIndexBadge">Example 1 / {{ max(1,count($examples)) }}</span>
+                <strong id="exTitle" style="line-height:1.2"></strong>
+              </div>
+              <div class="right">
+                <button class="btn-ghost" id="exPrev" {{ count($examples) > 1 ? '' : 'disabled' }}>⬅ Back</button>
+                <button class="btn-solid" id="exNext" {{ count($examples) > 1 ? '' : 'disabled' }}>Next ➡</button>
+              </div>
+            </div>
+
+            <div class="cardish" id="exExplainWrap" style="display:none;margin:10px 14px 0">
+              <div id="exExplain" style="color:var(--p100)"></div>
+            </div>
+
             <div class="io">
               <div class="code">
                 <textarea id="code" placeholder='# Type your Python code here
@@ -394,25 +273,44 @@ print("Hello, World!")'></textarea>
               </div>
             </div>
             <div class="out" id="output"> Type code above and click "Run".</div>
+
+            {{-- hidden example data to hydrate JS --}}
+            <div id="examplesData" style="display:none">
+              @foreach($examples as $i => $ex)
+                @php
+                  $title   = trim($ex['title'] ?? ('Example '.($i+1)));
+                  $code    = (string)($ex['code'] ?? '');
+                  $explain = (string)($ex['explain'] ?? '');
+                  $expect  = (string)($ex['expected_output'] ?? ($globalExpected ?? ''));
+                @endphp
+                <div class="ex-row"
+                     data-title="{{ e($title) }}"
+                     data-code="{{ base64_encode($code) }}"
+                     data-explain="{{ e($explain) }}"
+                     data-expected="{{ e($expect) }}"></div>
+              @endforeach
+            </div>
           </div>
 
-          {{-- Optional expected output from content --}}
-          @php $expectedOutput = is_array($content) ? ($content['expected_output'] ?? null) : null; @endphp
-          @if($expectedOutput)
-            <div class="section" id="challenge" data-expected="{{ $expectedOutput }}">
-              <strong>Expected Output:</strong> <code>{{ $expectedOutput }}</code>
+          {{-- Optional single expected output (fallback display if no examples) --}}
+          @if(!$examples && $globalExpected)
+            <div class="section" id="challenge" data-expected="{{ $globalExpected }}">
+              <strong>Expected Output:</strong> <code>{{ $globalExpected }}</code>
             </div>
+          @else
+            <div class="section" id="challenge" data-expected=""></div>
           @endif
 
-        </div> {{-- /.band-body --}}
-      </div> {{-- /.lesson-container --}}
+        </div>
+      </div>
 
       <div class="band-footer">
         <div class="lesson-container">
           <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-back-to-map">🗺 Back to World Map</a>
-          <a href="{{ route('levels.show', $level) }}" class="btn btn-console" style="border-color:var(--nblue)">Start Level</a>
+          <a href="{{ route('levels.show', $level) }}" class="btn-ghost" style="border-color:rgba(186,160,255,.4)">Start Level</a>
         </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -444,31 +342,14 @@ except Exception:
     }
   }
 
-  function setStatus(s){
-    const el = document.getElementById('status');
-    if (el) el.textContent = `(${s})`;
-  }
-  function clearOut(){
-    const el = document.getElementById('output');
-    if (el) el.textContent = '';
-  }
-  function appendOut(s){
-    const el = document.getElementById('output'); if (!el) return;
-    const span = document.createElement('span'); span.className = 'ok'; span.textContent = s;
-    el.appendChild(span); el.scrollTop = el.scrollHeight;
-  }
-  function appendErr(s){
-    const el = document.getElementById('output'); if (!el) return;
-    const span = document.createElement('span'); span.className = 'err'; span.textContent = s;
-    el.appendChild(span); el.scrollTop = el.scrollHeight;
-  }
+  function setStatus(s){ const el = document.getElementById('status'); if (el) el.textContent = '('+s+')'; }
+  function clearOut(){ const el = document.getElementById('output'); if (el) el.textContent = ''; }
+  function appendOut(s){ const el = document.getElementById('output'); if (!el) return; const span = document.createElement('span'); span.className='ok'; span.textContent=s; el.appendChild(span); el.scrollTop=el.scrollHeight; }
+  function appendErr(s){ const el = document.getElementById('output'); if (!el) return; const span = document.createElement('span'); span.className='err'; span.textContent=s; el.appendChild(span); el.scrollTop=el.scrollHeight; }
 
   async function runCode(code){
     clearOut();
-    if(!pyReady){
-      appendErr("Python runtime is not ready yet.");
-      return { out:'', err:'not-ready' };
-    }
+    if(!pyReady){ appendErr("Python runtime is not ready yet."); return { out:'', err:'not-ready' }; }
     try {
       pyodide.globals.set("USER_CODE", code);
       await pyodide.runPythonAsync(`
@@ -496,37 +377,98 @@ OUT = _out.getvalue(); ERR = _err.getvalue()
     }
   }
 
+  // ===== UI logic (Instructions + Examples stepper + console) =====
   document.addEventListener('DOMContentLoaded', () => {
-    const codeTA = document.getElementById('code');
-    const output = document.getElementById('output');
+    bootPython();
 
-    // Keyboard shortcut: Ctrl/Cmd + Enter to Run
+    // ---- Instruction Stepper ----
+    const instrSection = document.getElementById('instructionsSection');
+    if (instrSection) {
+      const total = parseInt(instrSection.dataset.total || '0', 10);
+      let idx = 0;
+      const steps = Array.from(instrSection.querySelectorAll('.step-surface.step'));
+      const dots  = Array.from(document.querySelectorAll('#instrDots .dot'));
+      const prev  = document.getElementById('instrPrev');
+      const next  = document.getElementById('instrNext');
+
+      function renderInstr(){
+        steps.forEach((el,i)=> el.style.display = (i===idx?'block':'none'));
+        dots.forEach((d,i)=> d.classList.toggle('active', i===idx));
+        prev.disabled = idx===0;
+        next.textContent = (idx===total-1) ? 'Finish ✅' : 'Next ➡';
+      }
+
+      prev?.addEventListener('click', e=>{ e.preventDefault(); if(idx>0){ idx--; renderInstr(); } });
+      next?.addEventListener('click', e=>{ e.preventDefault(); if(idx<total-1){ idx++; renderInstr(); } else { /* finished */ } });
+
+      // Allow clicking dots
+      dots.forEach((d,i)=> d.addEventListener('click', ()=>{ idx=i; renderInstr(); }));
+
+      renderInstr();
+    }
+
+    // ---- Examples/Console Stepper ----
+    const exRows = Array.from(document.querySelectorAll('#examplesData .ex-row'));
+    let exIdx = 0;
+
+    const exPrev = document.getElementById('exPrev');
+    const exNext = document.getElementById('exNext');
+    const exTitle = document.getElementById('exTitle');
+    const exExplainWrap = document.getElementById('exExplainWrap');
+    const exExplain = document.getElementById('exExplain');
+    const exIndexBadge = document.getElementById('exIndexBadge');
+    const codeTA = document.getElementById('code');
+    const challenge = document.getElementById('challenge');
+
+    function loadExample(i){
+      if (!exRows.length) return;
+      exIdx = Math.max(0, Math.min(i, exRows.length-1));
+      const row = exRows[exIdx];
+      const title = row.dataset.title || ('Example ' + (exIdx+1));
+      const explain = row.dataset.explain || '';
+      const b64 = row.dataset.code || '';
+      const expected = (row.dataset.expected || '').trim();
+
+      if (exTitle) exTitle.textContent = title;
+      if (exExplainWrap) exExplainWrap.style.display = explain ? '' : 'none';
+      if (exExplain) exExplain.textContent = explain;
+      if (exIndexBadge) exIndexBadge.textContent = `Example ${exIdx+1} / ${exRows.length}`;
+      if (codeTA) codeTA.value = b64 ? atob(b64) : '';
+      if (challenge) challenge.dataset.expected = expected;
+
+      // nav enable/disable
+      if (exPrev) exPrev.disabled = (exIdx===0);
+      if (exNext) exNext.disabled = (exIdx===exRows.length-1);
+      // reset output text
+      const out = document.getElementById('output'); if (out) out.textContent = ' Code loaded. Click "Run" or edit it.';
+    }
+
+    if (exRows.length) loadExample(0);
+
+    exPrev?.addEventListener('click', e=>{ e.preventDefault(); loadExample(exIdx-1); });
+    exNext?.addEventListener('click', e=>{ e.preventDefault(); loadExample(exIdx+1); });
+
+    // Keyboard: Ctrl/Cmd + Enter to Run
     document.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        const runBtn = document.getElementById('btnRun');
-        if (runBtn) runBtn.click();
+        document.getElementById('btnRun')?.click();
       }
     });
 
-    // Single delegated click handler for ALL buttons
+    // Delegated clicks for console controls
     document.addEventListener('click', async (e) => {
       const btn = e.target.closest('button');
       if (!btn) return;
 
-      // --- Top console actions by ID ---
       if (btn.id === 'btnRun') {
-        e.preventDefault();
-        btn.disabled = true; setStatus('running');
+        e.preventDefault(); btn.disabled = true; setStatus('running');
         const { err } = await runCode(codeTA.value);
-        setStatus(err ? 'error' : 'ready');
-        btn.disabled = false;
-        return;
+        setStatus(err ? 'error' : 'ready'); btn.disabled = false; return;
       }
-
       if (btn.id === 'btnCheck') {
         e.preventDefault();
-        const expected = (document.getElementById('challenge')?.dataset.expected || '').trim();
+        const expected = (challenge?.dataset.expected || '').trim();
         btn.disabled = true; setStatus('checking');
         const { out } = await runCode(codeTA.value);
         const clean = (out || '').trim();
@@ -536,79 +478,22 @@ OUT = _out.getvalue(); ERR = _err.getvalue()
         } else {
           appendOut("\n✓ Code executed successfully!");
         }
-        setStatus('ready'); btn.disabled = false;
-        return;
+        setStatus('ready'); btn.disabled = false; return;
       }
-
-      if (btn.id === 'btnClear') {
-        e.preventDefault();
-        codeTA.value = '';
-        output.textContent = ' Type code above and click "Run".';
-        return;
-      }
-
+      if (btn.id === 'btnClear') { e.preventDefault(); codeTA.value=''; document.getElementById('output').textContent=' Ready.'; return; }
       if (btn.id === 'btnCopyMain' || btn.id === 'btnCopyToClipboard') {
         e.preventDefault();
-        try {
-          await navigator.clipboard.writeText(codeTA.value);
-          appendOut("\n📋 Code copied to clipboard.");
-        } catch {
-          appendErr("\n⚠️ Could not copy (clipboard permission).");
-        }
+        try { await navigator.clipboard.writeText(codeTA.value); appendOut("\n📋 Code copied."); }
+        catch { appendErr("\n⚠️ Clipboard permission blocked."); }
         return;
       }
-
       if (btn.id === 'btnPasteFromClipboard') {
         e.preventDefault();
-        try {
-          const t = await navigator.clipboard.readText();
-          codeTA.value = t;
-          output.textContent = ' Code pasted. Click "Run" or edit it.';
-        } catch {
-          appendErr("\n⚠️ Clipboard read blocked by browser.");
-        }
-        return;
-      }
-
-      // Collapsible toggles
-      if (btn.classList.contains('collapse-toggle')) {
-        e.preventDefault();
-        const box = document.querySelector(btn.getAttribute('data-target'));
-        if (!box) return;
-        const nowCollapsed = box.classList.toggle('collapsed');
-        btn.textContent = nowCollapsed ? 'Show more' : 'Show less';
-        return;
-      }
-
-      // --- Example buttons by data-action ---
-      const action = btn.getAttribute('data-action');
-      if (!action) return;
-
-      if (action === 'copy' || action === 'copyrun') {
-        e.preventDefault();
-        const b64  = btn.getAttribute('data-code') || '';
-        const code = b64 ? atob(b64) : '';
-        codeTA.value = code;
-        output.textContent = ' Code pasted. Click "Run" or edit it.';
-        if (action === 'copyrun') {
-          btn.disabled = true; setStatus('running');
-          const { err } = await runCode(codeTA.value);
-          setStatus(err ? 'error' : 'ready');
-          btn.disabled = false;
-        }
-        return;
-      }
-
-      if (action === 'expected') {
-        e.preventDefault();
-        const exp = btn.getAttribute('data-expected') || '';
-        appendOut(`\n🧭 Expected output: ${exp}\n`);
+        try { const t = await navigator.clipboard.readText(); codeTA.value=t; document.getElementById('output').textContent=' Pasted. Run it!'; }
+        catch { appendErr("\n⚠️ Clipboard read blocked by browser."); }
         return;
       }
     });
-
-    bootPython(); // initialize Python last
   });
 </script>
-
 </x-app-layout>

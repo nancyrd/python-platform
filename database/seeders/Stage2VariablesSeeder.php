@@ -13,330 +13,342 @@ class Stage2VariablesSeeder extends Seeder
     {
         // safe next order – won’t disturb existing stages
         $nextOrder = (int) (Stage::max('display_order') ?? 0) + 1;
- 
+
         // unique slug so we never collide with Stage 1
         $stage = Stage::firstOrCreate(
             ['slug' => 'variables-foundations'],
             ['title' => 'Stage 2: Variables (Foundations)', 'display_order' => $nextOrder]
         );
         
-        // ---------- PRE (revised: removed name-validity; added print-with-name) ----------
-Assessment::updateOrCreate(
-    ['stage_id' => $stage->id, 'type' => 'pre'],
-    [
-        'title'     => 'Pre: Variables Foundations',
-        'questions' => json_encode([
+        // ---------- PRE ASSESSMENT ----------
+        Assessment::updateOrCreate(
+            ['stage_id' => $stage->id, 'type' => 'pre'],
             [
-                'prompt'  => 'Which line correctly stores the number 7 in a variable named age?',
-                'options' => ['age = 7', '7 = age', 'age: 7', 'var age = 7'],
-                'correct' => 'age = 7'
-            ],
-            [
-                'prompt'  => "What will this print?\nname = \"Mia\"\nprint(\"Hello, \" + name)",
-                'options' => ['Hello, name', 'Hello, Mia', '"Hello, " + name', 'Error'],
-                'correct' => 'Hello, Mia'
-            ],
-            [
-                'prompt'  => "What will x be after:\nx = 3\nx = x + 2",
-                'options' => ['3', '5', '"5"', 'Error'],
-                'correct' => '5'
-            ],
-            [
-                'prompt'  => 'What is the type of "42" (with quotes)?',
-                'options' => ['int', 'str', 'float', 'bool'],
-                'correct' => 'str'
-            ],
-            [
-                'prompt'  => 'Which line safely prints Age: 7?',
-                'options' => ['print("Age:" + 7)', 'print("Age:", 7)', 'print("Age:" "7")', 'print(Age: 7)'],
-                'correct' => 'print("Age:", 7)'
-            ],
-            [
-                'prompt'  => 'Which converts the text "8" into the number 8?',
-                'options' => ['int("8")', 'str(8)', 'float("8")', '"8" + 0'],
-                'correct' => 'int("8")'
-            ],
-            [
-                'prompt'  => 'Which one is a boolean literal in Python?',
-                'options' => ['"True"', 'True', '"false"', 'yes'],
-                'correct' => 'True'
+                'title'     => 'Pre: Variables Foundations',
+                'questions' => json_encode([
+                    [
+                        'prompt' => 'If you wanted to remember someone\'s name for later use, what would you do?',
+                        'options' => ['Write it down', 'Memorize it', 'Tell someone else', 'All of the above'],
+                        'correct' => 'All of the above'
+                    ],
+                    [
+                        'prompt' => 'What does "age = 25" mean in programming?',
+                        'options' => ['Age equals 25', 'Store 25 in a container called age', 'Age is not 25', 'Compare age to 25'],
+                        'correct' => 'Store 25 in a container called age'
+                    ],
+                    [
+                        'prompt' => 'Can you change what\'s stored in a variable?',
+                        'options' => ['No, once set it stays the same', 'Yes, you can update it anytime', 'Only if you use special commands', 'It depends on the programming language'],
+                        'correct' => 'Yes, you can update it anytime'
+                    ],
+                    [
+                        'prompt' => 'What would you expect name = "Sarah" to do?',
+                        'options' => ['Print Sarah', 'Store "Sarah" in name', 'Compare name to Sarah', 'Delete Sarah'],
+                        'correct' => 'Store "Sarah" in name'
+                    ]
+                ], JSON_UNESCAPED_UNICODE)
             ]
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-    ]
-);
+        );
 
- 
-// ---------- LEVEL 1 (MCQ / easy) ----------
+        // ---------- LEVEL 1 (Basic Variables) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 1],
+            [
+                'type'         => 'multiple_choice',
+                'title'        => 'Level 1: What are Variables?',
+                'pass_score'   => 60,
+                'instructions' => "📦 VARIABLES ARE LIKE LABELED BOXES 📦\n\nThink of variables as containers with labels where you can store information to use later.\n\n• VARIABLE NAME = The label on the box (like 'age' or 'name')\n• VALUE = What you put inside the box (like 25 or \"Alice\")\n• ASSIGNMENT = Putting something in the box using the = sign\n\nExamples:\nname = \"Alice\"     # Put \"Alice\" in the name box\nage = 25           # Put 25 in the age box\n\nYou can change what's in the box anytime:\nscore = 5          # First put 5 in score\nscore = 8          # Now replace it with 8\n\nPrinting variables shows what's inside:\nprint(name)        # Shows: Alice\nprint(age)         # Shows: 25",
+                'content'      => [
+                    'intro'      => 'Let\'s start with the basics - understanding what variables are and how they work.',
+                    'time_limit' => 180,
+                    'hints'      => [
+                        'Variables are like labeled storage boxes',
+                        'Use = to put values into variables',
+                        'Variable names should be descriptive',
+                        'You can change variable values anytime'
+                    ],
+                    'examples'   => [
+                        [
+                            'title' => 'Storing a name',
+                            'code'  => "name = \"Alice\"\nprint(name)",
+                            'explain' => 'We create a variable called name and put \"Alice\" inside it',
+                            'expected_output' => "Alice"
+                        ],
+                        [
+                            'title' => 'Storing a number',
+                            'code'  => "age = 25\nprint(age)",
+                            'explain' => 'We create a variable called age and put 25 inside it',
+                            'expected_output' => "25"
+                        ],
+                        [
+                            'title' => 'Changing variable values',
+                            'code'  => "score = 5\nprint(\"First score:\", score)\nscore = 8\nprint(\"New score:\", score)",
+                            'explain' => 'We can change what\'s stored in a variable',
+                            'expected_output' => "First score: 5\nNew score: 8"
+                        ]
+                    ],
+                    'questions'  => $this->level1Questions(),
+                ]
+            ]
+        );
+
+        // ---------- LEVEL 2 (Using Variables) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 2],
+            [
+                'type'         => 'multiple_choice',
+                'title'        => 'Level 2: Using Variables in Calculations',
+                'pass_score'   => 70,
+                'instructions' => "🧮 USING VARIABLES IN CALCULATIONS 🧮\n\nNow let's use variables to do math and combine information!\n\nMATH OPERATIONS:\n+ Addition       - Subtraction\n* Multiplication / Division\n\nExamples:\nprice = 10\ntax = 2\ntotal = price + tax    # 10 + 2 = 12\n\nCOMBINING TEXT:\nname = \"Alice\"\ngreeting = \"Hello, \" + name   # \"Hello, Alice\"\n\nUPDATING VARIABLES:\ncount = 5\ncount = count + 1       # count becomes 6\ncount += 1              # shortcut for same thing\n\nPRINTING WITH VARIABLES:\nprint(\"Total:\", total)  # Shows: Total: 12\nprint(greeting)         # Shows: Hello, Alice",
+                'content'      => [
+                    'intro'      => 'Now let\'s use variables to perform calculations and combine information!',
+                    'time_limit' => 200,
+                    'hints'      => [
+                        'Use variables in math calculations',
+                        'Combine text using +',
+                        'You can update variables using their current value',
+                        'Print can show both text and variables'
+                    ],
+                    'examples'   => [
+                        [
+                            'title' => 'Simple calculation',
+                            'code'  => "apples = 5\noranges = 3\ntotal_fruit = apples + oranges\nprint(\"Total fruit:\", total_fruit)",
+                            'explain' => 'We can use variables in math operations',
+                            'expected_output' => "Total fruit: 8"
+                        ],
+                        [
+                            'title' => 'Combining text',
+                            'code'  => "first_name = \"John\"\nlast_name = \"Doe\"\nfull_name = first_name + \" \" + last_name\nprint(full_name)",
+                            'explain' => 'We can combine text variables with +',
+                            'expected_output' => "John Doe"
+                        ],
+                        [
+                            'title' => 'Updating variables',
+                            'code'  => "bank_balance = 100\ndeposit = 50\nbank_balance = bank_balance + deposit\nprint(\"New balance:\", bank_balance)",
+                            'explain' => 'We can update variables using their current value',
+                            'expected_output' => "New balance: 150"
+                        ]
+                    ],
+                    'questions'  => $this->level2Questions(),
+                ]
+            ]
+        );
+
+        // ---------- LEVEL 3 (Variable Rules & Best Practices) ----------
+        Level::updateOrCreate(
+            ['stage_id' => $stage->id, 'index' => 3],
+            [
+                'type'         => 'drag_drop',
+                'title'        => 'Level 3: Variable Rules & Organization',
+                'pass_score'   => 75,
+                'instructions' => "📝 VARIABLE RULES & BEST PRACTICES 📝\n\nVARIABLE NAMING RULES:\n• Must start with a letter or underscore\n• Can contain letters, numbers, and underscores\n• Cannot use spaces or special characters\n• Case matters (age ≠ Age ≠ AGE)\n\nGOOD VS BAD NAMES:\n✅ Good: user_name, total_score, item_count\n❌ Bad: user name, total-score, 2ndPlace\n\nDESCRIPTIVE NAMES:\nUse names that describe what the variable stores:\n✅ student_age instead of ✅ sa\n✅ shopping_cart_total instead of ✅ sct\n\nCONSTANTS (values that don't change):\nUse ALL_CAPS for constants:\nTAX_RATE = 0.08\nMAX_SCORE = 100",
+                'content'      => [
+                    'time_limit' => 240,
+                    'max_hints'  => 3,
+                    'hints'      => [
+                        'Variable names cannot contain spaces',
+                        'Use descriptive names that explain what they store',
+                        'Case matters in variable names',
+                        'Constants use ALL_CAPS naming'
+                    ],
+                    'examples'   => [
+                        [
+                            'title' => 'Good variable names',
+                            'code'  => "student_age = 18\ncourse_grade = 95.5\nis_enrolled = True\nMAX_CLASS_SIZE = 30",
+                            'explain' => 'Descriptive names make code easier to understand',
+                            'expected_output' => ""
+                        ],
+                        [
+                            'title' => 'Invalid variable names',
+                            'code'  => "# These will cause errors:\n# 2nd_place = \"silver\"\n# total-score = 100\n# first name = \"John\"",
+                            'explain' => 'Variable names must follow specific rules',
+                            'expected_output' => "Syntax errors"
+                        ]
+                    ],
+                    'categories'  => [
+                        '✅ Valid Variable Names' => ['user_name', 'total_score', '_count', 'item2', 'MAX_SIZE'],
+                        '❌ Invalid Variable Names' => ['user name', 'total-score', '2ndplace', 'first-name', 'return'],
+                        '📝 Descriptive Names' => ['student_age', 'shopping_cart_total', 'is_logged_in', 'TAX_RATE'],
+                        '🚫 Poor Names' => ['a', 'x1', 'temp', 'var2', 'data']
+                    ],
+                ]
+            ]
+        );
 Level::updateOrCreate(
-    ['stage_id' => $stage->id, 'index' => 1],
+    ['stage_id' => $stage->id, 'index' => 4],
     [
-        'type'         => 'multiple_choice',
-        'title'        => 'Variables 101 — Easy MCQ',
-        'pass_score'   => 60,
-        'instructions' => "Mini-lesson (read me first):\n\nA variable is a labeled box. You put a value inside with = and later use the label to get it back.\n\nExamples:\n  age = 7        # store 7\n  age = age + 1  # update to 8\n  print(\"Age:\", age)  # safest way to show text + number\n\nCasting (turn text into numbers when needed):\n  int(\"7\")  → 7\n  float(\"3.5\") → 3.5\n\nTips:\n• Text uses quotes, numbers don’t.\n• Use commas in print() to mix text + numbers safely.\n• + joins text with text; use str(number) if you really want +.\n• str(10) → \"10\"",
-        'content'      => [
-            'intro'      => 'Pick the best answer for each question.',
-            'time_limit' => 180,
-            'hints'      => [
-                'If it has quotes, it is text (str).',
-                'print("Label:", value) adds a space and never crashes.',
-                'Use int("7") or float("3.5") before doing math.',
-            ],
-            'examples'   => [
-                [
-                    'title' => '1) Store and print a number',
-                    'code'  => "age = 7\nprint(age)",
-                    'explain' => 'Variables hold values. Printing a number needs no quotes.',
-                    'expected_output' => "7",
-                ],
-                [
-                    'title' => '2) Update a variable',
-                    'code'  => "count = 3\ncount = count + 2\nprint(count)",
-                    'explain' => 'Use the current value on the right to compute a new one.',
-                    'expected_output' => "5",
-                ],
-                [
-                    'title' => '3) Safest mix of text + number',
-                    'code'  => "price = 12\nprint(\"Price:\", price)",
-                    'explain' => 'Commas in print() automatically add a space and avoid TypeError.',
-                    'expected_output' => "Price: 12",
-                ],
-                [
-                    'title' => '4) Converting text to number',
-                    'code'  => "x = \"8.5\"\nprint(float(x) + 1.5)",
-                    'explain' => 'Turn text into a number before doing math.',
-                    'expected_output' => "10.0",
-                ],
-                [
-                    'title' => '5) If you really want + with text',
-                    'code'  => "score = 10\nprint(\"Score: \" + str(score))",
-                    'explain' => 'Convert the number to text with str() to concatenate.',
-                    'expected_output' => "Score: 10",
-                ],
-                [
-                    'title' => '6) f-strings shortcut',
-                    'code'  => "name = 'Mia'\nprint(f\"Hello, {name}\")",
-                    'explain' => 'f-strings let you embed variables inside text.',
-                    'expected_output' => "Hello, Mia",
-                ],
-            ],
-            'questions'  => $this->mcqPool(),
-        ],
-    ]
-);
-
-
- 
-     // ---------- LEVEL 2 (Drag & Drop) ----------
-Level::updateOrCreate(
-    ['stage_id' => $stage->id, 'index' => 2],
-    [
-        'type'         => 'drag_drop',
-        'title'        => 'Sort the Values by Type',
+        'type'         => 'tf1',
+        'title'        => 'Variable Truths & Myths',
         'pass_score'   => 70,
-        'instructions' => "Sorting Game time! 🧺
-Put each card where it belongs:
-- int  = whole numbers like 3, 0, -12
-- float = numbers with a dot like 4.5, 0.0
-- str  = text in quotes like \"hi\", \"42\"
-- bool = True or False (no quotes)
-- Not a value = a bare name (price) or a statement (x = 5)
-
-Tips:
-- If it has quotes, it's a string (str).
-- If it has a dot and no quotes, it's a float.
-- True/False without quotes are booleans.
-- Bare words like price are just names until you assign a value.",
+        'instructions' => 'Look at each code snippet and the statement about it. ' .
+                         'Decide if the statement is True or False: ' .
+                         '- Can variables change their values? ' .
+                         '- Do variable names have rules? ' .
+                         '- Can you use variables before creating them? ' .
+                         '- What happens when you combine different types?',
         'content'      => [
-            'time_limit' => 240,
-            'max_hints'  => 3,
+            'questions' => [
+                [
+                    'code'        => "age = 25\nage = 30\nprint(age)",
+                    'statement'   => 'This will print 30 because you can change variable values.',
+                    'answer'      => true,
+                    'explanation' => '✅ Like replacing what\'s in a labeled jar - first you put "25" in the "age" jar, then you replace it with "30". When you look, you see the new value!'
+                ],
+                [
+                    'code'        => "first name = \"Sam\"",
+                    'statement'   => 'This will cause an error because of the space in the variable name.',
+                    'answer'      => true,
+                    'explanation' => '✅ Variable names are like text messages - no spaces allowed! You need to use underscores instead: first_name = "Sam"'
+                ],
+                [
+                    'code'        => "print(score)\nscore = 100",
+                    'statement'   => 'This will print 100 because the variable is used after being created.',
+                    'answer'      => false,
+                    'explanation' => '❌ This is like trying to read a recipe before you\'ve written it down! You must create the variable (put something in the box) before you can use it.'
+                ],
+                [
+                    'code'        => "apples = \"5\"\noranges = 3\ntotal = apples + oranges",
+                    'statement'   => 'This will combine them to make "53".',
+                    'answer'      => false,
+                    'explanation' => '❌ Actually, this causes an error! It\'s like trying to add "5 apples" + 3 oranges - they\'re different types. You need to convert first: total = int(apples) + oranges'
+                ],
+                [
+                    'code'        => "TAX_RATE = 0.08\nTAX_RATE = 0.09",
+                    'statement'   => 'You can change constant values even though they use ALL_CAPS.',
+                    'answer'      => true,
+                    'explanation' => '✅ ALL_CAPS is just a convention (like a red STOP sign), not an actual rule. Python will let you change it, but it\'s not recommended - like changing the rules mid-game!'
+                ],
+                [
+                    'code'        => "name = \"Lisa\"\nName = \"John\"\nprint(name)",
+                    'statement'   => 'This will print "Lisa" because variable names are case-sensitive.',
+                    'answer'      => true,
+                    'explanation' => '✅ name and Name are as different as "coffee" and "COFFEE" - the computer sees them as completely separate variables!'
+                ],
+                [
+                    'code'        => "x = 10\ny = x\nx = 20\nprint(y)",
+                    'statement'   => 'This will print 20 because y is connected to x.',
+                    'answer'      => false,
+                    'explanation' => '❌ When you do y = x, it\'s like taking a photo of what\'s in the x box at that moment. Changing x later doesn\'t change the photo! y stays 10.'
+                ],
+                [
+                    'code'        => "count = 5\ncount = count + 1\nprint(count)",
+                    'statement'   => 'This is a valid way to increase a variable\'s value.',
+                    'answer'      => true,
+                    'explanation' => '✅ This is like having a piggy bank: First you have $5, then you add $1 more. Now your total is $6!'
+                ],
+            ],
             'hints'      => [
-                'If it has quotes, it is text (str).',
-                'int has no dot; float has a dot.',
-                'True/False without quotes are booleans.',
-                'Bare words (e.g., price) are names, not values.',
+                'Variables must be created before use',
+                'Variable names cannot contain spaces',
+                'Case matters in variable names',
+                'You can change variable values anytime',
+                'Text and numbers are different types'
             ],
-            'examples'   => [
-                [
-                    'title' => '1) Check types with type()',
-                    'code'  => "print(type(3))\nprint(type(4.5))\nprint(type(\"hi\"))\nprint(type(True))",
-                    'explain' => 'type() tells you the data type of a value.',
-                    'expected_output' => "<class 'int'>\n<class 'float'>\n<class 'str'>\n<class 'bool'>",
-                ],
-                [
-                    'title' => '2) Quotes change the type',
-                    'code'  => "print(type(42))\nprint(type(\"42\"))",
-                    'explain' => 'Same digits, different types: number vs text.',
-                    'expected_output' => "<class 'int'>\n<class 'str'>",
-                ],
-                [
-                    'title' => '3) Convert before math',
-                    'code'  => "x = \"7\"\nprint(int(x) + 3)",
-                    'explain' => 'Convert strings to numbers to do arithmetic.',
-                    'expected_output' => "10",
-                ],
-            ],
-            'categories'  => [
-                '🧮 int (whole numbers)' => ['3', '0', '-12', '42'],
-                '➗ float (decimals)'    => ['4.5', '0.0', '7.0', '2.5'],
-                '📝 str (text in quotes)' => ['"hi"', '"abc"', '"42"', '"True"', '"7.0"'],
-                '✅ bool (True/False)'   => ['True', 'False'],
-                '🚫 Not a value'        => ['price', 'car', 'first name', 'x = 5'],
-            ],
-        ],
-    ]
-);
-
-
- 
-      // ---------- LEVEL 3 (Match Pairs) ----------
-Level::updateOrCreate(
-    ['stage_id' => $stage->id, 'index' => 3],
-    [
-        'type'         => 'match_pairs',
-        'title'        => 'Match Pairs: Variables & Types',
-        'pass_score'   => 75,
-        'instructions' => "Match each item on the left with its correct partner on the right.\nTips:\n- Quotes → string (str)\n- int('7') → 7, float('3.5') → 3.5\n- True/False are booleans (no quotes)\n- Commas in print() safely mix text and numbers",
-        'content'      => [
-            'intro'       => "Click one card on the left, then the matching card on the right.",
-            'time_limit'  => 220,
+            'time_limit'  => 300,
             'max_hints'   => 3,
-            'hints'       => [
-                "String digits (e.g., '7') are text until converted.",
-                "int has no dot; float has a dot.",
-                "Use int()/float() before math with text numbers.",
-                "True/False without quotes are booleans.",
-            ],
-            // Each pair: left => right mapping
-            'pairs'       => [
-                ['left' => "Type of 3.0",                 'right' => "float"],
-                ['left' => "Type of '3'",                  'right' => "str"],
-                ['left' => "int('7') + 2",                'right' => "9"],
-                ['left' => "'2' + '3'",                   'right' => "23"],
-                ['left' => "float('3.5')",                'right' => "3.5"],
-                ['left' => "True (no quotes)",            'right' => "bool"],
-                ['left' => "print('Age:', 7)",            'right' => "Age: 7"],
-                ['left' => "str(10)",                     'right' => "'10'"],
-                ['left' => "Type of 6 / 2",               'right' => "float"],
-                ['left' => "'Ha' * 3",                    'right' => "HaHaHa"],
-                ['left' => "Name vs name (case matters)", 'right' => "different variables"],
-                ['left' => "int(True)",                   'right' => "1"],
-            ],
-            // Optional: examples panel (if your view supports it)
-            'examples'   => [
-                [
-                    'title' => 'Booleans → numbers',
-                    'code'  => "print(int(True), int(False))",
-                    'explain' => 'True → 1, False → 0.',
-                    'expected_output' => "1 0",
-                ],
-                [
-                    'title' => 'Comma join in print()',
-                    'code'  => "age = 7\nprint('Age:', age)",
-                    'explain' => 'Commas are the safest way to mix text + numbers.',
-                    'expected_output' => "Age: 7",
-                ],
-                [
-                    'title' => 'String vs number',
-                    'code'  => "print(type('3'), type(3))",
-                    'explain' => 'Quotes make text; no quotes is a number.',
-                    'expected_output' => "<class 'str'> <class 'int'>",
-                ],
-            ],
         ],
     ]
 );
-
- 
-        // ---------- POST ----------
+        // ---------- POST ASSESSMENT ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'post'],
             [
                 'title'     => 'Post: Variables Foundations',
                 'questions' => json_encode([
-                    ['prompt' => 'Fix: x="10"; y = x + 2', 
-                     'options' => ['y=int(x)+2','y=str(x)+2','y=x+"2"','2+x'], 
-                     'correct' => 'y=int(x)+2'],
-                    ['prompt' => 'Store 3.14 in pi',      
-                     'options' => ['pi="3.14"','pi = 3.14','3.14 = pi','float = 3.14'], 
-                     'correct' => 'pi = 3.14'],
-                    ['prompt' => 'bool("False") is…',     
-                     'options' => ['True','False'], 
-                     'correct' => 'True'],
+                    [
+                        'prompt' => 'Which is the best variable name for storing a person\'s age?',
+                        'options' => ['a', 'x', 'age', 'person_age_in_years'],
+                        'correct' => 'person_age_in_years'
+                    ],
+                    [
+                        'prompt' => 'What does this code do: total = price + tax',
+                        'options' => ['Compares price and tax', 'Stores price in total', 'Adds price and tax, stores result in total', 'Prints the total'],
+                        'correct' => 'Adds price and tax, stores result in total'
+                    ],
+                    [
+                        'prompt' => 'Which variable name is invalid?',
+                        'options' => ['user_name', 'totalScore', '2nd_place', 'first_name'],
+                        'correct' => '2nd_place'
+                    ],
+                    [
+                        'prompt' => 'How do you update a variable using its current value?',
+                        'options' => ['score = 5', 'score = new', 'score = score + 1', 'update score to 6'],
+                        'correct' => 'score = score + 1'
+                    ]
                 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
             ]
         );
     }
- 
-    private function mcqPool(): array
-{
-    return [
-        [
-            'question' => "age = 7\nprint(age)\nWhat prints?",
-            'options'  => ['7','"7"','age','Error'],
-            'correct_answer' => 0,
-            'explanation' => 'age stores the number 7; print(age) → 7.',
-        ],
-        [
-            'question' => "name = \"Mia\"\nprint(\"Hello, \" + name)\nWhat prints?",
-            'options'  => ['Hello, name','Hello, Mia','\"Hello, \" + name','Error'],
-            'correct_answer' => 1,
-            'explanation' => 'String + string concatenation prints Hello, Mia.',
-        ],
-        [
-            'question' => "x = 3\nx = x + 2\nprint(x)\nWhat prints?",
-            'options'  => ['3','5','\"5\"','Error'],
-            'correct_answer' => 1,
-            'explanation' => 'x becomes 5 after the update.',
-        ],
-        [
-            'question' => "price = 12\nWhich line prints exactly: Price: $12 ?",
-            'options'  => [
-                'print("Price: $" + price)',
-                'print("Price: $", price)',
-                'print("Price: $" + str(price))',
-                'print("Price:" + "$" + price)'
-            ],
-            'correct_answer' => 2,
-            'explanation' => 'Join text + text: use str(price). The comma version adds a space (Price: $ 12).',
-        ],
-        [
-            'question' => 'What is the type of x after x = "7"?',
-            'options'  => ['int','str','float','bool'],
-            'correct_answer' => 1,
-            'explanation' => 'Quotes make a string (str).',
-        ],
-        [
-            'question' => 'Which creates a float?',
-            'options'  => ['x = 4','x = 4.0','x = "4"','x = True'],
-            'correct_answer' => 1,
-            'explanation' => 'A decimal point makes it a float.',
-        ],
-        [
-            'question' => 'Which converts the text "8.5" into a number you can add?',
-            'options'  => ['int("8.5")','float("8.5")','"8.5"+1','str(8.5)'],
-            'correct_answer' => 1,
-            'explanation' => 'float("8.5") → 8.5 as a number; int("8.5") raises ValueError.',
-        ],
-        [
-            'question' => 'Choose the valid variable name and assignment:',
-            'options'  => ['first name = "Ali"','total-amount = 5','user_name = "Ali"','2items = 3'],
-            'correct_answer' => 2,
-            'explanation' => 'Use underscores; no spaces/dashes; cannot start with a digit.',
-        ],
-        [
-            'question' => 'Pick the boolean literal:',
-            'options'  => ['"True"','True','"False"','"yes"'],
-            'correct_answer' => 1,
-            'explanation' => 'True/False are boolean keywords (no quotes).',
-        ],
-        [
-            'question' => "x = \"3\"\ny = 2\nprint(int(x) + y)\nWhat prints?",
-            'options'  => ['"32"','5','"5"','Error'],
-            'correct_answer' => 1,
-            'explanation' => 'int("3") → 3; 3 + 2 = 5.',
-        ],
-    ];
-}
 
+    private function level1Questions(): array
+    {
+        return [
+            [
+                'question' => "What is a variable in programming?",
+                'options'  => ['A mathematical equation', 'A labeled container for storing data', 'A type of computer hardware', 'A programming language'],
+                'correct_answer' => 1,
+                'explanation' => 'A variable is like a labeled box where you can store information to use later.',
+            ],
+            [
+                'question' => "name = \"Bob\"\nprint(name)\nWhat will this code display?",
+                'options'  => ['name', '"Bob"', 'Bob', 'Error'],
+                'correct_answer' => 2,
+                'explanation' => 'The variable name contains \"Bob\", so print(name) shows Bob',
+            ],
+            [
+                'question' => "Which line correctly creates a variable?",
+                'options'  => ['variable age = 25', 'age == 25', 'age = 25', '25 = age'],
+                'correct_answer' => 2,
+                'explanation' => 'Use = to assign values: variable_name = value',
+            ],
+            [
+                'question' => "score = 10\nscore = 15\nprint(score)\nWhat will this display?",
+                'options'  => ['10', '15', '25', 'Error'],
+                'correct_answer' => 1,
+                'explanation' => 'The variable score is updated from 10 to 15',
+            ],
+            [
+                'question' => "Why do we use variables in programming?",
+                'options'  => ['To make code look complicated', 'To store and reuse data', 'Only for mathematical calculations', 'To create error messages'],
+                'correct_answer' => 1,
+                'explanation' => 'Variables help us store information that we can use multiple times in our program',
+            ]
+        ];
+    }
+
+    private function level2Questions(): array
+    {
+        return [
+            [
+                'question' => "apples = 3\noranges = 4\ntotal = apples + oranges\nprint(total)\nWhat will this display?",
+                'options'  => ['7', '34', '3+4', 'Error'],
+                'correct_answer' => 0,
+                'explanation' => '3 + 4 = 7, which is stored in total',
+            ],
+            [
+                'question' => "first = \"Hello\"\nsecond = \"World\"\nmessage = first + \" \" + second\nprint(message)\nWhat will this display?",
+                'options'  => ['HelloWorld', 'Hello World', 'first second', 'Error'],
+                'correct_answer' => 1,
+                'explanation' => 'The + operator combines text: \"Hello\" + \" \" + \"World\" = \"Hello World\"',
+            ],
+            [
+                'question' => "count = 5\ncount = count + 2\nprint(count)\nWhat will this display?",
+                'options'  => ['5', '7', '52', 'Error'],
+                'correct_answer' => 1,
+                'explanation' => 'count becomes 5 + 2 = 7',
+            ],
+            [
+                'question' => "Which operation would calculate the total cost of 5 items costing $10 each?",
+                'options'  => ['total = 5', 'total = 10', 'total = 5 + 10', 'total = 5 * 10'],
+                'correct_answer' => 3,
+                'explanation' => '5 items × $10 each = $50 total',
+            ],
+            [
+                'question' => "price = 20\ntax = 4\ntotal = price + tax\nprint(\"Total: $\" + str(total))\nWhat will this display?",
+                'options'  => ['Total: $24', 'Total: $20+4', 'Total: $204', 'Error'],
+                'correct_answer' => 0,
+                'explanation' => 'price + tax = 24, and str() converts it to text for combining',
+            ]
+        ];
+    }
 }

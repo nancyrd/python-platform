@@ -159,7 +159,7 @@ body {
 .progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
 .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-purple), var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
 
-/* Questions grid */
+/* Questions grid (original) */
 .q-list { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1rem; margin-top:1rem; }
 .q-card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
 .q-head { display:flex; justify-content:space-between; gap:.75rem; margin-bottom:.5rem; }
@@ -218,6 +218,13 @@ body {
   .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
   .edge-pad{padding:1rem}
 }
+
+/* ========= ONE-BY-ONE VIEW (minimal additions) ========= */
+
+/* Force single-question view: override grid and hide non-active cards */
+.q-list.one-by-one { display:block; }
+.q-card { display:none !important; }             /* hide all by default */
+.q-card.active { display:block !important; }     /* only active shows */
 </style>
 
 <!-- FULL-BLEED MAIN -->
@@ -269,10 +276,10 @@ body {
                 </div>
             </div>
 
-            <!-- Question grid -->
-            <div class="q-list">
+            <!-- Question list (one-by-one) -->
+            <div class="q-list one-by-one">
                 @foreach($questions as $i => $q)
-                    <div class="q-card" data-q="{{ $i }}">
+                    <div class="q-card {{ $i === 0 ? 'active' : '' }}" data-q="{{ $i }}" {{ $i === 0 ? '' : 'hidden' }}>
                         <div class="q-head">
                             <div class="q-index">Q{{ $i + 1 }}</div>
                         </div>
@@ -300,7 +307,18 @@ body {
                 @endforeach
             </div>
 
-            <!-- Controls -->
+            <!-- One-by-one nav (new, lightweight) -->
+            <div class="controls-container" id="navControls" style="margin-top:1rem;">
+                <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+                    <span class="meta-pill" id="qCounter">Question 1 of {{ count($questions) }}</span>
+                </div>
+                <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-ghost" id="btnPrev"><i class="fas fa-arrow-left"></i> Previous</button>
+                    <button type="button" class="btn btn-primary" id="btnNext">Next <i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Original controls (unchanged) -->
             <div class="controls-container">
                 <button class="btn btn-primary"   type="button" id="btnCheck"><i class="fas fa-check"></i> Submit Answers</button>
                 <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Show Hint</button>
@@ -352,6 +370,31 @@ body {
     const $btnReset   = document.getElementById('btnReset');
     const $form       = document.getElementById('quizForm');
 
+    // One-by-one nav
+    const $cards = Array.from(document.querySelectorAll('.q-card'));
+    const TOTAL = $cards.length;
+    let current = 0;
+    const $btnPrev   = document.getElementById('btnPrev');
+    const $btnNext   = document.getElementById('btnNext');
+    const $qCounter  = document.getElementById('qCounter');
+
+    function setCardVisibility(idx){
+        current = Math.max(0, Math.min(TOTAL-1, idx));
+        $cards.forEach((c, i) => {
+            const on = i === current;
+            c.classList.toggle('active', on);
+            c.hidden = !on;
+        });
+        if ($qCounter) $qCounter.textContent = `Question ${current+1} of ${TOTAL}`;
+        if ($btnPrev)  $btnPrev.disabled = current === 0;
+        if ($btnNext)  $btnNext.disabled = current === TOTAL - 1; // keep Next disabled on last; user can still Submit
+        // focus first option for accessibility
+        const first = $cards[current].querySelector('input[type=radio]');
+        if (first) first.focus({preventScroll:true});
+        // scroll into view
+        $cards[current].scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
     // Instructions collapse
     const $toggleInstrux = document.getElementById('toggleInstrux');
     const $instruxBody   = document.getElementById('instruxBody');
@@ -370,7 +413,7 @@ body {
     function toast(msg, kind='ok'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=msg; $toastWrap.appendChild(el); setTimeout(()=>el.remove(),2200); }
     function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
     function updateProgressBar(){
-        const total = document.querySelectorAll('.q-card').length;
+        const total = TOTAL;
         const answered = document.querySelectorAll('.q-option input:checked').length;
         const pct = total ? Math.round(100 * answered / total) : 0;
         $progress.style.width = pct + '%';
@@ -389,7 +432,16 @@ body {
     }, 1000);
 
     // Events
-    document.querySelectorAll('.q-option input').forEach(r => r.addEventListener('change', updateProgressBar));
+    document.querySelectorAll('.q-option input').forEach(r => r.addEventListener('change', () => {
+        updateProgressBar();
+        // Optional auto-advance
+        if (current < TOTAL - 1) setTimeout(() => setCardVisibility(current + 1), 180);
+    }));
+
+    if ($btnPrev) $btnPrev.addEventListener('click', () => setCardVisibility(current - 1));
+    if ($btnNext) $btnNext.addEventListener('click', () => setCardVisibility(current + 1));
+
+    // Hints / Reset / Submit (original)
     $btnHint.addEventListener('click', () => {
         if (submitted) return;
         hintsUsed++; $hintCount.textContent = hintsUsed;
@@ -405,11 +457,12 @@ body {
                 const ex = c.querySelector('.q-explain'); if (ex) ex.textContent = '';
             });
             updateProgressBar(); toast('Cleared.', 'ok');
+            setCardVisibility(0);
         }
     });
     $btnCheck.addEventListener('click', () => { if (!submitted) submitNow(); });
 
-    // Grade & submit
+    // Grade & submit (original logic)
     function submitNow(){
         submitted = true;
         $btnCheck.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
@@ -417,9 +470,8 @@ body {
 
         const answers = [];
         let correct = 0;
-        const cards = Array.from(document.querySelectorAll('.q-card'));
 
-        cards.forEach((card, i) => {
+        $cards.forEach((card, i) => {
             const chosen = card.querySelector('input[type=radio]:checked');
             let val = -1, isCorrect = false;
             if (chosen && Number.isFinite(parseInt(chosen.value))){
@@ -433,14 +485,14 @@ body {
             if (ex){ ex.textContent = explanations[i] || (isCorrect ? 'Correct.' : 'Check the lesson again.'); card.classList.add('show-explain'); }
         });
 
-        const rawPct = cards.length ? Math.round((correct / cards.length) * 100) : 0;
+        const rawPct = TOTAL ? Math.round((correct / TOTAL) * 100) : 0;
         const hintPenalty = hintsUsed * 5;
         const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
 
         $statScore.textContent = finalScore + '%';
         const starCount = starsFor(finalScore);
         $statStars.textContent = starCount ? '★'.repeat(starCount) : '0';
-        if (document.getElementById('metaStars')) document.getElementById('metaStars').textContent = starCount ? '★'.repeat(starCount) : '0';
+        if ($metaStars) $metaStars.textContent = starCount ? '★'.repeat(starCount) : '0';
 
         document.getElementById('finalScore').value = finalScore;
         document.getElementById('answersData').value = JSON.stringify(answers);
@@ -454,13 +506,20 @@ body {
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
         if (submitted) return;
+        if (e.key === 'ArrowLeft') { e.preventDefault(); if ($btnPrev && !$btnPrev.disabled) $btnPrev.click(); }
+        if (e.key === 'ArrowRight'){ e.preventDefault(); if ($btnNext && !$btnNext.disabled) $btnNext.click(); }
         if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
         if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
         if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
     });
 
-    // init
-    updateProgressBar();
+    // Init
+    function initFirst(){
+        // ensure only first is visible at start (no flash of all)
+        setCardVisibility(0);
+        updateProgressBar();
+    }
+    initFirst();
 })();
 </script>
 </x-app-layout>

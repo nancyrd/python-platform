@@ -15,7 +15,7 @@
       ?? ($assessment->content['instructions'] ?? null);
   @endphp
 
-  {{-- HEADER — EXACT same structure/colors as your purple “level-header” pages --}}
+  {{-- HEADER — SAME structure/colors as your purple level pages --}}
   <x-slot name="header">
     <div class="level-header">
       <div class="header-container">
@@ -141,30 +141,123 @@
     .progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
     .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-purple), var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
 
-    /* Question list */
-    .q-list { display:flex; flex-direction:column; gap:1rem; margin-top:1rem; }
-    .q-card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
-    .q-head { display:flex; align-items:center; gap:.75rem; margin-bottom:.5rem; }
-    .q-num { width:2rem; height:2rem; border-radius:.5rem; display:flex; align-items:center; justify-content:center; font-weight:800; color:#fff; background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); }
-    .q-title { font-weight:700; color:var(--text-primary); }
-    .q-code { background:#0f172a; color:#e2e8f0; border:1px solid rgba(255,255,255,.08); border-radius:.5rem; padding:.5rem .625rem; margin:.5rem 0 0; white-space:pre-wrap; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; }
+    /* ---------- QUESTIONS (keep your style) ---------- */
 
-    .options { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:.75rem; margin-top:.75rem; }
-    .opt { display:flex; align-items:center; gap:.6rem; padding:.75rem 1rem; background:var(--gray-50); border:1px solid var(--border); border-radius:.75rem; cursor:pointer; transition:all .18s ease; }
-    .opt:hover { background:var(--gray-100); border-color:var(--primary-purple); box-shadow:var(--shadow); transform:translateY(-1px); }
-    .opt input[type="radio"]{ width:18px; height:18px; accent-color: var(--primary-purple); }
-    .opt span { color:var(--text-primary); font-weight:600; }
-    .opt:has(input[type="radio"]:checked){ border-color:var(--primary-purple); box-shadow:0 0 0 3px rgba(124,58,237,.18) inset; background:var(--purple-subtle); }
+    .q-list { margin-top: 1rem; }
 
-    /* Submit */
-    .controls { display:flex; justify-content:center; gap:1rem; margin:1.25rem 0 .25rem; flex-wrap:wrap; }
+    /* Visibility guard — DO NOT show unless active */
+    .q-card { display: none !important; }
+
+    /* The actual card styles (separate to avoid overriding display) */
+    .q-card {
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:1rem;
+      box-shadow:var(--shadow-md);
+      padding: clamp(1rem, 2.5vw, 2rem);
+      min-height: clamp(420px, 65vh, 760px);
+      display: grid; /* layout model only; overridden by !important 'display:none' above */
+      grid-template-rows: auto auto 1fr;  /* head, prompt/code, options */
+      gap: clamp(.75rem, 1.2vw, 1.25rem);
+    }
+
+    .q-card.active { display: grid !important; animation: slideIn .28s ease both; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .q-head { display:flex; align-items:center; gap:.75rem; margin:0 0 .25rem 0; }
+    .q-num {
+      width:2rem; height:2rem; border-radius:.5rem;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; color:#fff;
+      background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));
+      flex-shrink:0;
+    }
+    .q-title {
+      font-weight:800; color:var(--text-primary);
+      font-size: clamp(1rem, 1.6vw, 1.15rem);
+      letter-spacing:.2px;
+    }
+
+    .q-text {
+      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+      line-height: 1.55;
+      color: var(--text-primary);
+    }
+    .q-code {
+      background:#0f172a; color:#e2e8f0;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:.75rem;
+      padding: .75rem .9rem;
+      margin-top:.5rem;
+      white-space:pre-wrap;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+      font-size: .92rem;
+    }
+
+    .options {
+      margin-top: .35rem;
+      display:grid;
+      grid-template-columns: repeat(1, minmax(0,1fr));
+      gap: .85rem;
+    }
+    .opt {
+      position:relative;
+      display:flex; align-items:center; gap:.8rem;
+      padding: clamp(.85rem, 2vw, 1.1rem) clamp(1rem, 2.4vw, 1.25rem);
+      background: var(--gray-50);
+      border:1px solid var(--border);
+      border-radius: .9rem;
+      cursor:pointer;
+      transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
+    }
+    .opt:hover { background:#fff; border-color:var(--primary-purple); box-shadow:var(--shadow); transform: translateY(-1px); }
+    .opt input[type="radio"]{ width:20px; height:20px; accent-color: var(--primary-purple); flex-shrink:0; }
+    .opt span { color:var(--text-primary); font-weight:700; font-size: clamp(.98rem, 1.5vw, 1.05rem); line-height:1.35; }
+
+    .opt .opt-badge {
+      width: 28px; height: 28px; border-radius: .65rem;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; color:#fff; flex-shrink:0;
+      background: linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));
+      box-shadow: var(--shadow-sm);
+    }
+
+    .opt:has(input[type="radio"]:checked){
+      border-color:var(--primary-purple);
+      background: var(--purple-subtle);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12) inset;
+    }
+
+    .q-error {
+      margin-top:.65rem;
+      background:var(--danger-light);
+      border:1px solid var(--danger);
+      color:#7f1d1d;
+      border-radius:.75rem;
+      padding:.6rem .8rem;
+      font-weight:700;
+    }
+
+    .nav-controls {
+      display:flex; align-items:center; justify-content:space-between; gap:.75rem; margin:1rem 0;
+      flex-wrap:wrap;
+    }
+    .nav-left, .nav-right { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+    .counter-pill {
+      padding:.4rem .75rem; border:1px solid var(--border); border-radius:999px; background:#fff; box-shadow:var(--shadow-sm);
+      font-weight:700; color:var(--text-secondary);
+    }
+
     .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.5rem; border:none; border-radius:.75rem; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .18s ease; text-decoration:none; }
     .btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
     .btn-primary:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
     .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
     .btn-ghost:hover { background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
+    .btn[disabled] { opacity:.6; cursor:not-allowed; }
 
-    /* Toasts */
     .toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
     .toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:600; min-width:280px; box-shadow:var(--shadow-lg); animation:slideIn .25s ease; }
     .toast.warn { border-left:4px solid var(--warning); background:linear-gradient(135deg,var(--warning-light), #fff); }
@@ -173,7 +266,9 @@
 
     @media (max-width:768px){
       .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
+      .q-card { min-height: 70vh; padding: 1rem; }
       .options { grid-template-columns:1fr; }
+      .opt { padding:.85rem 1rem; }
     }
   </style>
 
@@ -215,26 +310,31 @@
         </div>
       @else
         <div class="q-list">
+          @php $letters = range('A','Z'); @endphp
           @foreach($questions as $i => $q)
             @php
               $opts = is_array($q['options'] ?? null) ? $q['options'] : [];
               $oldValue = old("answers.$i");
             @endphp
 
-            <div class="q-card" id="qcard-{{ $i }}">
+            <!-- FIRST card starts visible to avoid FOUC -->
+            <div class="q-card {{ $i === 0 ? 'active' : '' }}" id="qcard-{{ $i }}" {{ $i === 0 ? '' : 'hidden' }}>
               <div class="q-head">
                 <div class="q-num">{{ $i + 1 }}</div>
                 <div class="q-title">Question {{ $i + 1 }} of {{ $total }}</div>
               </div>
 
-              <div class="q-text">{{ $q['prompt'] ?? 'Question' }}</div>
-              @if(!empty($q['code']))
-                <pre class="q-code"><code>{{ $q['code'] }}</code></pre>
-              @endif
+              <div>
+                <div class="q-text">{{ $q['prompt'] ?? 'Question' }}</div>
+                @if(!empty($q['code']))
+                  <pre class="q-code"><code>{{ $q['code'] }}</code></pre>
+                @endif
+              </div>
 
               <div class="options" role="group" aria-labelledby="q-{{ $i }}-label">
-                @forelse($opts as $opt)
+                @forelse($opts as $k => $opt)
                   <label class="opt">
+                    <span class="opt-badge">{{ $letters[$k] ?? '?' }}</span>
                     <input
                       type="radio"
                       name="answers[{{ $i }}]"
@@ -251,7 +351,7 @@
               </div>
 
               @error("answers.$i")
-                <div style="margin-top:.5rem; background:var(--danger-light); border:1px solid var(--danger); color:#7f1d1d; border-radius:.5rem; padding:.5rem .75rem;">
+                <div class="q-error">
                   <i class="fas fa-exclamation-circle me-2"></i>{{ $message }}
                 </div>
               @enderror
@@ -259,13 +359,28 @@
           @endforeach
         </div>
 
-        <div class="controls">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-paper-plane"></i> Submit Answers
-          </button>
-          <button type="button" class="btn btn-ghost" id="scrollTopBtn">
-            <i class="fas fa-arrow-up"></i> Back to Top
-          </button>
+        <!-- ONE-BY-ONE NAV -->
+        <div class="nav-controls">
+          <div class="nav-left">
+            <span class="counter-pill" id="qCounter">Question 1 of {{ $total }}</span>
+          </div>
+          <div class="nav-right">
+            <button type="button" class="btn btn-ghost" id="prevBtn">
+              <i class="fas fa-arrow-left"></i> Previous
+            </button>
+
+            <button type="button" class="btn btn-primary" id="nextBtn">
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">
+              <i class="fas fa-paper-plane"></i> Submit Answers
+            </button>
+
+            <button type="button" class="btn btn-ghost" id="scrollTopBtn">
+              <i class="fas fa-arrow-up"></i> Back to Top
+            </button>
+          </div>
         </div>
       @endif
     </form>
@@ -321,9 +436,9 @@
       function updateProgress(){
         const answered = document.querySelectorAll('.opt input[type="radio"]:checked').length;
         const pct = TOTAL ? Math.round(100 * answered / TOTAL) : 0;
-        $progress.style.width = pct + '%';
-        $answeredPct.textContent = pct + '%';
-        $answeredCount.textContent = answered;
+        if ($progress) $progress.style.width = pct + '%';
+        if ($answeredPct) $answeredPct.textContent = pct + '%';
+        if ($answeredCount) $answeredCount.textContent = answered;
       }
       updateProgress();
 
@@ -342,15 +457,82 @@
         }
       }, 1000);
 
+      // ===== One-by-one Navigator =====
+      let currentIndex = 0;
+      const $cards = Array.from(document.querySelectorAll('.q-card'));
+      const $prev = document.getElementById('prevBtn');
+      const $next = document.getElementById('nextBtn');
+      const $submit = document.getElementById('submitBtn');
+      const $counter = document.getElementById('qCounter');
+
+      function animateOnce(el, name='slideIn', dur=280){
+        if (!el) return;
+        el.style.animation = 'none';
+        void el.offsetWidth; // reflow
+        el.style.animation = `${name} ${dur}ms ease both`;
+      }
+
+      function showCard(i, opts = {scroll:true}) {
+        currentIndex = Math.max(0, Math.min(TOTAL - 1, i));
+
+        // Toggle visibility + hidden attr
+        $cards.forEach((c, idx) => {
+          const isActive = idx === currentIndex;
+          c.classList.toggle('active', isActive);
+          c.hidden = !isActive;
+        });
+
+        // Buttons state
+        if ($prev) $prev.disabled = (currentIndex === 0);
+        if ($next) $next.style.display = (currentIndex < TOTAL - 1) ? 'inline-flex' : 'none';
+        if ($submit) $submit.style.display = (currentIndex === TOTAL - 1) ? 'inline-flex' : 'none';
+
+        // Counter
+        if ($counter) $counter.textContent = `Question ${currentIndex + 1} of ${TOTAL}`;
+
+        // Progress UI
+        updateProgress();
+
+        // Focus first radio for accessibility
+        const firstRadio = $cards[currentIndex].querySelector('input[type="radio"]');
+        if (firstRadio) firstRadio.focus({preventScroll:true});
+
+        // Animate current slide
+        animateOnce($cards[currentIndex]);
+
+        if (opts.scroll) {
+          $cards[currentIndex].scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+
+      // Hook buttons
+      if ($prev) $prev.addEventListener('click', () => showCard(currentIndex - 1));
+      if ($next) $next.addEventListener('click', () => {
+        const anyChecked = !!$cards[currentIndex].querySelector('input[type="radio"]:checked');
+        if (!anyChecked) toast('Please select an answer before going next.', 'warn');
+        else showCard(currentIndex + 1);
+      });
+
+      // Auto-advance when a choice is picked
+      document.querySelectorAll('.opt input[type="radio"]').forEach(r => {
+        r.addEventListener('change', () => {
+          updateProgress();
+          if (currentIndex < TOTAL - 1) {
+            setTimeout(() => showCard(currentIndex + 1), 200);
+          }
+        });
+      });
+
       // Submit gate — require all questions answered
       $form.addEventListener('submit', (e) => {
         const answered = document.querySelectorAll('.opt input[type="radio"]:checked').length;
         if (answered !== TOTAL) {
           e.preventDefault();
           toast('Please answer all questions before submitting.', 'warn');
+          // Jump to first unanswered
           for (let i=0;i<TOTAL;i++){
             if (!document.querySelector(`input[name="answers[${i}]"]:checked`)) {
-              document.getElementById('qcard-'+i)?.scrollIntoView({behavior:'smooth', block:'center'});
+              showCard(i);
               break;
             }
           }
@@ -362,6 +544,18 @@
       if ($scrollTopBtn){
         $scrollTopBtn.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
       }
+
+      // Initialize view
+      showCard(0);
+
+      // Optional: keyboard navigation (left/right)
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') { if ($prev && !$prev.disabled) $prev.click(); }
+        if (e.key === 'ArrowRight') {
+          if ($next && $next.style.display !== 'none') $next.click();
+          else if ($submit && $submit.style.display !== 'none') $submit.click();
+        }
+      });
     })();
   </script>
 

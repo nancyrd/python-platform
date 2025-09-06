@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout> 
 @php
     // ===============================
     // Safe, precomputed data for Blade
@@ -91,7 +91,7 @@
 </x-slot>
 
 <style>
-/* Palette + shared UI (same as your MCQ/match headers) */
+/* Palette + shared UI */
 :root {
     --primary-purple: #7c3aed; --secondary-purple: #a855f7; --light-purple: #c084fc; --purple-subtle: #f3e8ff;
     --gray-50:#f8fafc; --gray-100:#f1f5f9; --gray-200:#e2e8f0; --gray-300:#cbd5e1; --gray-400:#94a3b8; --gray-500:#64748b;
@@ -100,8 +100,8 @@
     --background:#ffffff; --border:#e2e8f0; --text-primary:#1e293b; --text-secondary:#475569; --text-muted:#64748b;
     --shadow-sm:0 1px 2px 0 rgba(0,0,0,.05);
     --shadow:0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
-    --shadow-md:0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
-    --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+    --shadow-md:0 4px 6px -1px rgba(0,0,0,.12), 0 2px 4px -2px rgba(0,0,0,.1);
+    --shadow-lg:0 14px 24px -8px rgba(0,0,0,.18), 0 8px 12px -8px rgba(0,0,0,.12);
 }
 
 body {
@@ -143,154 +143,140 @@ body {
 .progress-bar { height:.5rem; background:var(--gray-200); border-radius:.25rem; overflow:hidden; }
 .progress-fill { height:100%; width:0%; background:linear-gradient(90deg, var(--primary-purple), var(--secondary-purple)); border-radius:.25rem; transition: width .3s ease; }
 
-/* FLIP CARDS GRID — improved visuals */
-.deck-grid {
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-  gap:1.1rem;
-}
+/* ONE CARD AT A TIME */
+.deck-grid { display:block; }
+.deck-grid.one-by-one .flip-card { display:none; }
+.deck-grid.one-by-one .flip-card.active { display:block; }
+
+/* Real-card look */
+.flip-card, .flip-inner, .face { user-select:none; -webkit-user-select:none; }
 
 .flip-card {
-  perspective:1200px;
-  position:relative;
-  border-radius:1rem;
+  perspective: 1400px;
+  position: relative;
+  border-radius: 16px;
+  outline: none;
+  margin: 0 auto;
+  max-width: 820px;
+  /* Simulate thickness under the card */
+}
+.flip-card::before {
+  content:"";
+  position:absolute; inset:auto 10px -10px 10px;
+  height:18px; border-radius:14px/10px;
+  background: radial-gradient(60% 60% at 50% 50%, rgba(0,0,0,.18), rgba(0,0,0,0) 70%);
+  filter: blur(6px);
+  pointer-events:none;
+  opacity:.7;
+}
+.flip-card:focus-visible {
+  box-shadow:0 0 0 3px rgba(124,58,237,.25);
+  border-radius:16px;
 }
 
 .flip-inner {
-  position:relative;
-  width:100%;
-  height:240px;
-  transform-style:preserve-3d;
-  transition: transform .6s cubic-bezier(.25,.8,.25,1), box-shadow .3s ease;
-  border-radius:1rem;
-  box-shadow:var(--shadow);
+  position: relative;
+  width: 100%;
+  height: var(--flip-h, 280px);
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.22,.61,.36,1), box-shadow .25s ease;
+  border-radius: 16px;
+  /* Layered shadows to feel hefty */
+  box-shadow:
+    0 10px 18px rgba(0,0,0,.06),
+    0 24px 38px rgba(0,0,0,.08);
+  will-change: transform;
 }
+.flip-card:hover .flip-inner { box-shadow: var(--shadow-lg); transform: translateY(-2px) rotateY(var(--rot,0deg)); }
 
-.flip-card:hover .flip-inner{ box-shadow:var(--shadow-md); }
+.flip-card.flipped { --rot: 180deg; }
 .flip-card.flipped .flip-inner { transform: rotateY(180deg); }
 
 .face {
   position:absolute; inset:0;
-  display:flex; flex-direction:column; gap:.6rem;
-  background:linear-gradient(180deg,#fff, #fafbff);
-  border:1px solid var(--border);
-  border-radius:1rem; padding:1rem 1.1rem 0.9rem;
-  box-shadow:var(--shadow-sm);
-  backface-visibility:hidden;
-}
-
-/* Subtle pattern + gloss */
-.face::after{
-  content:""; position:absolute; inset:0;
+  display:flex; flex-direction:column; gap:.65rem;
   background:
-    radial-gradient(240px 120px at 90% -10%, rgba(124,58,237,.08), transparent 60%),
-    linear-gradient(180deg, rgba(248,250,252,.0), rgba(124,58,237,.05));
-  border-radius:inherit; pointer-events:none;
+    linear-gradient(180deg, #ffffff, #fafafa),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 2px, transparent 2px, transparent 4px); /* subtle paper grain */
+  border:1px solid #e7e9f2;
+  border-radius:16px;
+  padding:1.1rem 1.2rem 1rem;
+  backface-visibility:hidden;
+  /* crisp inner edge */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -1px 0 rgba(0,0,0,.04);
 }
-
+.face::after{
+  content:""; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background:
+    radial-gradient(180px 100px at 90% -10%, rgba(124,58,237,.08), transparent 60%),
+    linear-gradient(180deg, rgba(248,250,252,0), rgba(124,58,237,.04));
+}
 .back {
   transform: rotateY(180deg);
-  background:linear-gradient(180deg, var(--purple-subtle), #fff);
+  background:
+    linear-gradient(180deg, #ffffff, #fbf9ff),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 2px, transparent 2px, transparent 4px);
 }
 
-/* Card header */
-.card-head {
-  display:flex; align-items:center; justify-content:space-between; gap:.5rem;
-}
-.card-title {
-  display:flex; align-items:center; gap:.5rem;
-  font-size:1rem; font-weight:700; color:var(--text-primary);
-}
+/* Head / title */
+.card-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; }
+.card-title { display:flex; align-items:center; gap:.55rem; font-size:1.02rem; font-weight:800; color:var(--text-primary); letter-spacing:.2px; }
 .card-icon {
-  width:28px; height:28px; border-radius:.6rem;
+  width:30px; height:30px; border-radius:10px;
   display:inline-flex; align-items:center; justify-content:center;
   background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));
-  color:#fff; font-size:.9rem; box-shadow:var(--shadow-sm);
+  color:#fff; font-size:.95rem; box-shadow:0 2px 6px rgba(124,58,237,.28);
 }
 
 /* Status chip */
-.status-chip {
-  display:inline-flex; align-items:center; gap:.4rem;
-  font-size:.75rem; padding:.25rem .55rem; border-radius:9999px;
-  border:1px solid var(--border); color:var(--text-muted); background:#fff;
-}
-.status-chip .dot {
-  width:.5rem; height:.5rem; border-radius:50%; background:var(--gray-300);
-}
-.flip-card.flipped .status-chip .dot{ background:var(--success); }
+.status-chip { display:inline-flex; align-items:center; gap:.4rem; font-size:.75rem; padding:.28rem .6rem; border-radius:9999px; border:1px solid var(--border); color:var(--text-muted); background:#fff; }
+.status-chip .dot { width:.5rem; height:.5rem; border-radius:50%; background:var(--gray-300); }
+.flip-card.viewed .status-chip .dot{ background:var(--success); }
 
-/* Body content */
-.face .body {
-  color:var(--text-secondary);
-  white-space:pre-wrap; line-height:1.35;
-}
+/* Body */
+.face .body { color:var(--text-secondary); white-space:pre-wrap; line-height:1.5; font-size:1.02rem; }
 .face .body code, .face .body pre {
-  background:var(--gray-900); color:#cfeaff;
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:.6rem; padding:.6rem .7rem; margin-top:.25rem;
+  background:#0f172a; color:#cfeaff; border:1px solid rgba(255,255,255,.08);
+  border-radius:.6rem; padding:.65rem .75rem; margin-top:.25rem;
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap;
 }
 
-/* Footer row */
-.card-foot {
-  margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:.5rem;
-}
-.flip-hint {
-  font-size:.8rem; color:var(--text-muted);
-}
-.tag-pill {
-  font-size:.72rem; padding:.22rem .5rem; border-radius:9999px;
-  background:#fff; border:1px solid var(--border); color:var(--primary-purple);
-  font-weight:600;
-}
+/* Foot */
+.card-foot { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+.flip-hint { font-size:.82rem; color:var(--text-muted); }
+.tag-pill { font-size:.72rem; padding:.22rem .5rem; border-radius:9999px; background:#fff; border:1px solid var(--border); color:var(--primary-purple); font-weight:700; }
 
-/* Hover micro-interaction */
-.flip-card:hover .face { border-color:#e7e9f2; }
-.flip-card:hover .card-icon { transform:translateY(-1px); }
-
-/* “Completed” ribbon (appears when flipped once) */
-.ribbon {
-  position:absolute; top:.6rem; left:-.45rem; z-index:2;
-  background:linear-gradient(135deg, var(--success), #2dd4bf);
-  color:#fff; font-size:.72rem; font-weight:800;
-  padding:.3rem .6rem; border-top-right-radius:.5rem; border-bottom-right-radius:.5rem;
-  box-shadow:var(--shadow-sm); opacity:0; transform:translateX(-6px);
-  transition:opacity .25s ease, transform .25s ease;
-}
+/* Ribbon */
+.ribbon { position:absolute; top:.7rem; left:-.5rem; z-index:2; background:linear-gradient(135deg, var(--success), #2dd4bf); color:#fff; font-size:.72rem; font-weight:900; padding:.3rem .65rem; border-top-right-radius:.6rem; border-bottom-right-radius:.6rem; box-shadow:var(--shadow-sm); opacity:0; transform:translateX(-6px); transition:opacity .25s ease, transform .25s ease; letter-spacing:.4px; }
 .flip-card.viewed .ribbon{ opacity:1; transform:none; }
-
-/* Small entrance animation */
-.flip-card { animation:cardIn .25s ease both; }
-@keyframes cardIn {
-  from { opacity:0; transform:translateY(6px) scale(.98); }
-  to   { opacity:1; transform:translateY(0)  scale(1); }
-}
-
 
 /* Buttons */
 .controls-container { display:flex; justify-content:center; gap:1rem; margin:1.25rem 0; flex-wrap:wrap; }
-.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.25rem; border:none; border-radius:.75rem; font-weight:700; font-size:.875rem; cursor:pointer; transition:all .2s ease; text-decoration:none; }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.25rem; border:none; border-radius:.75rem; font-weight:800; font-size:.9rem; cursor:pointer; transition:all .2s ease; text-decoration:none; }
 .btn:disabled{ opacity:.5; cursor:not-allowed; }
 .btn-primary { background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple)); color:#fff; box-shadow:var(--shadow); }
 .btn-primary:hover:not(:disabled){ transform:translateY(-2px); box-shadow:var(--shadow-lg); }
-.btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
-.btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
 .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
 .btn-ghost:hover:not(:disabled){ background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
+.btn-secondary { background:var(--gray-100); color:var(--text-primary); border:1px solid var(--border); }
+.btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
 
 /* Meta + Toast */
 .meta-container { display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-top:1px solid var(--border); font-size:.875rem; color:var(--text-muted); }
 .meta-left { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
-.meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:500; }
+.meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:600; }
 .toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
-.toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:500; min-width:280px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
+.toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:600; min-width:280px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
 .toast.ok   { border-left:4px solid var(--success);  background:linear-gradient(135deg,var(--success-light), #fff); }
 .toast.warn { border-left:4px solid var(--warning);  background:linear-gradient(135deg,var(--warning-light), #fff); }
 .toast.err  { border-left:4px solid var(--danger);   background:linear-gradient(135deg,var(--danger-light),  #fff); }
 @keyframes slideIn{ from{opacity:0; transform:translateX(100%)} to{opacity:1; transform:translateX(0)} }
 
 /* Responsive */
-@media (max-width:768px){ .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;} .edge-pad{padding:1rem} }
+@media (max-width:768px){
+  .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
+  .edge-pad{padding:1rem}
+}
 </style>
 
 <div class="full-bleed">
@@ -311,7 +297,7 @@ body {
     <div class="edge-pad">
         <div class="card accent" id="instructionsCard" style="margin-bottom: 1.25rem;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-                <div class="section-title">How to answer</div>
+                <div class="section-title">How to use</div>
                 <button class="btn btn-ghost" type="button" id="toggleInstrux" aria-expanded="true">
                     <i class="fas fa-chevron-up"></i> Collapse
                 </button>
@@ -340,9 +326,19 @@ body {
             </div>
         </div>
 
-        <div class="deck-grid" id="deckGrid">
-@forelse($deck as $card)
-  <div class="flip-card" data-card-id="{{ $card['id'] }}" tabindex="0" role="button" aria-label="Flip card {{ $card['id'] }}">
+        <!-- Single-card viewport -->
+        <div class="deck-grid one-by-one" id="deckGrid">
+@forelse($deck as $idx => $card)
+  <div
+    class="flip-card {{ $idx === 0 ? 'active' : '' }}"
+    data-card-id="{{ $card['id'] }}"
+    data-order="{{ $idx }}"
+    tabindex="0"
+    role="button"
+    aria-pressed="false"
+    aria-label="Flip card {{ $idx + 1 }} of {{ count($deck) }}"
+    {{ $idx === 0 ? '' : 'hidden' }}
+  >
       <span class="ribbon">VIEWED</span>
       <div class="flip-inner">
           <!-- FRONT -->
@@ -352,11 +348,11 @@ body {
                       <span class="card-icon"><i class="fas fa-bolt"></i></span>
                       <span>{{ $card['title'] ?? 'Concept' }}</span>
                   </div>
-                  <span class="status-chip"><span class="dot"></span> Not flipped</span>
+                  <span class="status-chip" aria-hidden="true"><span class="dot"></span> Not flipped</span>
               </div>
               <div class="body">{!! nl2br(e($card['front'])) !!}</div>
               <div class="card-foot">
-                  <span class="flip-hint">Click / press <kbd>Space</kbd> to flip</span>
+                  <span class="flip-hint">Press <kbd>Space</kbd> / <kbd>Enter</kbd> or click</span>
                   <span class="tag-pill">Front</span>
               </div>
           </div>
@@ -368,11 +364,11 @@ body {
                       <span class="card-icon"><i class="fas fa-check"></i></span>
                       <span>{{ $card['title'] ?? 'Concept' }}</span>
                   </div>
-                  <span class="status-chip"><span class="dot"></span> Learned</span>
+                  <span class="status-chip" aria-hidden="true"><span class="dot"></span> Learned</span>
               </div>
               <div class="body">{!! nl2br(e($card['back'])) !!}</div>
               <div class="card-foot">
-                  <span class="flip-hint">Click / press <kbd>Space</kbd> to flip back</span>
+                  <span class="flip-hint">Press <kbd>Space</kbd> / <kbd>Enter</kbd> or click</span>
                   <span class="tag-pill">Back</span>
               </div>
           </div>
@@ -383,8 +379,18 @@ body {
 @endforelse
 </div>
 
+        <!-- One-by-one controls -->
+        <div class="controls-container" id="navControls" style="margin-top:1rem;">
+            <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;">
+                <span class="meta-pill" id="cardCounter">Card 1 of {{ max(1, count($deck)) }}</span>
+            </div>
+            <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-ghost"   id="btnPrev"><i class="fas fa-arrow-left"></i> Previous</button>
+                <button type="button" class="btn btn-primary" id="btnNext">Next <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
 
-        <!-- Controls -->
+        <!-- Utility controls -->
         <div class="controls-container">
             <button class="btn btn-primary"   type="button" id="btnComplete"><i class="fas fa-flag-checkered"></i> Mark Complete</button>
             <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Hint</button>
@@ -444,20 +450,21 @@ body {
 
   // State
   let timeRemaining = timeLimit;
-  let hintsUsed = 0;
-  let flippedSet = new Set();  // card ids flipped at least once
-  let submitted = false;
+  let hintsUsed     = 0;
+  let flippedSet    = new Set();  // card ids flipped at least once
+  let submitted     = false;
+  let currentIndex  = 0;
 
   // DOM
-  const $timer     = document.getElementById('timeRemaining');
-  const $statScore = document.getElementById('statScore');
-  const $statStars = document.getElementById('statStars');
-  const $metaStars = document.getElementById('metaStars');
-  const $progress  = document.getElementById('progressBar');
-  const $hintCount = document.getElementById('hintCount');
-  const $toastWrap = document.getElementById('toastWrap');
-  const $form      = document.getElementById('flipForm');
-  const $deckGrid  = document.getElementById('deckGrid');
+  const $timer      = document.getElementById('timeRemaining');
+  const $statScore  = document.getElementById('statScore');
+  const $statStars  = document.getElementById('statStars');
+  const $metaStars  = document.getElementById('metaStars');
+  const $progress   = document.getElementById('progressBar');
+  const $hintCount  = document.getElementById('hintCount');
+  const $toastWrap  = document.getElementById('toastWrap');
+  const $form       = document.getElementById('flipForm');
+  const $deckGrid   = document.getElementById('deckGrid');
 
   const $toggleInstrux = document.getElementById('toggleInstrux');
   const $instruxBody   = document.getElementById('instruxBody');
@@ -466,6 +473,10 @@ body {
   const $btnHint     = document.getElementById('btnHint');
   const $btnShuffle  = document.getElementById('btnShuffle');
   const $btnReset    = document.getElementById('btnReset');
+
+  const $btnPrev     = document.getElementById('btnPrev');
+  const $btnNext     = document.getElementById('btnNext');
+  const $counter     = document.getElementById('cardCounter');
 
   if ($toggleInstrux) {
     $toggleInstrux.addEventListener('click', () => {
@@ -481,8 +492,12 @@ body {
   function fmtTime(sec){ const m=String(Math.floor(sec/60)).padStart(2,'0'); const s=String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
   function toast(msg, kind='ok'){ const el=document.createElement('div'); el.className=`toast ${kind}`; el.textContent=msg; $toastWrap.appendChild(el); setTimeout(()=>el.remove(), 2200); }
   function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
+  function getCards(){ return Array.from($deckGrid.querySelectorAll('.flip-card')); }
+  function totalCards(){ return getCards().length; }
+  function currentCard(){ return getCards()[currentIndex]; }
+
   function updateProgress(){
-    const total = CARDS.length || 1;
+    const total = totalCards() || 1;
     const pct = Math.round(100 * (flippedSet.size) / total);
     $progress.style.width = pct + '%';
     $statScore.textContent = pct + '%';
@@ -491,15 +506,81 @@ body {
     if ($metaStars) $metaStars.textContent = starCount ? '★'.repeat(starCount) : '0';
   }
 
-  // Flip handling
-  document.querySelectorAll('.flip-card').forEach(cardEl => {
-    cardEl.addEventListener('click', () => {
-      cardEl.classList.toggle('flipped');
-      const id = parseInt(cardEl.getAttribute('data-card-id'), 10);
-      if (Number.isFinite(id)) flippedSet.add(id);
-      updateProgress();
+  // Measure tallest face for active card
+  function syncHeightFor(cardEl){
+    if (!cardEl) return;
+    const inner = cardEl.querySelector('.flip-inner');
+    if(!inner) return;
+    const front = inner.querySelector('.front');
+    const back  = inner.querySelector('.back');
+    if(!front || !back) return;
+
+    // neutralize transform to measure
+    const wasFlipped = cardEl.classList.contains('flipped');
+    inner.style.transform = 'none';
+    front.style.visibility = 'hidden';
+    back.style.visibility  = 'hidden';
+    front.style.transform  = 'none';
+    back.style.transform   = 'none';
+
+    const h = Math.max(front.scrollHeight, back.scrollHeight, 280);
+    inner.style.setProperty('--flip-h', h + 'px');
+
+    // restore
+    front.style.removeProperty('visibility');
+    back.style.removeProperty('visibility');
+    front.style.removeProperty('transform');
+    back.style.removeProperty('transform');
+    inner.style.removeProperty('transform');
+
+    if (wasFlipped) { /* class will keep it flipped */ }
+  }
+
+  // Navigation
+  function showCard(idx, opts={scroll:true}){
+    const cards = getCards();
+    if (!cards.length) return;
+    currentIndex = Math.max(0, Math.min(cards.length-1, idx));
+    cards.forEach((el, i) => {
+      const on = i === currentIndex;
+      el.classList.toggle('active', on);
+      el.hidden = !on;
+      if (on) {
+        el.focus({preventScroll:true});
+        syncHeightFor(el);
+      }
     });
-  });
+    if ($counter) $counter.textContent = `Card ${currentIndex+1} of ${cards.length}`;
+    if ($btnPrev) $btnPrev.disabled = (currentIndex === 0);
+    if ($btnNext) $btnNext.disabled = (currentIndex === cards.length - 1);
+    if (opts.scroll) cards[currentIndex].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  const nextCard = ()=> showCard(currentIndex + 1);
+  const prevCard = ()=> showCard(currentIndex - 1);
+
+  // Flip (NO AUTO-ADVANCE)
+  function toggleFlip(cardEl){
+    const id = parseInt(cardEl.getAttribute('data-card-id'), 10);
+    const flippedNow = !cardEl.classList.contains('flipped');
+    cardEl.classList.toggle('flipped', flippedNow);
+    cardEl.classList.add('viewed');
+    cardEl.setAttribute('aria-pressed', String(flippedNow));
+    if (Number.isFinite(id)) flippedSet.add(id);
+    updateProgress();
+    // stay on this card; do NOT navigate automatically
+  }
+
+  function wireCard(cardEl){
+    cardEl.addEventListener('click', (e) => {
+      if (e.target.closest('a,button')) return;
+      toggleFlip(cardEl);
+    });
+    cardEl.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); toggleFlip(cardEl); }
+    });
+  }
+
+  getCards().forEach(el => wireCard(el));
 
   // Timer
   $timer.textContent = fmtTime(timeRemaining);
@@ -513,42 +594,57 @@ body {
     }
   }, 1000);
 
-  // Controls
+  // Nav buttons
+  if ($btnPrev) $btnPrev.addEventListener('click', prevCard);
+  if ($btnNext) $btnNext.addEventListener('click', nextCard);
+
+  // Utility controls
   $btnHint.addEventListener('click', () => {
     if (submitted) return;
     if (hintsUsed >= maxHints) { toast('No more hints.', 'warn'); return; }
     hintsUsed++; $hintCount.textContent = hintsUsed;
-    // Flip the first unflipped card as a “hint”
-    const target = Array.from(document.querySelectorAll('.flip-card')).find(el => {
-      const id = parseInt(el.getAttribute('data-card-id'), 10);
-      return !flippedSet.has(id);
-    });
-    if (target){
-      target.classList.add('flipped');
-      const id = parseInt(target.getAttribute('data-card-id'), 10);
-      if (Number.isFinite(id)) flippedSet.add(id);
+
+    // As a hint, just flip the current card (if not viewed)
+    const card = currentCard();
+    if (card) {
+      const id = parseInt(card.getAttribute('data-card-id'), 10);
+      if (Number.isFinite(id) && !flippedSet.has(id)) toggleFlip(card);
     }
+
     const msg = HINTS[(hintsUsed - 1) % (HINTS.length || 1)] || 'input() is text. Convert first.';
     toast('Hint: ' + msg, 'ok');
-    updateProgress();
   });
 
   $btnShuffle.addEventListener('click', () => {
     if (submitted) return;
-    const items = Array.from($deckGrid.children);
+    const items = getCards();
+    if (items.length <= 1) return;
+
+    const active = currentCard();
+    const activeId = active ? active.getAttribute('data-card-id') : null;
+
     for (let i = items.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random()*(i+1));
       $deckGrid.appendChild(items[j]);
     }
-    toast('Shuffled!', 'ok');
+    requestAnimationFrame(() => {
+      const fresh = getCards();
+      const idx = activeId ? fresh.findIndex(el => el.getAttribute('data-card-id') === activeId) : 0;
+      showCard(idx >= 0 ? idx : 0);
+      toast('Shuffled!', 'ok');
+    });
   });
 
   $btnReset.addEventListener('click', () => {
     if (submitted) return;
     if (!confirm('Reset flips and progress?')) return;
     flippedSet.clear();
-    document.querySelectorAll('.flip-card').forEach(el => el.classList.remove('flipped'));
+    getCards().forEach(el => {
+      el.classList.remove('flipped','viewed');
+      el.setAttribute('aria-pressed','false');
+    });
     updateProgress();
+    showCard(0);
     toast('Cleared.', 'ok');
   });
 
@@ -559,9 +655,9 @@ body {
     $btnComplete.disabled = true; $btnHint.disabled = true; $btnShuffle.disabled = true; $btnReset.disabled = true;
     clearInterval(timer);
 
-    const total = CARDS.length || 1;
+    const total = totalCards() || 1;
     const pct = Math.round(100 * flippedSet.size / total);
-    const finalScore = pct; // Learning deck: score = % viewed
+    const finalScore = pct; // deck = % viewed
 
     document.getElementById('finalScore').value = finalScore;
     document.getElementById('answersData').value = JSON.stringify({ viewed: Array.from(flippedSet), total });
@@ -575,15 +671,24 @@ body {
     }, 900);
   }
 
-  // Keyboard helpers
+  // Keyboard shortcuts
   document.addEventListener('keydown', (e) => {
     if (submitted) return;
+    if (e.key === 'ArrowLeft'){ e.preventDefault(); if ($btnPrev && !$btnPrev.disabled) prevCard(); }
+    if (e.key === 'ArrowRight'){ e.preventDefault(); if ($btnNext && !$btnNext.disabled) nextCard(); }
     if (e.key === 'Enter' && e.ctrlKey){ e.preventDefault(); submitNow(); }
     if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
     if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
   });
 
-  updateProgress();
+  // Init
+  function init(){
+    showCard(0, {scroll:false});
+    updateProgress();
+    window.addEventListener('load', () => syncHeightFor(currentCard()));
+    window.addEventListener('resize', () => syncHeightFor(currentCard()));
+  }
+  init();
 })();
 </script>
 </x-app-layout>

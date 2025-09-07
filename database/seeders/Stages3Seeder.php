@@ -21,71 +21,70 @@ class Stages3Seeder extends Seeder
         );
 
         // ---------- LEVEL 1 (Flip Cards — Input Essentials) ----------
-        Level::updateOrCreate(
-            ['stage_id' => $stage->id, 'index' => 1],
-            [
-                'type'         => 'flip_cards',
-                'title'        => 'Input Essentials',
-                'pass_score'   => 60,
-                'instructions' => "Flip to learn:\n• input() returns str\n• Use .strip() to remove spaces\n• When to use int() vs float()\n• Safe print with commas",
-                'content'      => [
-                    'intro'       => "Tap each card to reveal the concept and example.",
-                    'time_limit'  => 200,
-                    'max_hints'   => 3,
-                    'hints'       => [
-                        'input() always gives you text (str).',
-                        'Use .strip() before casting to remove extra spaces.',
-                        'Use int() for whole numbers, float() for decimals.',
-                        'Safe print: print(\"Label:\", value)',
-                    ],
-                    // Cards: front/back quick learning
-                    'cards'       => [
-                       [
-        'front' => 'Numbers with commas',
-        'back'  => "\"1,234\" ❌ int(\"1,234\")\n\nFix:\nint(\"1,234\".replace(\",\", \"\")) → 1234"
-    ],
-                        [
-                            'front' => 'Why .strip()?',
-                            'back'  => "\"  9  \".strip() → \"9\"\nRemoves leading/trailing spaces before casting."
-                        ],
-                        [
-                            'front' => 'int() vs float()',
-                            'back'  => "int(\"7\") → 7   (ok)\nint(\"7.0\") → error ❌\nfloat(\"7.0\") → 7.0 ✅"
-                        ],
-                        [
-                            'front' => 'Safe printing',
-                            'back'  => "print(\"Age:\", 7)  → Age: 7\nNo crash, no manual spaces needed."
-                        ],
-                        [
-                            'front' => 'Join text + number',
-                            'back'  => "\"Age: \" + str(7) → \"Age: 7\"\nOr better: print(\"Age:\", 7)"
-                        ],
-                    ],
-                    // Console-ready examples (work without interactive input)
-                    'examples'    => [
-                        [
-                            'title'   => 'Strip then cast',
-                            'code'    => "age_str = ' 9 '\nage = int(age_str.strip())\nprint('Next year:', age + 1)",
-                            'explain' => 'Clean spaces with .strip(), then int().',
-                            'expected_output' => "Next year: 10"
-                        ],
-                        [
-                            'title'   => 'Decimal text → float',
-                            'code'    => "price_str = '7.50'\nprice = float(price_str)\nprint('Total:', price * 2)",
-                            'explain' => 'Use float() for decimals.',
-                            'expected_output' => "Total: 15.0"
-                        ],
-                        [
-                            'title'   => 'Safe print with commas',
-                            'code'    => "name = 'Mia'\nage = 12\nprint('Student:', name, '| Age:', age)",
-                            'explain' => 'Comma inserts spaces and never crashes.',
-                            'expected_output' => "Student: Mia | Age: 12"
-                        ],
-                    ],
+   Level::updateOrCreate(
+    ['stage_id' => $stage->id, 'index' => 1],
+    [
+        'type'         => 'flip_cards',
+        'title'        => 'Input Essentials Made Easy!',
+        'pass_score'   => 60,
+        'instructions' => "Flip the cards to learn how to handle user input like a pro!\n• input() always gives text\n• Clean it with .strip()\n• Convert with int() or float()\n• Print safely with commas",
+        'content'      => [
+            'intro'       => "Tap each card to learn with simple, real-life examples!",
+            'time_limit'  => 200,
+            'max_hints'   => 3,
+            'hints'       => [
+                'input() gives text - even if you type numbers!',
+                'Use .strip() to remove extra spaces before converting',
+                'int() for whole numbers (like 7), float() for decimals (like 7.5)',
+                'Print with commas: print(\"Name:\", name) - it adds spaces automatically!'
+            ],
+            // Cards: front/back quick learning
+            'cards'       => [
+                [
+                    'front' => 'Why .strip()?',
+                    'back'  => "Like cleaning dirty coins before using them!\n\"  9  \".strip() → \"9\"\nRemoves extra spaces before converting to number."
                 ],
-            ]
-        );
-
+                [
+                    'front' => 'int() vs float()',
+                    'back'  => "Whole numbers vs decimals!\nint(\"7\") → 7 (like 7 apples)\nfloat(\"7.5\") → 7.5 (like $7.50)\nint(\"7.5\") → ERROR ❌"
+                ],
+                [
+                    'front' => 'Safe Printing',
+                    'back'  => "Easy labels with commas!\nprint(\"Age:\", 7) → Age: 7\nprint(\"Price:\", 2.99) → Price: 2.99\nNo crashes, automatic spaces!"
+                ],
+                [
+                    'front' => 'Fixing Number Commas',
+                    'back'  => "\"1,234\" ❌ int(\"1,234\")\nFix: Remove commas first!\nint(\"1,234\".replace(\",\", \"\")) → 1234\nLike reading \"1,234\" as \"1234\""
+                ],
+                [
+                    'front' => 'Text + Numbers',
+                    'back'  => "Convert numbers to text first!\n\"Age: \" + str(7) → \"Age: 7\"\nOr use: print(\"Age:\", 7) (easier!)"
+                ],
+            ],
+            // Console-ready examples (work without interactive input)
+            'examples'    => [
+                [
+                    'title'   => 'Cleaning Spaces First',
+                    'code'    => "age_str = ' 9 '\nclean_age = age_str.strip()\nage = int(clean_age)\nprint('Next year:', age + 1)",
+                    'explain' => 'Clean the spaces (like washing fruit) before using!',
+                    'expected_output' => "Next year: 10"
+                ],
+                [
+                    'title'   => 'Decimal Numbers',
+                    'code'    => "price_str = '7.50'\nprice = float(price_str)\nprint('Two items:', price * 2)",
+                    'explain' => 'Use float() for money and measurements!',
+                    'expected_output' => "Two items: 15.0"
+                ],
+                [
+                    'title'   => 'Easy Labels',
+                    'code'    => "name = 'Mia'\nage = 12\nprint('Student:', name, '| Age:', age)",
+                    'explain' => 'Commas add spaces automatically - no glue needed!',
+                    'expected_output' => "Student: Mia | Age: 12"
+                ],
+            ],
+        ],
+    ]
+);
         // ---------- LEVEL 2 (Match Pairs — Pick the Right Conversion / Steps) ----------
         Level::updateOrCreate(
             ['stage_id' => $stage->id, 'index' => 2],

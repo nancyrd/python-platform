@@ -58,7 +58,7 @@ A one-branch if runs its block only when the condition is True. Practice predict
                             'explanation'     => '7 equals 7.'
                         ],
                         [
-                            'question'        => 'For age = 10, will this print?\n\nif age >= 10:\n    print("Ten or more")',
+                            'question'        => 'For age = 10, will this print?if age >= 10  print("Ten or more")',
                             'options'         => ['Yes, prints "Ten or more"', 'No, it prints nothing', 'Error'],
                             'correct_answer'  => 0,
                             'explanation'     => '10 >= 10 → condition is True.'
@@ -109,26 +109,48 @@ A one-branch if runs its block only when the condition is True. Practice predict
         // We’ll use categories to sort cards into: Conditions / Actions / Not part of if
         // This matches your existing drag_drop blade contract.
         // ─────────────────────────────────────────────────────────────
-        Level::updateOrCreate(
-            ['stage_id' => $stage4->id, 'index' => 2],
-            [
-                'type'         => 'drag_drop',
-                'title'        => 'Build the branch',
-                'pass_score'   => 50,
-                'instructions' => 'Now assemble a full if/elif/else structure.  
-You’ll see cards representing:  
-  • Conditions (expressions that become True or False)  
-  • Actions    (what runs when a condition is True)  
-  • “Not part of if” (setup code like imports, function definitions, or assignments)  
-  
-Drag each card into the correct category so that you could write a valid:
-php
-if <condition>:
-    <action>
-elif <condition>:
-    <action>
+Level::updateOrCreate(
+    ['stage_id' => $stage4->id, 'index' => 2],
+    [
+        'type'         => 'drag_drop',
+        'title'        => 'Build the branch',
+        'pass_score'   => 50,
+        'instructions' => 'Think of **if/else** as making choices, just like you do every day.  
+It helps the computer decide between different paths depending on the situation.  
+
+### 🍝 Real-world example (Cooking pasta):
+- If the water is boiling → add the pasta.  
+- Else → wait until it boils.  
+
+The program is basically asking: *Is the condition true?* If yes, do something. If not, do something else.  
+
+---
+
+### ✅ Simple Python examples:
+
+```python
+if age >= 18:
+    print("You can vote")
 else:
-    <action>
+    print("Sory, too young")
+
+Example 2
+if temperature > 30:
+    print("It’s hot, wear shorts")
+else:
+    print("It’s cool, wear a jacket")
+
+    
+    
+ Example 3:
+
+if hungry:
+    print("Eat food")
+elif thirsty:
+    print("Drink water")
+else:
+    print("Take a nap")
+
 ',
                 'content'      => [
                     'categories' => [
@@ -153,11 +175,32 @@ else:
                             'def greet(): pass'
                         ]
                     ],
+                    
                     'hints'      => [
                         'A condition is something that becomes True/False.',
                         'An action is what runs when its related condition is True.',
                         'Setup code (imports, defs, plain assignments) is not part of the if branching itself.'
                     ],
+                      'examples'   => [
+          [
+              'title'   => 'Voting age check',
+              'code'    => "age = 16\nif age >= 18:\n    print('You can vote')\nelse:\n    print('Sorry, too young')",
+              'explain' => "Checks if someone is old enough to vote.",
+              'expected_output' => "Sorry, too young"
+          ],
+          [
+              'title'   => 'Shopping money check',
+              'code'    => "money = 30\nprice = 50\nif money >= price:\n    print('You can buy it!')\nelse:\n    print('Not enough money')",
+              'explain' => "Compares money with price before buying.",
+              'expected_output' => "Not enough money"
+          ],
+          [
+              'title'   => 'Traffic light',
+              'code'    => "color = 'red'\nif color == 'red':\n    print('Stop at red light')\nelif color == 'green':\n    print('Go')\nelse:\n    print('Slow down')",
+              'explain' => "A classic everyday if/elif/else example: traffic rules.",
+              'expected_output' => "Stop at red light"
+          ]
+      ],
                     'time_limit'  => 240,
                     'max_hints'   => 4
                 ],

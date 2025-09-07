@@ -47,11 +47,11 @@ Route::post('/support', [SupportController::class, 'submit'])
 
     // stage view (map of levels + pre/post buttons)
     Route::get('/stages/{stage}', [StageController::class,'show'])->name('stages.show');
-Route::get('/assessments/post1', function () {
+//Route::get('/assessments/post1', function () {
     // Pick whichever "post" assessment you want to submit to:
-    $assessment = Assessment::where('type', 'post')->firstOrFail();
-    return view('assessments.post1', compact('assessment'));
-})->name('assessments.post1');
+   // $assessment = Assessment::where('type', 'post')->firstOrFail();
+  //  return view('assessments.post1', compact('assessment'));
+// })->name('assessments.post1');
 
     // assessments
     Route::get('/assessments/{assessment}', [AssessmentController::class,'show'])->name('assessments.show');

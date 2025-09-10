@@ -236,6 +236,338 @@ body {
   .stats-grid{gap:.5rem}
   .edge-pad{padding:1rem}
 }
+/* Add these styles to your existing CSS */
+/* Enhanced Results Table Styles */
+.results-table-container {
+    margin: 1.5rem 0;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.results-table th {
+    background: var(--primary-purple);
+    color: white;
+    padding: 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.results-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.results-table tr.status-correct {
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.results-table tr.status-incorrect {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.item-chip {
+    background: var(--gray-100);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.answer-chip {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    display: inline-block;
+    min-width: 120px;
+    text-align: center;
+}
+
+.answer-chip.correct-answer {
+    background: var(--success);
+    color: white;
+}
+
+.answer-chip.wrong-answer {
+    background: var(--danger);
+    color: white;
+}
+
+.status-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+}
+
+.status-badge.status-correct {
+    background: var(--success-light);
+    color: var(--success);
+}
+
+.status-badge.status-incorrect {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.status-icon {
+    font-weight: 900;
+    font-size: 1.1rem;
+}
+
+.category-breakdown {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+}
+
+.category-breakdown h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.category-summary {
+    background: var(--gray-50);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.category-summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+}
+
+.category-score {
+    background: var(--primary-purple);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.category-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-item {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.category-item.item-correct {
+    background: var(--success-light);
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.category-item.item-incorrect {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.category-item small {
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+    .results-table-container {
+        overflow-x: auto;
+    }
+    
+    .results-table {
+        min-width: 600px;
+    }
+    
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* Enhanced Results Styles */
+.results-summary-text {
+    background: var(--gray-50);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin: 1rem 0;
+    border-left: 4px solid var(--primary-purple);
+}
+
+.results-summary-text p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.individual-results {
+    margin: 2rem 0;
+}
+
+.individual-results h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.result-item-detail {
+    margin: 0.75rem 0;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid var(--border);
+}
+
+.result-item-detail.correct {
+    background: var(--success-light);
+    border-color: var(--success);
+}
+
+.result-item-detail.incorrect {
+    background: var(--danger-light);
+    border-color: var(--danger);
+}
+
+.result-item-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.result-icon {
+    font-size: 1.25rem;
+}
+
+.result-item-name {
+    font-weight: 700;
+    font-size: 1rem;
+    background: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.4rem;
+}
+
+.result-feedback {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.category-reference {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+}
+
+.category-reference h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+}
+
+.category-reference-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.category-reference-item {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    padding: 1rem;
+}
+
+.category-ref-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.category-ref-score {
+    background: var(--primary-purple);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.category-ref-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.ref-item {
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.ref-item.ref-correct {
+    background: var(--success-light);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.ref-item.ref-incorrect {
+    background: var(--danger-light);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+/* Results Section */
+.results-container{max-width:1000px;margin:0 auto;}
+.results-header{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:2rem;text-align:center;}
+.results-title{font-size:2rem;font-weight:800;margin:0 0 1rem 0;color:var(--text-primary);}
+.results-score{font-size:3rem;font-weight:900;margin:1rem 0;color:var(--primary-purple);}
+.results-stars{font-size:2rem;margin:1rem 0;color:#fbbf24;}
+.results-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:2rem;}
+.summary-item{text-align:center;padding:1rem;background:var(--gray-50);border-radius:.75rem;}
+.summary-value{font-size:1.5rem;font-weight:800;color:var(--text-primary);}
+.summary-label{font-size:.875rem;color:var(--text-muted);margin-top:.25rem;}
+
+.results-grid{display:grid;gap:1.5rem;}
+.result-category{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
+.result-category.correct{border-left:6px solid var(--success);background:linear-gradient(135deg, rgba(16,185,129,.05), #fff);}
+.result-category.incorrect{border-left:6px solid var(--danger);background:linear-gradient(135deg, rgba(239,68,68,.05), #fff);}
+.result-category-header{display:flex;gap:1rem;align-items:center;margin-bottom:1rem;}
+.result-category-name{font-size:1.25rem;font-weight:700;color:var(--text-primary);}
+.result-status{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.9rem;}
+.result-status.correct{color:var(--success);}
+.result-status.incorrect{color:var(--danger);}
+.result-items{display:flex;flex-wrap:wrap;gap:.5rem;margin:.75rem 0;}
+.result-item{padding:.5rem .75rem;border-radius:.5rem;font-size:.9rem;font-weight:600;}
+.result-item.user-correct{background:var(--success);color:white;}
+.result-item.user-incorrect{background:var(--danger);color:white;}
+.result-item.missed{background:var(--warning);color:white;}
+.d-none { display: none !important; }
+.result-explanation{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border);color:var(--text-secondary);line-height:1.6;}
 </style>
 
 <!-- FULL-BLEED MAIN WRAP -->
@@ -297,7 +629,52 @@ body {
                         @endforeach
                     </div>
                 </div>
+<!-- Add this after the game board div and before the closing edge-pad -->
 
+                <!-- Controls -->
+                <div class="controls-container">
+                    <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
+                    <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
+                    <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
+                </div>
+            </form>
+            
+<!-- RESULTS SECTION -->
+<div id="resultsSection" class="results-container d-none">
+  <div class="results-header">
+    <div class="results-title">Challenge Complete!</div>
+    <div class="results-score" id="finalScoreDisplay">0%</div>
+    <div class="results-stars" id="finalStarsDisplay"></div>
+    <div class="results-summary">
+      <div class="summary-item">
+        <div class="summary-value" id="correctCount">0</div>
+        <div class="summary-label">Correct</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value" id="incorrectCount">0</div>
+        <div class="summary-label">Incorrect</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value" id="hintsUsedDisplay">0</div>
+        <div class="summary-label">Hints Used</div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-value" id="timeUsedDisplay">0:00</div>
+        <div class="summary-label">Time Used</div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="results-grid" id="resultsGrid">
+    <!-- Results will be rendered here by JS -->
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;">
+    <button type="button" class="btn btn-primary" id="btnBackToStage">
+      <i class="fas fa-arrow-left"></i> Back to Stage
+    </button>
+  </div>
+</div>
                 <!-- Categories -->
                 <div class="categories-grid" id="catsGrid">
                     @foreach($categories as $catName => $items)
@@ -311,13 +688,6 @@ body {
                     @endforeach
                 </div>
 
-                <!-- Controls -->
-                <div class="controls-container">
-                    <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
-                    <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
-                    <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -524,37 +894,167 @@ body {
     $btnSubmit.addEventListener('click', ()=>{ if (!submitted) submitNow(); });
 
     // ---- Submit & Grade ----
-    function submitNow(){
-        submitted = true;
-        $btnSubmit.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
-        clearInterval(timerInterval);
+function submitNow(){
+    submitted = true;
+    $btnSubmit.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
+    clearInterval(timerInterval);
 
-        const placed = currentPlacements();
-        let totalCount = 0, correct = 0;
-        for (const item in answerMap){ totalCount++; if (placed[item] && placed[item] === answerMap[item]) correct++; }
-        const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
-        const hintPenalty = hintsUsed * 5;
-        const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-
-        // update UI
-        if ($statScore) $statScore.textContent = finalScore + '%';
-        const stars = starsFor(finalScore);
-        const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
-        if ($statStars) $statStars.textContent = starDisplay;
-        if ($metaStars) $metaStars.textContent = starDisplay;
-
-        // hidden inputs
-        $scoreInp.value = finalScore;
-        $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct: correct });
-
-        // feedback
-        const passReq = {{ (int)$level->pass_score }};
-        if (finalScore >= passReq) toast(`Excellent! Score: ${finalScore}%`, 'success');
-        else toast(`Score: ${finalScore}%. Keep practicing!`, 'error');
-
-        // submit after short delay
-        setTimeout(()=>{ if ($form.requestSubmit) $form.requestSubmit(); else $form.submit(); }, 1200);
+    const placed = currentPlacements();
+    let totalCount = 0, correct = 0;
+    
+    // Analyze each item
+    const itemAnalysis = [];
+    for (const item in answerMap) {
+        totalCount++;
+        const correctCategory = answerMap[item];
+        const userCategory = placed[item];
+        const isCorrect = userCategory === correctCategory;
+        
+        if (isCorrect) correct++;
+        
+        itemAnalysis.push({
+            item: item,
+            correctCategory: correctCategory,
+            userCategory: userCategory || 'Not placed',
+            isCorrect: isCorrect
+        });
     }
+
+    const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
+    const hintPenalty = hintsUsed * 5;
+    const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+    const timeUsed = timeLimit - timeRemaining;
+
+    // Update stats
+    if ($statScore) $statScore.textContent = finalScore + '%';
+    const stars = starsFor(finalScore);
+    const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
+    if ($statStars) $statStars.textContent = starDisplay;
+    if ($metaStars) $metaStars.textContent = starDisplay;
+
+    // Hide game board and show results
+    document.querySelector('.game-board').classList.add('d-none');
+    document.getElementById('resultsSection').classList.remove('d-none');
+
+    // Update results header
+    document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
+    document.getElementById('finalStarsDisplay').textContent = starDisplay;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('incorrectCount').textContent = totalCount - correct;
+    document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
+    document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+
+    // Build detailed results
+    const resultsGrid = document.getElementById('resultsGrid');
+    resultsGrid.innerHTML = '';
+
+    // Create main results card
+    const mainCard = document.createElement('div');
+    mainCard.className = 'result-category';
+    
+    // Sort items: correct first, then alphabetically
+    itemAnalysis.sort((a, b) => {
+        if (a.isCorrect !== b.isCorrect) return b.isCorrect - a.isCorrect;
+        return a.item.localeCompare(b.item);
+    });
+
+    let resultsHTML = `
+        <div class="result-category-header">
+            <div class="result-category-name">📊 Your Results Breakdown</div>
+        </div>
+        <div class="results-summary-text">
+            <p><strong>Score:</strong> ${finalScore}% (${correct}/${totalCount} correct)</p>
+            <p><strong>Performance:</strong> ${finalScore >= 90 ? '🌟 Excellent!' : finalScore >= 70 ? '👍 Good job!' : '📚 Keep practicing!'}</p>
+        </div>
+        
+        <div class="individual-results">
+            <h4>📋 Item-by-Item Results:</h4>
+    `;
+
+    itemAnalysis.forEach(analysis => {
+        const icon = analysis.isCorrect ? '✅' : '❌';
+        const statusClass = analysis.isCorrect ? 'correct' : 'incorrect';
+        const feedbackText = analysis.isCorrect 
+            ? `Correct! This belongs in "${analysis.correctCategory}".`
+            : `Incorrect. You put this in "${analysis.userCategory}" but it belongs in "${analysis.correctCategory}".`;
+
+        resultsHTML += `
+            <div class="result-item-detail ${statusClass}">
+                <div class="result-item-header">
+                    <span class="result-icon">${icon}</span>
+                    <span class="result-item-name">"${escapeHtml(analysis.item)}"</span>
+                </div>
+                <div class="result-feedback">
+                    ${feedbackText}
+                </div>
+            </div>
+        `;
+    });
+
+    resultsHTML += `
+        </div>
+        
+        <div class="category-reference">
+            <h4>📚 Category Reference - What Belongs Where:</h4>
+            <div class="category-reference-grid">
+    `;
+
+    // Show what belongs in each category
+    categories.forEach(category => {
+        const categoryItems = itemAnalysis.filter(item => item.correctCategory === category);
+        const correctCount = categoryItems.filter(item => item.isCorrect).length;
+        
+        resultsHTML += `
+            <div class="category-reference-item">
+                <div class="category-ref-header">
+                    <strong>${escapeHtml(category)}</strong>
+                    <span class="category-ref-score">${correctCount}/${categoryItems.length}</span>
+                </div>
+                <div class="category-ref-items">
+                    ${categoryItems.map(item => 
+                        `<span class="ref-item ${item.isCorrect ? 'ref-correct' : 'ref-incorrect'}">
+                            ${escapeHtml(item.item)}
+                        </span>`
+                    ).join('')}
+                </div>
+            </div>
+        `;
+    });
+
+    resultsHTML += `
+            </div>
+        </div>
+    `;
+
+    mainCard.innerHTML = resultsHTML;
+    resultsGrid.appendChild(mainCard);
+
+    // Prepare form data
+    $scoreInp.value = finalScore;
+    $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct: correct });
+
+    // Show feedback toast
+    const passReq = {{ (int)$level->pass_score }};
+    toast(finalScore >= passReq ? `Excellent! Score: ${finalScore}%` : `Score: ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'success' : 'error');
+
+    // Set up back button (submit form when clicked)
+    setTimeout(() => {
+        const btnBackToStage = document.getElementById('btnBackToStage');
+        if(btnBackToStage){
+            btnBackToStage.addEventListener('click', () => {
+                // Submit the form when going back to stage
+                const form = document.getElementById('ddForm');
+                if(form.requestSubmit) form.requestSubmit(); else form.submit();
+            });
+        }
+    }, 100);
+}
+// Helper function for escaping HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
     // keyboard helpers
     document.addEventListener('keydown', (e) => {

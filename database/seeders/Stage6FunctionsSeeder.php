@@ -72,6 +72,19 @@ class Stage6FunctionsSeeder extends Seeder
                     "   • print shows text on the screen right now.\n".
                     "   • return gives a value back from the function to whoever called it.\n".
                     "   • If a function has no return statement, it gives back a special value called None.\n".
+                    "   • Real life example:
+                         🎤 Print = Speaking out loud
+Tells someone the answer
+Displays it on the screen
+Temporary - once said, it's gone
+For humans to see
+
+📦 Return = Putting in a box to use later
+Gives back the result
+Stores it for later use
+Permanent - you can keep using it
+For computers to process
+\n".
                     "\n".
                     "7) Common mistakes we will test:\n".
                     "   • Forgetting parentheses: hello (not called) vs hello() (called)\n".
@@ -79,11 +92,7 @@ class Stage6FunctionsSeeder extends Seeder
                     "   • Expecting print to change the returned value (it doesn’t). A function can print and still return None.\n".
                     "   • Doing math with text (like '2' + 3) causes an error; convert first: int('2') + 3",
                 'content'      => [
-                    'intro' =>
-                        "Why use functions?\n".
-                        "• Reuse steps many times.\n".
-                        "• Organize code into small, named actions.\n".
-                        "• Send results back with return (not print).",
+                   
                     'examples' => [
                         [
                             'title'   => '1) Define, then call',
@@ -149,7 +158,7 @@ In beginner programs, values often come from input(), and input() always returns
                     ],
                     'questions'    => [
                         [
-                            'question'       => "def hello():\n    print('Hi')\n\nhello()\nWhat shows on screen?",
+                           'question'       => "def hello():\n    print('Hi')\n\nhello()\n\nWhat shows on screen?",
                             'options'        => ['Hi', 'None', 'Error', 'HiNone'],
                             'correct_answer' => 0,
                             'explanation'    => "hello() runs print('Hi').",

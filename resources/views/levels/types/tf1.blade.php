@@ -15,11 +15,6 @@
     $maxHints     = (int)($content['max_hints']  ?? 3);
 
     // True/False format expected by JS
-    // Each question supports:
-    // - statement -> shown as text
-    // - code      -> optional pre block
-    // - answer    -> boolean (true/false)
-    // - explanation -> text shown after submit
     $questions = [];
     foreach ($questionsRaw as $i => $q) {
         $questions[] = [
@@ -173,54 +168,68 @@ body{
 /* ==============================
    PROGRESS BAR
    ============================== */
-.items-container{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1rem 1.25rem;box-shadow:var(--shadow-sm);}
-.items-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
-.items-title{font-size:1.05rem;font-weight:800;}
+.progress-header{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1rem 1.25rem;box-shadow:var(--shadow-sm);margin-bottom:1rem;}
+.progress-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.progress-title{font-size:1.05rem;font-weight:800;}
+.progress-indicator{display:flex;align-items:center;gap:1rem;}
 .progress-container{flex:1;max-width:280px;}
 .progress-bar{height:.55rem;background:var(--gray-200);border-radius:.35rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);}
 .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary-purple),var(--secondary-purple));border-radius:.35rem;transition:width .3s ease;}
+.question-counter{font-size:.9rem;color:var(--text-muted);font-weight:600;}
 
 /* ==============================
-   TRUE/FALSE CARDS
+   QUESTION CARD
    ============================== */
-.tf-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:1rem;margin-top:1rem;}
-.tf-card{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1rem 1.25rem;box-shadow:var(--shadow-sm);position:relative;transition:border-color .15s ease, box-shadow .15s ease;}
-.tf-card.correct{border-color:rgba(16,185,129,.7);box-shadow:0 0 0 3px rgba(16,185,129,.16) inset;}
-.tf-card.incorrect{border-color:rgba(239,68,68,.75);box-shadow:0 0 0 3px rgba(239,68,68,.16) inset;}
+.question-container{max-width:800px;margin:0 auto;}
+.question-card{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:1.5rem;}
+.question-header{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem;}
+.question-number{width:3rem;height:3rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));font-size:1.25rem;}
+.question-text{flex:1;font-size:1.125rem;font-weight:700;color:var(--text-primary);line-height:1.4;}
+.question-code{background:#0f172a;color:#cfeaff;border:1px solid rgba(255,255,255,.08);border-radius:.75rem;padding:1rem 1.25rem;margin:1rem 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;overflow-x:auto;line-height:1.4;}
+.question-actions{display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap;}
 
-.tf-head{display:flex;gap:.75rem;align-items:center;margin-bottom:.5rem;}
-.tf-num{width:2rem;height:2rem;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));}
-.tf-text{font-weight:800;color:var(--text-primary);line-height:1.35;}
-.tf-code{background:#0f172a;color:#cfeaff;border:1px solid rgba(255,255,255,.08);border-radius:.6rem;padding:.6rem .7rem;margin:.55rem 0 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.92rem;overflow-x:auto;}
-
-.tf-actions{display:flex;gap:.5rem;margin-top:.75rem;flex-wrap:wrap;}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.65rem .95rem;border:none;border-radius:.8rem;font-weight:800;font-size:.92rem;cursor:pointer;transition:transform .12s ease, box-shadow .2s ease, filter .12s ease;}
+/* ==============================
+   BUTTONS
+   ============================== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.25rem;border:none;border-radius:.8rem;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .12s ease, box-shadow .2s ease, filter .12s ease;min-width:120px;}
 .btn:disabled{opacity:.55;cursor:not-allowed;}
 .btn-true{background:linear-gradient(135deg,#10b981,#34d399);color:#fff;box-shadow:var(--shadow-sm);}
 .btn-false{background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;box-shadow:var(--shadow-sm);}
-.btn-secondary{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);}
-.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border);}
-.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow);}
-.btn.selected{outline:3px solid rgba(124,58,237,.35);}
-
-.tf-explain{display:none;margin-top:.6rem;color:var(--text-secondary);border-top:1px dashed var(--border);padding-top:.6rem;line-height:1.55;}
-.tf-card.show-explain .tf-explain{display:block;}
-
-/* ==============================
-   CONTROLS ROW
-   ============================== */
-.controls-container{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap;}
 .btn-primary{background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));color:#fff;box-shadow:var(--shadow);}
-.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.btn-secondary{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);}
 .btn-warning{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;}
 .btn-danger{background:linear-gradient(135deg,#ef4444,#f43f5e);color:#fff;}
+.btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow-lg);}
+.btn.selected{outline:3px solid rgba(124,58,237,.35);transform:translateY(-2px);}
+
+/* Navigation buttons */
+.nav-controls{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;}
+.btn-nav{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);min-width:100px;}
 
 /* ==============================
-   META BAR
+   RESULTS SECTION
    ============================== */
-.meta-container{display:flex;justify-content:space-between;align-items:center;background:var(--gray-50);border-top:1px solid var(--border);font-size:.9rem;color:var(--text-muted);}
-.meta-left{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
-.meta-pill{background:#fff;border:1px solid var(--border);padding:.28rem .75rem;border-radius:9999px;font-weight:700;color:var(--text-secondary);}
+.results-container{max-width:1000px;margin:0 auto;}
+.results-header{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:2rem;text-align:center;}
+.results-title{font-size:2rem;font-weight:800;margin:0 0 1rem 0;color:var(--text-primary);}
+.results-score{font-size:3rem;font-weight:900;margin:1rem 0;color:var(--primary-purple);}
+.results-stars{font-size:2rem;margin:1rem 0;color:#fbbf24;}
+.results-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-top:2rem;}
+.summary-item{text-align:center;padding:1rem;background:var(--gray-50);border-radius:.75rem;}
+.summary-value{font-size:1.5rem;font-weight:800;color:var(--text-primary);}
+.summary-label{font-size:.875rem;color:var(--text-muted);margin-top:.25rem;}
+
+.results-grid{display:grid;gap:1.5rem;}
+.result-card{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
+.result-card.correct{border-left:6px solid var(--success);background:linear-gradient(135deg, rgba(16,185,129,.05), #fff);}
+.result-card.incorrect{border-left:6px solid var(--danger);background:linear-gradient(135deg, rgba(239,68,68,.05), #fff);}
+.result-header{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1rem;}
+.result-number{width:2.5rem;height:2.5rem;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));}
+.result-text{flex:1;font-weight:700;color:var(--text-primary);line-height:1.4;}
+.result-status{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.9rem;}
+.result-status.correct{color:var(--success);}
+.result-status.incorrect{color:var(--danger);}
+.result-explanation{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border);color:var(--text-secondary);line-height:1.6;}
 
 /* ==============================
    TOASTS
@@ -233,6 +242,13 @@ body{
 @keyframes slideIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
 
 /* ==============================
+   META BAR
+   ============================== */
+.meta-container{display:flex;justify-content:space-between;align-items:center;background:var(--gray-50);border-top:1px solid var(--border);font-size:.9rem;color:var(--text-muted);}
+.meta-left{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
+.meta-pill{background:#fff;border:1px solid var(--border);padding:.28rem .75rem;border-radius:9999px;font-weight:700;color:var(--text-secondary);}
+
+/* ==============================
    RESPONSIVE
    ============================== */
 @media (max-width: 992px){
@@ -242,6 +258,10 @@ body{
   .header-container{flex-direction:column;align-items:stretch;gap:1rem;}
   .stats-grid{width:100%;}
   .edge-pad{padding:1rem;}
+  .question-card{padding:1.5rem;}
+  .question-actions{flex-direction:column;}
+  .nav-controls{flex-direction:column;}
+  .results-summary{grid-template-columns:1fr;}
 }
 </style>
 
@@ -253,7 +273,7 @@ body{
     <div class="card accent" style="margin-bottom: 1rem;">
       <div class="section-title" style="color:var(--primary-purple)">Level Completed</div>
       <p style="margin:0">
-        You’ve already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}.
+        You've already passed this level{{ $savedScore ? " (best score: {$savedScore}%)" : '' }}.
         You can <a href="{{ route('levels.show', $level) }}?replay=1" style="color:var(--primary-purple);text-decoration:underline;">replay</a> to improve your stars.
       </p>
     </div>
@@ -280,23 +300,58 @@ body{
 
   <!-- PROGRESS HEADER -->
   <div class="edge-pad">
-    <div class="items-container">
-      <div class="items-header">
-        <div class="items-title">Questions</div>
-        <div class="progress-container">
-          <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+    <div class="progress-header">
+      <div class="progress-row">
+        <div class="progress-title">Progress</div>
+        <div class="progress-indicator">
+          <div class="question-counter" id="questionCounter">Question 1 of {{ count($questions) }}</div>
+          <div class="progress-container">
+            <div class="progress-bar"><div class="progress-fill" id="progressBar"></div></div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- QUESTIONS GRID -->
-    <div class="tf-list" id="tfList"><!-- filled by JS --></div>
+    <!-- QUIZ SECTION -->
+    <div id="quizSection" class="question-container">
+      <!-- Questions will be rendered here by JS -->
+    </div>
 
-    <!-- CONTROLS -->
-    <div class="controls-container">
-      <button class="btn btn-primary" type="button" id="btnCheck">Submit Answers</button>
-      <button class="btn btn-warning" type="button" id="btnHint">Hint</button>
-      <button class="btn btn-secondary" type="button" id="btnReset">Reset</button>
+    <!-- RESULTS SECTION -->
+    <div id="resultsSection" class="results-container d-none">
+      <div class="results-header">
+        <div class="results-title">Quiz Complete!</div>
+        <div class="results-score" id="finalScoreDisplay">0%</div>
+        <div class="results-stars" id="finalStarsDisplay"></div>
+        <div class="results-summary">
+          <div class="summary-item">
+            <div class="summary-value" id="correctCount">0</div>
+            <div class="summary-label">Correct</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="incorrectCount">0</div>
+            <div class="summary-label">Incorrect</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="hintsUsedDisplay">0</div>
+            <div class="summary-label">Hints Used</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="timeUsedDisplay">0:00</div>
+            <div class="summary-label">Time Used</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="results-grid" id="resultsGrid">
+        <!-- Results will be rlign:center;margin-top:2rem;">
+        <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-primary">
+          <i class="fas fa-arrow-left"></i> Back to Stage
+        </a>endered here by JS -->
+      </div>
+
+      <div style="text-a
+      </div>
     </div>
 
     <!-- SUBMIT FORM -->
@@ -306,6 +361,11 @@ body{
       <input type="hidden" name="answers" id="answersPayload" value="">
     </form>
   </div>
+</div>
+<div style="text-align:center;margin-top:2rem;">
+  <button type="button" class="btn btn-primary" id="btnBackToStage">
+    <i class="fas fa-arrow-left"></i> Back to Stage
+  </button>
 </div>
 
 <!-- META BAR -->
@@ -319,14 +379,14 @@ body{
     <span class="meta-pill">Tips used: <span id="hintCount">0</span></span>
   </div>
   <div class="meta-right">
-    <span class="meta-pill">Press Ctrl+Enter to submit</span>
+    <span class="meta-pill">Press H for hint, Enter to submit answer</span>
   </div>
 </div>
 
 <!-- TOASTS -->
 <div class="toast-container" id="toastWrap"></div>
 
-<!-- Icons (optional) -->
+<!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
@@ -343,25 +403,26 @@ body{
   // -----------------------------
   // State
   // -----------------------------
+  let currentQuestion = 0;
   let answers = {};          // { [id]: 0|1 }
   let hintsUsed = 0;
   let submitted = false;
   let timeRemaining = timeLimit;
+  let startTime = Date.now();
 
   // -----------------------------
   // DOM
   // -----------------------------
-  const $tfList     = document.getElementById('tfList');
-  const $progress   = document.getElementById('progressBar');
-  const $timer      = document.getElementById('timeRemaining');
-  const $statScore  = document.getElementById('statScore');
-  const $statStars  = document.getElementById('statStars');
-  const $metaStars  = document.getElementById('metaStars');
-  const $hintCount  = document.getElementById('hintCount');
-  const $toastWrap  = document.getElementById('toastWrap');
-  const $btnCheck   = document.getElementById('btnCheck');
-  const $btnHint    = document.getElementById('btnHint');
-  const $btnReset   = document.getElementById('btnReset');
+  const $quizSection    = document.getElementById('quizSection');
+  const $resultsSection = document.getElementById('resultsSection');
+  const $progress       = document.getElementById('progressBar');
+  const $questionCounter = document.getElementById('questionCounter');
+  const $timer          = document.getElementById('timeRemaining');
+  const $statScore      = document.getElementById('statScore');
+  const $statStars      = document.getElementById('statStars');
+  const $metaStars      = document.getElementById('metaStars');
+  const $hintCount      = document.getElementById('hintCount');
+  const $toastWrap      = document.getElementById('toastWrap');
 
   const $toggleInstrux = document.getElementById('toggleInstrux');
   const $instruxBody   = document.getElementById('instruxBody');
@@ -379,49 +440,218 @@ body{
   }
   function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
   function fmtTime(sec){ const m = String(Math.floor(sec/60)).padStart(2,'0'); const s = String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
+  
   function updateProgress(){
-    const pct = questions.length ? Math.round(100 * Object.keys(answers).length / questions.length) : 0;
+    const pct = questions.length ? Math.round(100 * (currentQuestion + 1) / questions.length) : 0;
     $progress.style.width = pct + '%';
+    $questionCounter.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+  }
+
+  function updateStats(){
+    const answeredCount = Object.keys(answers).length;
+    const pct = questions.length ? Math.round(100 * answeredCount / questions.length) : 0;
+    $statScore.textContent = pct + '%';
   }
 
   // -----------------------------
-  // Build UI
+  // Build question UI
   // -----------------------------
-  function render(){
-    $tfList.innerHTML = '';
-    questions.forEach((q, i) => {
-      const card = document.createElement('div');
-      card.className = 'tf-card';
-      card.dataset.id = q.id;
+  function renderCurrentQuestion(){
+    if(currentQuestion >= questions.length) return;
+    
+    const q = questions[currentQuestion];
+    const isAnswered = answers.hasOwnProperty(q.id);
+    const userAnswer = answers[q.id];
 
-      card.innerHTML = `
-        <div class="tf-head">
-          <div class="tf-num">${i+1}</div>
-          <div class="tf-text">${escapeHtml(q.text || '')}</div>
+    $quizSection.innerHTML = `
+      <div class="question-card">
+        <div class="question-header">
+          <div class="question-number">${currentQuestion + 1}</div>
+          <div class="question-text">${escapeHtml(q.text || '')}</div>
         </div>
-        ${q.code ? `<pre class="tf-code">${escapeHtml(q.code)}</pre>` : ''}
-        <div class="tf-actions">
-          <button type="button" class="btn btn-true"  data-val="1"><i class="fas fa-check"></i> TRUE</button>
-          <button type="button" class="btn btn-false" data-val="0"><i class="fas fa-times"></i> FALSE</button>
+        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+        <div class="question-actions">
+          <button type="button" class="btn btn-true ${userAnswer === 1 ? 'selected' : ''}" data-val="1">
+            <i class="fas fa-check"></i> TRUE
+          </button>
+          <button type="button" class="btn btn-false ${userAnswer === 0 ? 'selected' : ''}" data-val="0">
+            <i class="fas fa-times"></i> FALSE
+          </button>
         </div>
-        <div class="tf-explain"></div>
-      `;
+        <div class="nav-controls">
+          <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+          <div style="display:flex;gap:0.5rem;">
+            <button type="button" class="btn btn-warning" id="btnHint">
+              <i class="fas fa-lightbulb"></i> Hint
+            </button>
+            ${isAnswered ? 
+              (currentQuestion === questions.length - 1 ? 
+                '<button type="button" class="btn btn-primary" id="btnFinish"><i class="fas fa-flag-checkered"></i> Finish Quiz</button>' :
+                '<button type="button" class="btn btn-primary" id="btnNext"><i class="fas fa-chevron-right"></i> Next</button>'
+              ) : 
+              '<button type="button" class="btn btn-secondary" disabled>Choose an answer</button>'
+            }
+          </div>
+        </div>
+      </div>
+    `;
 
-      const [bTrue, bFalse] = card.querySelectorAll('.btn');
-      [bTrue, bFalse].forEach(btn => btn.addEventListener('click', () => select(q.id, +btn.dataset.val, card)));
-      $tfList.appendChild(card);
+    // Add event listeners
+    const answerButtons = $quizSection.querySelectorAll('.btn-true, .btn-false');
+    answerButtons.forEach(btn => {
+      btn.addEventListener('click', () => selectAnswer(+btn.dataset.val));
     });
+
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnFinish = document.getElementById('btnFinish');
+    const btnHint = document.getElementById('btnHint');
+
+    if(btnPrev) btnPrev.addEventListener('click', () => navigateToQuestion(currentQuestion - 1));
+    if(btnNext) btnNext.addEventListener('click', () => navigateToQuestion(currentQuestion + 1));
+    if(btnFinish) btnFinish.addEventListener('click', showResults);
+    if(btnHint) btnHint.addEventListener('click', showHint);
   }
 
-  function select(id, val, card){
-    if (submitted) return;
-    answers[id] = val;
-    card.querySelectorAll('.btn').forEach(b => b.classList.remove('selected'));
-    const btn = card.querySelector(`.btn[data-val="${val}"]`);
-    if (btn) btn.classList.add('selected');
+  function selectAnswer(val){
+    if(submitted) return;
+    
+    const q = questions[currentQuestion];
+    answers[q.id] = val;
+    
+    // Update button states
+    // Update button states
+    const buttons = $quizSection.querySelectorAll('.btn-true, .btn-false');
+    buttons.forEach(b => b.classList.remove('selected'));
+    const selectedBtn = $quizSection.querySelector(`.btn[data-val="${val}"]`);
+    if(selectedBtn) selectedBtn.classList.add('selected');
+    
+    updateStats();
+    
+    // Re-render to show next/finish button
+    setTimeout(renderCurrentQuestion, 100);
+  }
+
+  function navigateToQuestion(index){
+    if(index < 0 || index >= questions.length) return;
+    currentQuestion = index;
+    renderCurrentQuestion();
     updateProgress();
   }
 
+  function showHint(){
+    if(submitted) return;
+    if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
+    
+    hintsUsed++;
+    $hintCount.textContent = hintsUsed;
+    const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Think about the statement carefully and consider the code logic.';
+    toast('Hint: ' + hint, 'ok');
+  }
+
+  // -----------------------------
+  // Results display
+  // -----------------------------
+  function showResults(){
+  if(Object.keys(answers).length !== questions.length){
+    return toast('Please answer all questions first.', 'warn');
+  }
+
+  submitted = true;
+  clearInterval(timerInterval);
+  
+  // Calculate score
+  let correct = 0;
+  questions.forEach(q => {
+    const chosen = answers[q.id];          // 0|1
+    const truth  = q.correct ? 1 : 0;      // 0|1
+    const ok = chosen === truth;
+    if(ok) correct++;
+  });
+
+  const rawPct = Math.round(100 * correct / questions.length);
+  const hintPenalty = hintsUsed * 5;                 // -5% per hint
+  let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+  // Small time bonus
+  finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+
+  const timeUsed = timeLimit - timeRemaining;
+  const stars = starsFor(finalScore);
+  const starIcons = stars ? '★'.repeat(stars) : '0';
+
+  // Update header stats
+  $statScore.textContent = finalScore + '%';
+  $statStars.textContent = starIcons;
+  if($metaStars) $metaStars.textContent = starIcons;
+
+  // Show results section
+  $quizSection.classList.add('d-none');
+  $resultsSection.classList.remove('d-none');
+
+  // Update results header
+  document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
+  document.getElementById('finalStarsDisplay').textContent = starIcons;
+  document.getElementById('correctCount').textContent = correct;
+  document.getElementById('incorrectCount').textContent = questions.length - correct;
+  document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
+  document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+
+  // Render individual results
+  const resultsGrid = document.getElementById('resultsGrid');
+  resultsGrid.innerHTML = '';
+
+  questions.forEach((q, i) => {
+    const chosen = answers[q.id];
+    const truth = q.correct ? 1 : 0;
+    const isCorrect = chosen === truth;
+    const chosenText = chosen === 1 ? 'TRUE' : 'FALSE';
+    const correctText = truth === 1 ? 'TRUE' : 'FALSE';
+
+    const resultCard = document.createElement('div');
+    resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
+    
+    resultCard.innerHTML = `
+      <div class="result-header">
+        <div class="result-number">${i + 1}</div>
+        <div class="result-text">${escapeHtml(q.text || '')}</div>
+      </div>
+      ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+      <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+        <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+        ${isCorrect ? 'Correct' : 'Incorrect'} - You answered: ${chosenText}
+        ${!isCorrect ? ` (Correct answer: ${correctText})` : ''}
+      </div>
+      <div class="result-explanation">
+        <strong>Explanation:</strong> ${escapeHtml(q.explanation || (isCorrect ? 'Well done!' : 'Review the statement and code carefully.'))}
+      </div>
+    `;
+    
+    resultsGrid.appendChild(resultCard);
+  });
+
+  // Prepare and submit score data
+  document.getElementById('finalScore').value = finalScore;
+  document.getElementById('answersPayload').value = JSON.stringify(answers);
+
+  const passReq = {{ (int)$level->pass_score }};
+  toast(finalScore >= passReq ? `Excellent! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'ok' : 'err');
+
+  // Submit score to server in background
+  const form = document.getElementById('scoreForm');
+  if(form.requestSubmit) form.requestSubmit(); else form.submit();
+
+  // Add back button event listener
+  setTimeout(() => {
+    const btnBackToStage = document.getElementById('btnBackToStage');
+    if(btnBackToStage){
+      btnBackToStage.addEventListener('click', () => {
+        window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+      });
+    }
+  }, 100);
+}
   // -----------------------------
   // Instructions collapse
   // -----------------------------
@@ -435,107 +665,80 @@ body{
   // Timer
   // -----------------------------
   $timer.textContent = fmtTime(timeRemaining);
-  const t = setInterval(() => {
+  const timerInterval = setInterval(() => {
     timeRemaining--;
     $timer.textContent = fmtTime(timeRemaining);
-    if ([60, 30, 10].includes(timeRemaining)) toast(`${timeRemaining}s left`, 'warn');
-    if (timeRemaining <= 0){
-      clearInterval(t);
-      if (!submitted){ toast('Time up — submitting…', 'warn'); submitNow(); }
+    if([60, 30, 10].includes(timeRemaining)) toast(`${timeRemaining}s remaining`, 'warn');
+    if(timeRemaining <= 0){
+      clearInterval(timerInterval);
+      if(!submitted){ 
+        toast('Time up! Submitting your current answers...', 'warn'); 
+        showResults(); 
+      }
     }
   }, 1000);
 
   // -----------------------------
-  // Buttons
-  // -----------------------------
-  $btnHint.addEventListener('click', () => {
-    if (submitted) return;
-    if (hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
-    hintsUsed++;
-    $hintCount.textContent = hintsUsed;
-    const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Think about types and conversions.';
-    toast('Hint: ' + hint, 'ok');
-  });
-
-  $btnReset.addEventListener('click', () => {
-    if (submitted) return;
-    if (!confirm('Reset your selections?')) return;
-    answers = {};
-    document.querySelectorAll('.tf-card .btn').forEach(b => b.classList.remove('selected'));
-    document.querySelectorAll('.tf-card').forEach(c => { c.classList.remove('correct','incorrect','show-explain'); c.querySelector('.tf-explain').textContent=''; });
-    updateProgress();
-    toast('Cleared.', 'ok');
-  });
-
-  $btnCheck.addEventListener('click', () => { if (!submitted) submitNow(); });
-
   // Keyboard shortcuts
+  // -----------------------------
   document.addEventListener('keydown', (e) => {
-    if (submitted) return;
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter'){ e.preventDefault(); submitNow(); }
-    if (e.key.toLowerCase() === 'h'){ e.preventDefault(); $btnHint.click(); }
-    if (e.key.toLowerCase() === 'r'){ e.preventDefault(); $btnReset.click(); }
-  });
-
-  // -----------------------------
-  // Grade & submit
-  // -----------------------------
-  function submitNow(){
-    if (Object.keys(answers).length !== questions.length){
-      return toast('Answer all questions first.', 'warn');
+    if(submitted) return;
+    
+    if(e.key.toLowerCase() === 'h'){ 
+      e.preventDefault(); 
+      showHint(); 
     }
-
-    submitted = true;
-    $btnCheck.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
-    clearInterval(t);
-
-    let correct = 0;
-    questions.forEach(q => {
-      const card = document.querySelector(`.tf-card[data-id="${q.id}"]`);
-      const chosen = answers[q.id];          // 0|1
-      const truth  = q.correct ? 1 : 0;      // 0|1
-      const ok = chosen === truth;
-
-      if (ok) correct++;
-      card.classList.add(ok ? 'correct' : 'incorrect');
-      const ex = card.querySelector('.tf-explain');
-      if (ex){
-        ex.textContent = q.explanation || (ok ? 'Correct.' : 'Re-check the statement and code.');
-        card.classList.add('show-explain');
+    if(e.key === 'Enter'){ 
+      e.preventDefault(); 
+      const isAnswered = answers.hasOwnProperty(questions[currentQuestion].id);
+      if(isAnswered){
+        if(currentQuestion === questions.length - 1){
+          showResults();
+        } else {
+          navigateToQuestion(currentQuestion + 1);
+        }
       }
-    });
-
-    const rawPct = Math.round(100 * correct / questions.length);
-    const hintPenalty = hintsUsed * 5;                 // -5% per hint
-    let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-    // small time bonus
-    finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
-
-    // Update stats UI
-    $statScore.textContent = finalScore + '%';
-    const s = starsFor(finalScore);
-    const starIcons = s ? '★'.repeat(s) : '0';
-    $statStars.textContent = starIcons;
-    if ($metaStars) $metaStars.textContent = starIcons;
-
-    // Send
-    document.getElementById('finalScore').value = finalScore;
-    document.getElementById('answersPayload').value = JSON.stringify(answers);
-
-    const passReq = {{ (int)$level->pass_score }};
-    toast(finalScore >= passReq ? `Great job! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'ok' : 'err');
-
-    setTimeout(() => {
-      const form = document.getElementById('scoreForm');
-      if (form.requestSubmit) form.requestSubmit(); else form.submit();
-    }, 900);
+    }
+    if(e.key === 'ArrowLeft'){ 
+      e.preventDefault(); 
+      if(currentQuestion > 0) navigateToQuestion(currentQuestion - 1); 
+    }
+    if(e.key === 'ArrowRight'){ 
+      e.preventDefault(); 
+      const isAnswered = answers.hasOwnProperty(questions[currentQuestion].id);
+      if(isAnswered && currentQuestion < questions.length - 1) navigateToQuestion(currentQuestion + 1); 
+    }
+    if(e.key === '1' || e.key === 't'){ 
+      e.preventDefault(); 
+      selectAnswer(1); 
+    }
+    if(e.key === '0' || e.key === 'f'){ 
+      e.preventDefault(); 
+      selectAnswer(0); 
+    }
+  });
+// Add this after creating the results section
+const btnBackToStage = document.getElementById('btnBackToStage');
+if(btnBackToStage){
+  btnBackToStage.addEventListener('click', () => {
+    window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+  });
+}
+  // -----------------------------
+  // Initialize
+  // -----------------------------
+  function init(){
+    if(questions.length === 0){
+      toast('No questions available.', 'err');
+      return;
+    }
+    
+    renderCurrentQuestion();
+    updateProgress();
+    updateStats();
   }
 
-  // -----------------------------
-  // Init
-  // -----------------------------
-  render();
-  updateProgress();
+  init();
 })();
 </script>
 </x-app-layout>

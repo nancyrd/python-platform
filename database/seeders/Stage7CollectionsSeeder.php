@@ -1,241 +1,380 @@
 <?php
-
 namespace Database\Seeders;
-
 use Illuminate\Database\Seeder;
 use App\Models\Stage;
 use App\Models\Level;
 use App\Models\Assessment;
-
 class Stage7CollectionsSeeder extends Seeder
 {
     public function run(): void
     {
-        // ─────────────────────────────────────────────────────────────
-        // STAGE 7: Collections (Lists & Dicts)
-        // ─────────────────────────────────────────────────────────────
         $stage7 = Stage::updateOrCreate(
             ['slug' => 'collections-lists-dicts'],
             [
-                'title'         => 'Stage 7: Collections (Lists & Dicts)',
+                'title'         => 'Stage 7: Collections (Lists & Dictionaries)',
                 'display_order' => 7,
             ]
         );
-
-        // ─────────────────────────────────────────────────────────────
-        // Level 1 — List moves (multiple_choice)
-        // Goals: indexing, append, len basics
-        // ─────────────────────────────────────────────────────────────
+        
+        // ───────────────────────────────
+        // Level 1 — Lists Basics
+        // ───────────────────────────────
         Level::updateOrCreate(
             ['stage_id' => $stage7->id, 'index' => 1],
             [
                 'type'         => 'multiple_choice',
-                'title'        => 'List moves',
+                'title'        => 'Meet the List',
                 'pass_score'   => 60,
-                'instructions' => 
-                    '• A list holds items in order, starting at index 0. ' .
-                    '• Use my_list[index] to get an item. ' .
-                    '• Use my_list.append(x) to add x to the end. ' .
-                    '• Use len(my_list) to find how many items are in the list.',
-                'content'      => [
-                    'intro'        => 
-                        'Lists let you group many values together. ' .
-                        'Imagine a numbered row of boxes. ' .
-                        'You can pick any box by its number (index), add new boxes at the end with append(), ' .
-                        'and count them all with len().',
-                    'instructions' => 'Read the code, then pick what prints or what the length is.',
-                    'questions'    => [
+                'instructions' =>
+                    "Think of a **list** in Python like a shopping list or a row of lockers:\n\n".
+                    "- A list holds many things in order: ['milk','bread','eggs']\n".
+                    "- Each thing has a position (called index): index 0 is the first, 1 is the second…\n".
+                    "- You can add new things with append() - like adding an item to your shopping cart\n".
+                    "- You can count how many items are inside with len() - like counting items in your cart\n".
+                    "- Lists can hold anything: numbers, words, or even other lists!\n\n".
+                    "Let’s test what you know!",
+                'content' => [
+                    'time_limit' => 300,
+                    'max_hints'  => 3,
+                    'questions' => [
                         [
-                            'question'       => "python\nfruits = ['apple', 'banana', 'cherry']\nprint(fruits[1])\nWhat prints?",
-                            'options'        => ['apple', 'banana', 'cherry', 'IndexError'],
+                            'question' => "fruits = ['apple','banana','cherry']\nprint(fruits[1])",
+                            'options' => ['apple','banana','cherry','Error'],
                             'correct_answer' => 1,
-                            'explanation'    => 'Index 1 is the second item: "banana".'
+                            'explanation' => "Index 1 = second item, which is 'banana'. Remember: Python starts counting at 0, so index 0 is 'apple', index 1 is 'banana', and index 2 is 'cherry'."
                         ],
                         [
-                            'question'       => "python\nnums = [1, 2]\nnums.append(3)\nprint(len(nums))\nWhat prints?",
-                            'options'        => ['2', '3', '4', 'Error'],
+                            'question' => "nums = [1,2]\nnums.append(3)\nprint(len(nums))",
+                            'options' => ['2','3','4','Error'],
                             'correct_answer' => 1,
-                            'explanation'    => 'append(3) makes [1,2,3], so length is 3.'
+                            'explanation' => "The list starts as [1,2]. After append(3), it becomes [1,2,3]. Now there are 3 items in the list, so len(nums) returns 3. Think of it like adding one more item to your shopping cart and then counting everything."
                         ],
                         [
-                            'question'       => "python\nitems = []\nitems.append('x')\nitems.append('y')\nprint(items[2])\nWhat happens?",
-                            'options'        => ['x', 'y', 'Error', 'None'],
-                            'correct_answer' => 2,
-                            'explanation'    => 'There is no index 2 in [\'x\',\'y\'] → IndexError.'
-                        ],
-                        [
-                            'question'       => "python\na = ['a','b','c']\nprint(len(a) - 1)\nWhat prints?",
-                            'options'        => ['2', '3', '1', '0'],
+                            'question' => "shopping = ['milk','bread']\nshopping.append('eggs')\nprint(shopping)",
+                            'options' => ["['milk','bread','eggs']","['milk','bread']","['eggs']","Error"],
                             'correct_answer' => 0,
-                            'explanation'    => 'len(a) is 3; 3 − 1 = 2, which is the last valid index.'
+                            'explanation' => "The list starts with ['milk','bread']. When we append('eggs'), we add 'eggs' to the end of the list, making it ['milk','bread','eggs']. It's like adding eggs to your shopping cart - they go at the end!"
                         ],
+                        [
+                            'question' => "my_list = []\nmy_list.append('hello')\nmy_list.append(123)\nprint(my_list)",
+                            'options' => ["['hello','123']","['hello']","[123]","Error"],
+                            'correct_answer' => 0,
+                            'explanation' => "We start with an empty list []. Then we add 'hello' (a word/string) and 123 (a number). Lists can hold different types of items at the same time, just like a backpack can hold books, pencils, and snacks together!"
+                        ]
                     ],
-                    'hints'       => [
-                        'Indexes start at 0, so the first item is index 0.',
-                        'append(x) always adds to the end, increasing length by 1.',
-                        'len(list) returns the total number of items, not the max index.',
+                    'hints' => [
+                        "Indexes start at 0, not 1. Think of it like floors in a building - ground floor is 0, first floor is 1, etc.",
+                        "append() adds at the end, like putting items at the back of a line.",
+                        "len() counts items, like counting how many friends are in your group."
                     ],
-                    'time_limit'  => 240,
-                    'max_hints'   => 3,
-                ],
+                    'examples' => [
+                        [
+                            'title' => 'Shopping list',
+                            'code'  => "shopping = ['milk','bread']\nshopping.append('eggs')\nprint(shopping)",
+                            'explain' => "We started with a shopping list containing milk and bread. Then we remembered we need eggs, so we added them to our list. Now our complete shopping list has three items!",
+                            'expected_output' => "['milk','bread','eggs']"
+                        ],
+                        [
+                            'title' => 'Mixed list',
+                            'code'  => "backpack = ['book', 42, True]\nprint('Items in backpack:', len(backpack))",
+                            'explain' => "Lists can hold different types of items: a string ('book'), a number (42), and even a boolean (True). The len() function counts all items regardless of their type.",
+                            'expected_output' => "Items in backpack: 3"
+                        ],
+                        [
+                            'title' => 'Accessing by index',
+                            'code'  => "rainbow = ['red','orange','yellow','green','blue']\nprint('Third color:', rainbow[2])",
+                            'explain' => "The rainbow list has 5 colors. Remember: index 0 is red, index 1 is orange, and index 2 is yellow (the third color).",
+                            'expected_output' => "Third color: yellow"
+                        ]
+                    ]
+                ]
             ]
         );
-
-        // ─────────────────────────────────────────────────────────────
-        // Level 2 — Keys vs Values (drag_drop)
-        // Goals: sort list ops, dict ops, not collection ops
-        // ─────────────────────────────────────────────────────────────
+        
+        // ───────────────────────────────
+        // Level 2 — Play with Lists
+        // ───────────────────────────────
         Level::updateOrCreate(
             ['stage_id' => $stage7->id, 'index' => 2],
             [
                 'type'         => 'drag_drop',
-                'title'        => 'Keys vs Values',
+                'title'        => 'Play with a List',
                 'pass_score'   => 60,
-                'instructions' => 
-                    'We will sort code snippets into three boxes: ' .
-                    '• List operations: methods or expressions that work on lists. ' .
-                    '• Dict operations: methods or expressions that work on dictionaries. ' .
-                    '• Not a collection op: things unrelated to lists or dicts.',
-                'content'      => [
+                'instructions' =>
+                    "Now let’s practice. Drag each code into the right box:\n\n".
+                    "- **Making a list** (create it) - like writing a new to-do list\n".
+                    "- **Adding to a list** (append) - like adding tasks to your to-do list\n".
+                    "- **Looking inside** (index or len) - like checking what's on your list or counting tasks\n".
+                    "- **Not about lists** - code that does other things",
+                'content' => [
+                    'time_limit' => 300,
+                    'max_hints'  => 3,
                     'categories' => [
-                        '📋 List ops' => [
-                            "fruits.append('apple')",
-                            'colors[0]',
-                            'len(numbers)',
-                            "students.pop()",
+                        '📝 Make a list' => [
+                            "fruits = ['apple','banana']",
+                            "nums = []",
+                            "todo_list = ['homework','clean room']"
                         ],
-                        '📖 Dict ops' => [
-                            'grades["Ali"]',
-                            'data.get("id", 0)',
-                            "user['name'] = 'Bob'",
-                            'len(info.keys())',
+                        '➕ Add to a list' => [
+                            "fruits.append('orange')",
+                            "nums.append(10)",
+                            "todo_list.append('play games')"
                         ],
-                        '🚫 Not a collection op' => [
-                            'print("Hello")',
-                            'x = 5 + 2',
-                            'import math',
-                            'def func(): pass',
+                        '🔍 Look inside' => [
+                            "print(fruits[0])",
+                            "print(len(nums))",
+                            "print(todo_list[1])"
+                        ],
+                        '🚫 Not about lists' => [
+                            "print('hello')",
+                            "x = 5+2",
+                            "name = 'Alice'"
                         ],
                     ],
-                    'hints'      => [
-                        'Lists use numeric indexes and methods like append, pop.',
-                        'Dicts use keys (strings or numbers) inside brackets, and methods like get.',
-                        'Anything that does not read or modify a list or dict goes outside.',
+                    'hints' => [
+                        "[] makes an empty list, [items] makes a list with items.",
+                        "append() adds one item to the end of a list.",
+                        "len() tells you how many items are in the list.",
+                        "list[index] gets the item at that position (starting from 0)."
                     ],
-                    'time_limit'  => 300,
-                    'max_hints'   => 3,
-                ],
+                    'examples' => [
+                        [
+                            'title' => 'Access a list',
+                            'code'  => "colors = ['red','blue','green']\nprint(colors[2])",
+                          'explain' => "The colors list has 3 items. Index 0 is 'red', index 1 is 'blue', and index 2 is 'green'. So colors[2] gives us 'green'.",
+                            'expected_output' => "green"
+                        ],
+                        [
+                            'title' => 'List operations',
+                            'code'  => "scores = [85, 92, 78]\nscores.append(88)\nprint('Average score:', sum(scores)/len(scores))",
+                            'explain' => "We start with 3 scores, add a new score (88), then calculate the average by dividing the sum by the count.",
+                            'expected_output' => "Average score: 85.75"
+                        ],
+                        [
+                            'title' => 'List of lists',
+                            'code'  => "classroom = [['Alice','Bob'], ['Charlie','Dana']]\nprint('First group:', classroom[0])",
+                            'explain' => "Lists can even contain other lists! Here, classroom is a list of two groups, each group is a list of names.",
+                            'expected_output' => "First group: ['Alice','Bob']"
+                        ]
+                    ]
+                ]
             ]
         );
-
-        // ─────────────────────────────────────────────────────────────
-        // Level 3 — Does it exist? (true_false via tf1)
-        // Goals: membership tests, safe dict access via get()
-        // ─────────────────────────────────────────────────────────────
+        
+        // ───────────────────────────────
+        // Level 3 — Meet Dictionaries
+        // ───────────────────────────────
         Level::updateOrCreate(
             ['stage_id' => $stage7->id, 'index' => 3],
             [
-                'type'         => 'tf1',
-                'title'        => 'Does it exist?',
+                'type'         => 'multiple_choice',
+                'title'        => 'Meet the Dictionary',
                 'pass_score'   => 60,
-                'instructions' => 
-                    'For each snippet, decide if the statement is True or False. ' .
-                    'Focus on: in tests for membership in a list or dict, ' .
-                    'dict.get(key, default) returns a default if key not found.',
-                'content'      => [
+                'instructions' =>
+                    "If a list is like a row of boxes, a **dictionary** is like a **phone book** or **dictionary** where you look up words to find meanings.\n\n".
+                    "- It has **keys** (like words in a dictionary) and **values** (like definitions)\n".
+                    "- Example: phone = {'Ali':'123','Maya':'555'} - Ali's number is 123, Maya's number is 555\n".
+                    "- Look up by key: phone['Maya'] → '555' - like looking up Maya in the phone book\n".
+                    "- len(dict) counts how many key-value pairs are in the dictionary\n".
+                    "- Keys must be unique, but values can repeat\n\n".
+                    "Dictionaries are perfect when you want to associate information!",
+                'content' => [
+                    'time_limit' => 300,
+                    'max_hints'  => 3,
                     'questions' => [
                         [
-                            'code'        => "letters = ['a','b','c']\n# Statement: 'b' in letters",
-                            'statement'   => 'This is True',
-                            'answer'      => true,
-                            'explanation' => '\'b\' is one of the items in the list.'
+                            'question' => "phone = {'Ali':'123','Sam':'999'}\nprint(phone['Sam'])",
+                            'options' => ['Ali','Sam','123','999'],
+                            'correct_answer' => 3,
+                            'explanation' => "In the phone dictionary, we have two entries: 'Ali' maps to '123' and 'Sam' maps to '999'. When we look up phone['Sam'], we get Sam's phone number, which is '999'. Think of it like looking up 'Sam' in a phone book to find his number."
                         ],
                         [
-                            'code'        => "d = {'x':1,'y':2}\n# Statement: 'z' in d",
-                            'statement'   => 'This is False',
-                            'answer'      => true,
-                            'explanation' => "Membership tests dict keys; 'z' is not a key → False."
+                            'question' => "prices = {'apple':2, 'banana':3}\nprint(len(prices))",
+                            'options' => ['2','3','Error','0'],
+                            'correct_answer' => 0,
+                            'explanation' => "The prices dictionary has 2 key-value pairs: 'apple':2 and 'banana':3. The len() function counts how many pairs are in the dictionary, not how many total items. It's like counting how many entries are in your address book, not how many phone numbers total."
                         ],
                         [
-                            'code'        => "d = {'x':1}\nvalue = d.get('y', 0)\n# Statement: value == 0",
-                            'statement'   => 'This is True',
-                            'answer'      => true,
-                            'explanation' => ".get('y',0) returns 0 when 'y' not found."
+                            'question' => "student = {'name':'Tom','age':10,'grade':5}\nprint(student['grade'])",
+                            'options' => ['Tom','10','5','Error'],
+                            'correct_answer' => 2,
+                            'explanation' => "In the student dictionary, we have three pieces of information: name (Tom), age (10), and grade (5). When we look up student['grade'], we get Tom's grade level, which is 5. It's like looking up a specific piece of information about Tom."
                         ],
                         [
-                            'code'        => "nums = [1,2,3]\n# Statement: 4 not in nums",
-                            'statement'   => 'This is True',
-                            'answer'      => true,
-                            'explanation' => 'not in is the opposite of in; 4 is not in the list.'
-                        ],
-                        [
-                            'code'        => "pets = ['cat']\n# Statement: pets[1] == 'dog'",
-                            'statement'   => 'This is False',
-                            'answer'      => true,
-                            'explanation' => 'Index 1 does not exist → IndexError, so comparing fails.'
-                        ],
+                            'question' => "book = {'title':'Python','pages':200}\nbook['author'] = 'Alice'\nprint(len(book))",
+                            'options' => ['2','3','Error','0'],
+                            'correct_answer' => 0,
+                            'explanation' => "We start with a dictionary with 2 key-value pairs: 'title':'Python' and 'pages':200. Then we add a new key-value pair: 'author':'Alice'. Now the dictionary has 3 pairs total, so len(book) returns 3. It's like adding a new piece of information to a file."
+                        ]
                     ],
-                    'hints'      => [
-                        'in and not in check membership in lists or dict keys.',
-                        'Use .get(key, default) to avoid errors when key missing.',
-                        'Accessing a list or dict with [] for a missing index/key causes an error.',
+                    'hints' => [
+                        "Keys are like labels, values are the information attached to those labels.",
+                        "Use dict[key] to look up the value for a specific key.",
+                        "len(dict) counts how many key-value pairs are in the dictionary."
                     ],
-                    'time_limit'  => 300,
-                    'max_hints'   => 3,
-                ],
+                    'examples' => [
+                        [
+                            'title' => 'Dictionary phonebook',
+                            'code'  => "contacts = {'Alex':'111','Sam':'222'}\nprint(contacts['Alex'])",
+                          'explain' => "We created a contacts dictionary with two people. Alex's number is '111' and Sam's number is '222'. When we look up contacts['Alex'], we get Alex's phone number.",
+'expected_output' => "111"
+                        ],
+                        [
+                            'title' => 'Student information',
+                            'code'  => "student = {'name':'Maya','age':12,'grade':7}\nprint(f\"{student['name']} is in grade {student['grade']}\")",
+                            'explain' => "Dictionaries are great for storing related information about something. Here we store Maya's name, age, and grade, then use them in a sentence.",
+                            'expected_output' => "Maya is in grade 7"
+                        ],
+                        [
+                            'title' => 'Dictionary with lists',
+                            'code'  => "classroom = {'students':['Alice','Bob'], 'teacher':'Ms. Smith'}\nprint('Students:', classroom['students'])",
+                            'explain' => "Dictionary values can be any type, even lists! Here, the 'students' key maps to a list of student names.",
+                            'expected_output' => "Students: ['Alice','Bob']"
+                        ]
+                    ]
+                ]
             ]
         );
-
-        // ─────────────────────────────────────────────────────────────
-        // PRE assessment for Stage 7
-        // ─────────────────────────────────────────────────────────────
+        
+        // ───────────────────────────────
+        // Level 4 — Practice Dict & List
+        // ───────────────────────────────
+        Level::updateOrCreate(
+            ['stage_id' => $stage7->id, 'index' => 4],
+            [
+                'type'         => 'tf1',
+                'title'        => 'Checking in Lists & Dicts',
+                'pass_score'   => 60,
+                'instructions' =>
+                    "We often need to check if something exists:\n\n".
+                    "- 'in' checks if an item is inside a list - like checking if milk is on your shopping list\n".
+                    "- 'in' checks if a key is in a dict - like checking if you have a friend's number in your phone\n".
+                    "- dict.get(key, default) safely gets values and gives a fallback if the key doesn't exist\n".
+                    "- This prevents errors and crashes!",
+                'content' => [
+                    'time_limit' => 300,
+                    'max_hints'  => 3,
+                    'questions' => [
+                        [
+                            'code' => "pets = ['dog','cat']\n'bird' in pets",
+                            'statement' => "This is False",
+                            'answer' => true,
+                            'explanation' => "The pets list contains 'dog' and 'cat', but not 'bird'. So 'bird' in pets returns False. It's like checking if bird is on your list of pets - if it's not there, the answer is False."
+                        ],
+                        [
+                            'code' => "scores = {'Ali':90}\nscores.get('Maya', 0) == 0",
+                            'statement' => "This is True",
+                            'answer' => true,
+                            'explanation' => "The scores dictionary doesn't have a key called 'Maya'. When we use scores.get('Maya', 0), we're saying 'get Maya's score, but if she's not in the dictionary, return 0 instead'. Since Maya isn't there, it returns 0, and 0 == 0 is True."
+                        ],
+                        [
+                            'code' => "fruits = ['apple','banana']\n'apple' in fruits",
+                            'statement' => "This is True",
+                            'answer' => true,
+                            'explanation' => "The fruits list contains 'apple', so 'apple' in fruits returns True. It's like checking if apple is on your shopping list - if it is, the answer is True."
+                        ],
+                        [
+                            'code' => "phone = {'Tom':'123'}\nphone.get('Tom', 'Not found') == 'Not found'",
+                            'statement' => "This is False",
+                            'answer' => true,
+                            'explanation' => "The phone dictionary does have a key called 'Tom' with value '123'. When we use phone.get('Tom', 'Not found'), we find Tom's number (123), not the fallback value. So 123 == 'Not found' is False."
+                        ]
+                    ],
+                    'hints' => [
+                        "'in' checks if something exists in a list or dict.",
+                        "dict.get(key, default) safely gets values and avoids errors.",
+                        "len() counts items in a list or pairs in a dict."
+                    ],
+                    'examples' => [
+                        [
+                            'title' => 'Check membership',
+                            'code'  => "animals = ['cat','dog','fish']\nprint('dog' in animals)\nprint('bird' in animals)",
+                           'explain' => 'We check if "dog" and "bird" are in the animals list. "dog" is there (True), but "bird" is not (False).',
+                            'expected_output' => "True\nFalse"
+                        ],
+                        [
+                            'title' => 'Safe dict lookup',
+                            'code'  => "ages = {'Ali':20, 'Sam':25}\nprint('Maya\\'s age:', ages.get('Maya', 'Unknown'))",
+                            'explain' => "We try to get Maya's age from the ages dictionary. Since Maya isn't in the dictionary, get() returns the fallback value Unknown instead of causing an error.",
+                            'expected_output' => "Maya's age: Unknown"
+                        ],
+                        [
+                            'title' => 'Check for keys',
+                            'code'  => "menu = {'pizza':10, 'burger':8}\nprint('pizza' in menu)\nprint('salad' in menu)",
+                            'explain' => "We check if pizza and salad are keys in the menu dictionary. pizza is there (True), but salad is not (False).",
+                            'expected_output' => "True\nFalse"
+                        ]
+                    ]
+                ]
+            ]
+        );
+        
+        // PRE assessment
         Assessment::updateOrCreate(
             ['stage_id' => $stage7->id, 'type' => 'pre'],
             [
-                'title'     => 'Pre: Collections (baseline)',
+                'title'     => 'Pre: What do you know about lists & dicts?',
                 'questions' => [
                     [
-                        'prompt'  => 'Which syntax gets the first item of a list x?',
-                        'options' => ['x[0]', 'x.first()', 'x.get(0)', 'x{0}'],
-                        'correct' => 'x[0]',
+                        'prompt' => "In real life, when would you use a list? (Choose the closest)",
+                        'options' => ['Shopping list','Phonebook','Calculator','Alarm clock'],
+                        'correct' => 'Shopping list',
                     ],
                     [
-                        'prompt'  => 'Which returns the number of items in a list?',
-                        'options' => ['len(x)', 'x.count()', 'x.size', 'x.length()'],
-                        'correct' => 'len(x)',
+                        'prompt' => "In real life, when would you use a dictionary?",
+                        'options' => ['Phonebook','Shopping cart','A line of people','Calendar date'],
+                        'correct' => 'Phonebook',
                     ],
                     [
-                        'prompt'  => 'How do you safely access dict d key "k" with default  None?',
-                        'options' => ['d.get("k")', 'd["k"]', 'd.k', 'get(d, "k")'],
-                        'correct' => 'd.get("k")',
+                        'prompt' => "Do you already know what Python lists or dicts are?",
+                        'options' => ['Yes, a little','No, not yet','Only lists','Only dicts'],
+                        'correct' => 'No, not yet',
                     ],
+                    [
+                        'prompt' => "What would you use to store a student's name, age, and grade together?",
+                        'options' => ['A list','A dictionary','Two variables','A string'],
+                        'correct' => 'A dictionary',
+                    ],
+                    [
+                        'prompt' => "How would you check if 'milk' is in your shopping list?",
+                        'options' => ["shopping_list.has('milk')","'milk' in shopping_list","shopping_list.find('milk')","shopping_list.contains('milk')"],
+                        'correct' => "'milk' in shopping_list",
+                    ]
                 ],
             ]
         );
-
-        // ─────────────────────────────────────────────────────────────
-        // POST assessment for Stage 7
-        // ─────────────────────────────────────────────────────────────
+        
+        // POST assessment
         Assessment::updateOrCreate(
             ['stage_id' => $stage7->id, 'type' => 'post'],
             [
-                'title'     => 'Post: Collections',
+                'title'     => 'Post: Lists & Dicts',
                 'questions' => [
                     [
-                        'prompt'  => "Exact output?\n\nlst = [10,20]\nlst.append(30)\nprint(lst[-1])",
-                        'options' => ['30', '20', '10', 'Error'],
-                        'correct' => '30',
-                    ],
-                    [
-                        'prompt'  => 'What does len({"a":1, "b":2}) return?',
-                        'options' => ['2', '1', 'Error', '0'],
+                        'prompt' => "fruits = ['apple']\nfruits.append('pear')\nprint(len(fruits))",
+                        'options' => ['1','2','Error','0'],
                         'correct' => '2',
                     ],
                     [
-                        'prompt'  => "Given d = {'x':5}, what is d.get('y', 99)?",
-                        'options' => ['99', 'None', 'Error', '0'],
-                        'correct' => '99',
+                        'prompt' => "prices = {'pen':1, 'pencil':2}\nprint(prices['pen'])",
+                        'options' => ['1','2','pen','Error'],
+                        'correct' => '1',
                     ],
+                    [
+                        'prompt' => "people = {'Ali':20}\nprint(people.get('Maya', 0))",
+                        'options' => ['Error','20','0','Maya'],
+                        'correct' => '0',
+                    ],
+                    [
+                        'prompt' => "numbers = [1,2,3,4]\nprint(numbers[2])",
+                        'options' => ['2','3','4','Error'],
+                        'correct' => '3',
+                    ],
+                    [
+                        'prompt' => "student = {'name':'Tom','age':10}\nprint('name' in student)",
+                        'options' => ['True','False','Error','0'],
+                        'correct' => 'True',
+                    ]
                 ],
             ]
         );

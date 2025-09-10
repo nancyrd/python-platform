@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Stage;
 use App\Models\Level;
-
+use App\Models\Assessment;
 class Stage8MiniProjectsSeeder extends Seeder
 {
     public function run(): void
@@ -19,6 +19,44 @@ class Stage8MiniProjectsSeeder extends Seeder
             [
                 'title'         => 'Stage 8: Mini Projects',
                 'display_order' => 8,
+            ]
+        );
+         Assessment::updateOrCreate(
+            ['stage_id' => $stage8->id, 'type' => 'pre'],
+            [
+                'title'     => 'Pre: General Python Basics',
+                'questions' => [
+                    [
+                        'prompt'  => 'If you have a list `nums = [1,2,3]`, which command adds 4 at the end?',
+                        'options' => ['nums.add(4)', 'nums.append(4)', 'nums.push(4)', 'nums[4] = 4'],
+                        'correct' => 'nums.append(4)',
+                    ],
+                    [
+                        'prompt'  => 'Dictionaries work like a phonebook: you look up by...',
+                        'options' => ['Index number', 'Key (like a name)', 'Random order', 'Memory address'],
+                        'correct' => 'Key (like a name)',
+                    ],
+                    [
+                        'prompt'  => 'In a `for` loop, what does `for item in items:` do?',
+                        'options' => [
+                            'Repeats once',
+                            'Repeats for every element in the list',
+                            'Creates a new dictionary',
+                            'Stops immediately'
+                        ],
+                        'correct' => 'Repeats for every element in the list',
+                    ],
+                    [
+                        'prompt'  => 'Which function safely removes a key from a dictionary with a default value?',
+                        'options' => ['dict.delete(key)', 'dict.remove(key)', 'dict.pop(key, default)', 'dict.clear(key)'],
+                        'correct' => 'dict.pop(key, default)',
+                    ],
+                    [
+                        'prompt'  => 'You want to write a function that returns the sum of two numbers. Which keyword do you use?',
+                        'options' => ['print', 'return', 'sum', 'output'],
+                        'correct' => 'return',
+                    ],
+                ],
             ]
         );
 
@@ -40,49 +78,47 @@ class Stage8MiniProjectsSeeder extends Seeder
         //   }
         // Your checker should compare the final arranged id sequence to correct_order.
         // ─────────────────────────────────────────────────────────────
-        Level::updateOrCreate(
-            ['stage_id' => $stage8->id, 'index' => 1],
-            [
-                'type'       => 'reorder',
-                'title'      => 'Simple Calculator: put steps in order',
-                'pass_score' => 60,
-                'instructions' => 'We are building a tiny calculator that adds two numbers the user types. 
+      Level::updateOrCreate(
+    ['stage_id' => $stage8->id, 'index' => 1],
+    [
+        'type'       => 'reorder',
+        'title'      => 'Simple Calculator: put steps in order',
+        'pass_score' => 60,
+        'instructions' => 'We are building a tiny calculator that adds two numbers the user types. 
 Think like a recipe: (1) ask the user for inputs, (2) turn those inputs from text into numbers, 
 (3) do the math, (4) show the answer.
 
 Important ideas for beginners:
-• input("...") always returns text (called a string). Even if the user types 5, you still get "5".
+• input("...") always returns text (a string). Even if the user types 5, you still get "5".
 • To do math, you must convert that text to a number using int(...) (for whole numbers) or float(...) (for decimals).
-• After you compute, use print(...) to show the result.
-
-Example (complete program):
-num1 = int(input("First number: "))
-num2 = int(input("Second number: "))
-total = num1 + num2
-print("Total:", total)
-
-Your task: drag the shuffled lines into the correct order: read → cast (we combine read+cast in one line) → compute → print.',
-                'content' => [
-                    'intro'        => 'A real program is just a few careful steps in the right order. We will read numbers from the user, add them, and print the result.',
-                    'instructions' => 'Drag the blocks to form a valid program. When you think it is correct, check your answer.',
-                    // provide slightly different phrasings so replayers see variation
-                    'items' => [
-                        ['id' => 'read1',   'text' => 'num1 = int(input("First number: "))'],
-                        ['id' => 'read2',   'text' => 'num2 = int(input("Second number: "))'],
-                        ['id' => 'compute', 'text' => 'total = num1 + num2'],
-                        ['id' => 'print',   'text' => 'print("Total:", total)'],
+• After you compute, use print(...) to show the result.',
+        'content' => [
+            'intro'        => 'A real program is just a few careful steps in the right order. We will read numbers from the user, add them, and print the result.',
+            'instructions' => 'Drag the blocks to form a valid program. When you think it is correct, check your answer.',
+            'tasks' => [
+                [
+                    'id'    => 'calc1',
+                    'title' => 'Add two numbers',
+                    'lines' => [
+                        'num1 = int(input("First number: "))',
+                        'num2 = int(input("Second number: "))',
+                        'total = num1 + num2',
+                        'print("Total:", total)',
                     ],
-                    'correct_order' => ['read1','read2','compute','print'],
-                    'hints' => [
-                        'input() gives you text. Use int(...) (or float(...)) to make numbers.',
-                        'You can only compute after you have both numbers.',
-                        'print(...) should be the last step to show the result.'
-                    ],
-                    'time_limit' => 300,
-                    'max_hints'  => 4,
+                    'solution'       => [0,1,2,3],
+                    'correct_output' => 'Total: 7', // optional, just an example
                 ],
-            ]
-        );
+            ],
+            'hints' => [
+                'input() gives you text. Use int(...) (or float(...)) to make numbers.',
+                'You can only compute after you have both numbers.',
+                'print(...) should be the last step to show the result.',
+            ],
+            'time_limit' => 300,
+            'max_hints'  => 4,
+        ],
+    ]
+);
 
         // ─────────────────────────────────────────────────────────────
         // LEVEL 2 — Number Guessing (true/false via tf1)
@@ -190,9 +226,9 @@ For a To-Do list (using a Python list):
 • Remove: pop/remove by index, or remove by value.
 
 For a Gradebook (using a Python dict mapping student → grade):
-• Add: assign a key with a value (grades["Ali"] = 95).
+• Add: assign a key with a value (grades["Alex"] = 95).
 • Show: loop over key/value pairs and print them.
-• Remove: delete a key (del grades["Ali"]) or set a default when missing (get).
+• Remove: delete a key (del grades["Alex"]) or set a default when missing (get).
 
 Your job: put each code card under the best section: Add, Show, or Remove.
 
@@ -205,7 +241,7 @@ Tip for beginners:
                     'categories' => [
                         '➕ Add' => [
                             "tasks.append('buy milk')",           // list add
-                            "grades['Ali'] = 95",                 // dict add
+                            "grades['Alex'] = 95",                 // dict add
                             "items.append(new_item)",             // list add
                             "phonebook['Mina'] = '0123-456-789'", // dict add
                         ],
@@ -218,7 +254,7 @@ Tip for beginners:
                         '🗑 Remove' => [
                             "tasks.pop()",                  // list remove last
                             "tasks.remove('buy milk')",     // list remove by value
-                            "del grades['Ali']",            // dict remove by key
+                            "del grades['Alex']",            // dict remove by key
                             "grade = grades.pop('Mina', 0)" // dict pop with default
                         ],
                     ],
@@ -234,6 +270,53 @@ Tip for beginners:
         );
 
         // Mini-projects do not include separate pre/post assessments here by design.
-        // They are application-focused levels meant to consolidate earlier stages.
+       Assessment::updateOrCreate(
+            ['stage_id' => $stage8->id, 'type' => 'post'],
+            [
+                'title'     => 'Post: Mini Projects',
+                'questions' => [
+                    [
+                        'prompt'  => "In the calculator project, why do we write int(input(...)) instead of just input(...) ?",
+                        'options' => [
+                            'Because input gives a string, we need a number',
+                            'Because int(...) always makes the program faster',
+                            'Because input only accepts numbers',
+                            'Because print needs int'
+                        ],
+                        'correct' => 'Because input gives a string, we need a number',
+                    ],
+                    [
+                        'prompt'  => "In the guessing game, what does break do?",
+                        'options' => [
+                            'Skips one loop round',
+                            'Stops the loop immediately',
+                            'Repeats the loop',
+                            'Ignores wrong guesses'
+                        ],
+                        'correct' => 'Stops the loop immediately',
+                    ],
+                    [
+                        'prompt'  => "Which command shows all tasks in a list?",
+                        'options' => [
+                            "print(tasks)",
+                            "for t in tasks: print(t)",
+                            "tasks.show()",
+                            "len(tasks)"
+                        ],
+                        'correct' => "for t in tasks: print(t)",
+                    ],
+                    [
+                        'prompt'  => "If you do del grades['Ali'], what happens?",
+                        'options' => [
+                            "Ali's grade is removed from the dictionary",
+                            "It deletes all grades",
+                            "It throws an error always",
+                            "It clears the dictionary"
+                        ],
+                        'correct' => "Ali's grade is removed from the dictionary",
+                    ],
+                ],
+            ]
+        );
     }
 }

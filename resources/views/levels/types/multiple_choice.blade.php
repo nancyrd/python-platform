@@ -523,7 +523,7 @@ body {
             </button>
             ${isAnswered ? 
               (currentQuestion === questions.length - 1 ? 
-                '<button type="button" class="btn btn-primary" id="btnFinish"><i class="fas fa-flag-checkered"></i> Finish Quiz</button>' :
+                '<button type="button" class="btn btn-primary" id="btnFinish"><i class="fas fa-flag-checkered"></i> Finish level</button>' :
                 '<button type="button" class="btn btn-primary" id="btnNext"><i class="fas fa-chevron-right"></i> Next</button>'
               ) : 
               '<button type="button" class="btn btn-secondary" disabled>Choose an answer</button>'

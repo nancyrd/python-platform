@@ -5,7 +5,7 @@
     $items[] = ['label' => 'Home', 'href' => url('/')];
 
     if (Route::has('dashboard')) {
-        $items[] = ['label' => 'Continue', 'href' => route('dashboard'), 'route' => 'dashboard'];
+        $items[] = ['label' => 'Dashboard', 'href' => route('dashboard'), 'route' => 'dashboard'];
     }
     if (Route::has('about')) {
         $items[] = ['label' => 'About Us', 'href' => route('about'), 'route' => 'about'];

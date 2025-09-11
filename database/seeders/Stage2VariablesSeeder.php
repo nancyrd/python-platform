@@ -155,7 +155,7 @@ class Stage2VariablesSeeder extends Seeder
                         [
                             'title' => 'Good variable names',
                             'code'  => "student_age = 18\ncourse_grade = 95.5\nis_enrolled = True\nMAX_CLASS_SIZE = 30",
-                            'explain' => 'Descriptive names make code easier to understand',
+                            'explain' => 'Descriptive names make code easier to understand,use print() to see the result',
                             'expected_output' => ""
                         ],
                         [

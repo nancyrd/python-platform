@@ -65,7 +65,7 @@
                         Instructions & Overview
                     </div>
                     <div class="panel-controls">
-                        <button class="collapse-btn" id="toggleInstructions">
+                        <button class="collapse-btn"  id="toggleInstructions">
                             <i class="fas fa-chevron-up"></i>
                         </button>
                     </div>
@@ -151,31 +151,14 @@
                     </div>
                 </div>
                 <div class="console-actions">
-                    <button class="console-btn btn-run" id="runBtn">
-                        <i class="fas fa-play"></i> <span class="btn-text">Run</span>
-                    </button>
-                    <button class="console-btn btn-check" id="checkBtn">
-                        <i class="fas fa-check"></i> <span class="btn-text">Check</span>
-                    </button>
-                    <button class="console-btn btn-clear" id="clearBtn">
-                        <i class="fas fa-broom"></i> <span class="btn-text">Clear</span>
-                    </button>
-                    <button class="console-btn" id="copyBtn">
-                        <i class="fas fa-copy"></i> <span class="btn-text">Copy</span>
-                    </button>
-                    <button class="console-btn" id="pasteBtn">
-                        <i class="fas fa-paste"></i> <span class="btn-text">Paste</span>
-                    </button>
                     <div class="layout-controls">
                         <button class="layout-btn" id="verticalLayoutBtn" title="Vertical Layout">
-                            <i class="fas fa-columns"></i>
+                            <i class="fas fa-columns"></i> Vertical
                         </button>
                         <button class="layout-btn active" id="horizontalLayoutBtn" title="Horizontal Layout">
-                            <i class="fas fa-grip-lines"></i>
+                            <i class="fas fa-grip-lines"></i> Horizontal
                         </button>
-                        <button class="layout-btn" id="fullscreenCodeBtn" title="Fullscreen Code">
-                            <i class="fas fa-expand"></i>
-                        </button>
+                      
                     </div>
                 </div>
             </div>
@@ -217,6 +200,19 @@
                             Code Editor
                         </div>
                         <div class="panel-controls">
+                            <!-- Action buttons moved here -->
+                            <div class="editor-actions">
+                                <button class="console-btn btn-run" id="runBtn" title="Run Code (Ctrl+Enter)">
+                                    <i class="fas fa-play"></i> Run
+                                </button>
+                                <button class="console-btn btn-check" id="checkBtn" title="Check Answer">
+                                    <i class="fas fa-check"></i> Check
+                                </button>
+                                <button class="console-btn btn-clear" id="clearBtn" title="Clear Code">
+                                    <i class="fas fa-broom"></i> Clear
+                                </button>
+                        
+                            </div>
                             <button class="control-btn" id="expandEditorBtn" title="Expand Editor">
                                 <i class="fas fa-expand-arrows-alt"></i>
                             </button>
@@ -817,6 +813,9 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    width: 100%; /* Ensure full width */
+    margin: 0; /* Remove any margin */
+    padding: 0; /* Remove any padding */
 }
 
 /* Modern Header */
@@ -903,16 +902,20 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
-    gap: 1rem;
+    width: 100%; /* Full width */
+    max-width: none; /* Remove max-width */
+    margin: 0; /* Remove margin */
+    padding: 0; /* Remove padding */
+    gap: 0; /* Remove gap */
 }
+
 
 /* Top Section - Instructions */
 .top-section {
     flex-shrink: 0;
+    width: 100%; /* Full width */
 }
+
 
 .instructions-panel {
     background: var(--white);
@@ -1072,6 +1075,7 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
+    width: 100%; /* Full width */
 }
 
 /* Console Header */
@@ -1118,6 +1122,15 @@ body {
     align-items: center;
 }
 
+/* Editor Actions */
+.editor-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-right: 0.75rem;
+    padding-right: 0.75rem;
+    border-right: 1px solid var(--border);
+}
+
 .console-btn {
     padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.1);
@@ -1143,36 +1156,24 @@ body {
 .console-btn:hover:has(i.fa-copy) { background: var(--accent) !important; }
 .console-btn:hover:has(i.fa-paste) { background: var(--secondary) !important; }
 
-.console-btn .btn-text {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .console-btn .btn-text {
-        display: inline;
-    }
-}
-
 .layout-controls {
     display: flex;
-    gap: 0.25rem;
-    margin-left: 1rem;
-    padding-left: 1rem;
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+    gap: 0.5rem;
 }
 
 .layout-btn {
-    width: 32px;
-    height: 32px;
+    padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    border-radius: 6px;
     color: white;
     cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+    gap: 0.5rem;
 }
 
 .layout-btn:hover, .layout-btn.active {
@@ -1277,11 +1278,14 @@ body {
     flex: 1;
     display: flex;
     background: var(--white);
-    border-radius: 0 0 12px 12px;
+    border-radius: 0; /* Remove border radius */
     overflow: hidden;
     min-height: 400px;
-    box-shadow: var(--shadow-md);
+    box-shadow: none; /* Remove shadow */
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
 }
+
 
 .workspace-container.horizontal {
     flex-direction: row;
@@ -1296,13 +1300,10 @@ body {
 }
 
 /* Editor Panel */
-.editor-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    min-width: 0;
+.editor-panel, .output-panel {
+    border-radius: 0; /* Remove border radius */
 }
+
 
 .workspace-container.horizontal .editor-panel {
     width: var(--editor-width);
@@ -1383,12 +1384,6 @@ body {
 }
 
 /* Output Panel */
-.output-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
 
 .workspace-container.horizontal .output-panel {
     width: var(--output-width);
@@ -1438,14 +1433,14 @@ body {
 
 /* Challenge Section */
 .challenge-section {
-    margin-top: 1rem;
+    margin-top: 0; /* Remove margin */
     background: var(--white);
-    border-radius: 12px;
+    border-radius: 0; /* Remove border radius */
     padding: 1.5rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: none; /* Remove shadow */
     flex-shrink: 0;
+    width: 100%; /* Full width */
 }
-
 .challenge-header {
     display: flex;
     align-items: center;
@@ -1618,5 +1613,63 @@ button:focus-visible,
 
 /* Utility Classes */
 .hidden { display: none !important; }
+.instructions-panel {
+    background: var(--white);
+    border-radius: 0; /* Remove border radius */
+    box-shadow: none; /* Remove shadow */
+    overflow: hidden;
+    width: 100%; /* Full width */
+}
+
+/* Update console header */
+.console-header {
+    padding: 1rem 1.5rem;
+    background: var(--dark);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0; /* Remove border radius */
+    flex-shrink: 0;
+    width: 100%; /* Full width */
+}
+
+/* Update modern header */
+.modern-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    padding: 1rem 0;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    width: 100%; /* Full width */
+    margin: 0; /* Remove margin */
+}
+
+/* Update header container */
+.header-container {
+    width: 100%; /* Full width */
+    max-width: none; /* Remove max-width */
+    margin: 0; /* Remove margin */
+    padding: 0 1.5rem; /* Keep horizontal padding */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* Update responsive design */
+@media (max-width: 1024px) {
+    .main-layout {
+        padding: 0; /* Remove padding */
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        padding: 0 1rem; /* Adjust padding for smaller screens */
+    }
+}
 </style>
 </x-app-layout>

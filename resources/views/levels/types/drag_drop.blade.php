@@ -5,14 +5,12 @@
     // ===============================
     $alreadyPassed = ($levelProgress ?? null) && ($levelProgress->passed ?? false) && !request()->boolean('replay');
     $savedScore    = $levelProgress->best_score ?? null;
-
     $timeLimit   = (int)($level->content['time_limit'] ?? 180);
     $maxHints    = (int)($level->content['max_hints'] ?? 3);
     $hints       = $level->content['hints'] ?? [];
     $introText   = $level->content['intro'] ?? '';
     $uiInstrux   = $level->content['instructions'] ?? 'Drag each item into the correct category.';
     $categories  = $level->content['categories'] ?? [];
-
     // Fallback hints
     $defaultHints = [
         "Read each item and think: is it a condition, an action, or setup code?",
@@ -21,7 +19,6 @@
         "If it imports or defines things, it's typically not part of branching/looping itself.",
     ];
     $hintsForJs = !empty($hints) ? $hints : $defaultHints;
-
     // Build a flat answer key: item text -> category name
     $answerMap = [];
     foreach ($categories as $catName => $items) {
@@ -29,7 +26,6 @@
             $answerMap[$txt] = $catName;
         }
     }
-
     // Collect all items in one array for the top source bucket (shuffled)
     $allItems = array_keys($answerMap);
     // Shuffle deterministically per level for a stable experience per level id
@@ -40,7 +36,6 @@
     }
     mt_srand();
 @endphp
-
 <x-slot name="header">
     <div class="level-header">
         <div class="header-container">
@@ -49,7 +44,6 @@
                 <div class="level-badge">
                     <span class="level-number">{{ $level->index }}</span>
                 </div>
-
                 <div class="level-info">
                     <div class="breadcrumb">
                         <span class="breadcrumb-item">Stage {{ $level->stage->index ?? $level->stage_id }}</span>
@@ -58,12 +52,10 @@
                         <span class="separator">•</span>
                         <span class="breadcrumb-item type">{{ ucfirst($level->type ?? 'challenge') }}</span>
                     </div>
-
                     <h1 class="stage-title">{{ $level->stage->title }}</h1>
                     <div class="level-title">{{ $level->title }}</div>
                 </div>
             </div>
-
             <!-- Right side: Stats -->
             <div class="header-right">
                 <div class="stats-grid">
@@ -84,7 +76,6 @@
         </div>
     </div>
 </x-slot>
-
 <style>
 :root {
     /* Professional purple-based palette */
@@ -92,7 +83,6 @@
     --secondary-purple: #a855f7;
     --light-purple: #c084fc;
     --purple-subtle: #f3e8ff;
-
     /* Neutral grays */
     --gray-50: #f8fafc;
     --gray-100: #f1f5f9;
@@ -104,7 +94,6 @@
     --gray-700: #334155;
     --gray-800: #1e293b;
     --gray-900: #0f172a;
-
     /* Semantic colors */
     --success: #10b981;
     --success-light: #dcfce7;
@@ -114,7 +103,6 @@
     --danger-light: #fecaca;
     --info: #3b82f6;
     --info-light: #dbeafe;
-
     /* UI */
     --background: #ffffff;
     --surface: #f8fafc;
@@ -127,7 +115,6 @@
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
 }
-
 body {
     background: linear-gradient(135deg,
         rgba(124,58,237,.03) 0%,
@@ -137,7 +124,6 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
     line-height: 1.5;
 }
-
 /* Header */
 .level-header {
     background: linear-gradient(135deg,
@@ -160,7 +146,6 @@ body {
 .stat-item { text-align:center; padding:.75rem 1rem; background:#fff; border:1px solid var(--border); border-radius:.75rem; box-shadow:var(--shadow-sm); min-width:5rem; }
 .stat-label { font-size:.75rem; color:var(--text-muted); font-weight:500; text-transform:uppercase; letter-spacing:.05em; }
 .stat-value { font-size:1.125rem; font-weight:700; color:var(--text-primary); margin-top:.25rem; }
-
 /* Full-bleed layout */
 .full-bleed {
     width: 100vw;
@@ -168,21 +153,17 @@ body {
     margin-right: calc(50% - 50vw);
 }
 .edge-pad { padding: 1.25rem clamp(12px, 3vw, 32px); }
-
 /* Main */
 .main-container { max-width:none; }
 .section-title { font-size:1.125rem; font-weight:700; margin:0 0 1rem 0; color:var(--text-primary); }
-
 /* Cards */
 .card { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
 .card.accent {
     border-left: 6px solid var(--primary-purple);
     background: linear-gradient(180deg, var(--purple-subtle), #fff);
 }
-
 /* Game board */
 .game-board { display:flex; flex-direction:column; gap:2rem; }
-
 /* Items / progress */
 .items-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); }
 .items-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:1rem; flex-wrap:wrap; }
@@ -195,7 +176,6 @@ body {
 .chip:hover { background:var(--gray-100); border-color:var(--primary-purple); transform:translateY(-1px); box-shadow:var(--shadow); }
 .chip.dragging { opacity:.7; background:var(--purple-subtle); border-color:var(--primary-purple); cursor:grabbing; box-shadow:var(--shadow-lg); }
 .chip-badge { font-size:.75rem; color:var(--primary-purple); background:rgba(124,58,237,.1); border:1px solid rgba(124,58,237,.2); padding:.125rem .5rem; border-radius:9999px; font-weight:500; }
-
 /* Categories */
 .categories-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; }
 .category-container { background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1.5rem; box-shadow:var(--shadow-sm); min-height:150px; }
@@ -205,7 +185,6 @@ body {
 .drop-zone { min-height:100px; border:2px dashed var(--gray-300); border-radius:.75rem; padding:1rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-start; align-content:flex-start; transition:all .2s ease; }
 .drop-zone.drag-over { border-color:var(--primary-purple); background:rgba(124,58,237,.05); box-shadow: inset 0 0 0 1px var(--primary-purple); }
 .drop-zone:empty::after { content:'Drop items here'; color:var(--text-muted); font-style:italic; display:flex; align-items:center; justify-content:center; height:100%; width:100%; }
-
 /* Controls */
 .controls-container { display:flex; justify-content:center; gap:1rem; margin:2rem 0; flex-wrap:wrap; }
 .btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.5rem; border:none; border-radius:.75rem; font-weight:600; font-size:.875rem; cursor:pointer; transition:all .2s ease; text-decoration:none; }
@@ -216,12 +195,10 @@ body {
 .btn-secondary:hover:not(:disabled){ background:var(--gray-200); transform:translateY(-1px); box-shadow:var(--shadow); }
 .btn-ghost { background:transparent; color:var(--text-secondary); border:1px solid var(--border); }
 .btn-ghost:hover:not(:disabled){ background:var(--gray-50); border-color:var(--primary-purple); color:var(--primary-purple); }
-
 /* Meta bar */
 .meta-container { display:flex; justify-content:space-between; align-items:center; background:var(--gray-50); border-top:1px solid var(--border); font-size:.875rem; color:var(--text-muted); }
 .meta-left { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
 .meta-pill { background:#fff; border:1px solid var(--border); padding:.25rem .75rem; border-radius:9999px; font-weight:500; }
-
 /* Toasts */
 .toast-container { position:fixed; top:1rem; right:1rem; display:flex; flex-direction:column; gap:.5rem; z-index:1000; }
 .toast { background:#fff; border:1px solid var(--border); color:var(--text-primary); padding:1rem 1.25rem; border-radius:.75rem; font-weight:500; min-width:300px; box-shadow:var(--shadow-lg); animation:slideIn .3s ease; }
@@ -229,7 +206,6 @@ body {
 .toast.warning{ border-left:4px solid var(--warning); background:linear-gradient(135deg,var(--warning-light),#fff); }
 .toast.error{   border-left:4px solid var(--danger);  background:linear-gradient(135deg,var(--danger-light), #fff); }
 @keyframes slideIn{ from{opacity:0; transform:translateX(100%)} to{opacity:1; transform:translateX(0)} }
-
 /* Small */
 @media (max-width:768px){
   .header-container{flex-direction:column; align-items:stretch; gap:1rem; padding:1rem;}
@@ -244,13 +220,11 @@ body {
     overflow: hidden;
     box-shadow: var(--shadow);
 }
-
 .results-table {
     width: 100%;
     border-collapse: collapse;
     background: white;
 }
-
 .results-table th {
     background: var(--primary-purple);
     color: white;
@@ -259,21 +233,17 @@ body {
     font-weight: 700;
     font-size: 0.9rem;
 }
-
 .results-table td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
 }
-
 .results-table tr.status-correct {
     background: rgba(16, 185, 129, 0.05);
 }
-
 .results-table tr.status-incorrect {
     background: rgba(239, 68, 68, 0.05);
 }
-
 .item-chip {
     background: var(--gray-100);
     padding: 0.5rem 0.75rem;
@@ -281,7 +251,6 @@ body {
     font-weight: 600;
     display: inline-block;
 }
-
 .answer-chip {
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
@@ -290,17 +259,14 @@ body {
     min-width: 120px;
     text-align: center;
 }
-
 .answer-chip.correct-answer {
     background: var(--success);
     color: white;
 }
-
 .answer-chip.wrong-answer {
     background: var(--danger);
     color: white;
 }
-
 .status-badge {
     display: flex;
     align-items: center;
@@ -309,47 +275,39 @@ body {
     border-radius: 0.5rem;
     font-weight: 600;
 }
-
 .status-badge.status-correct {
     background: var(--success-light);
     color: var(--success);
 }
-
 .status-badge.status-incorrect {
     background: var(--danger-light);
     color: var(--danger);
 }
-
 .status-icon {
     font-weight: 900;
     font-size: 1.1rem;
 }
-
 .category-breakdown {
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 2px solid var(--border);
 }
-
 .category-breakdown h4 {
     margin: 0 0 1rem 0;
     color: var(--text-primary);
     font-size: 1.25rem;
 }
-
 .category-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
-
 .category-summary {
     background: var(--gray-50);
     border: 1px solid var(--border);
     border-radius: 0.75rem;
     padding: 1rem;
 }
-
 .category-summary-header {
     display: flex;
     justify-content: space-between;
@@ -357,7 +315,6 @@ body {
     margin-bottom: 0.75rem;
     font-size: 1.1rem;
 }
-
 .category-score {
     background: var(--primary-purple);
     color: white;
@@ -366,36 +323,32 @@ body {
     font-size: 0.875rem;
     font-weight: 700;
 }
-
 .category-items {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
-
 .category-item {
     padding: 0.5rem;
     border-radius: 0.5rem;
     font-size: 0.9rem;
 }
 
+
 .category-item.item-correct {
     background: var(--success-light);
     color: var(--success);
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
-
 .category-item.item-incorrect {
     background: var(--danger-light);
     color: var(--danger);
     border: 1px solid rgba(239, 68, 68, 0.3);
 }
-
 .category-item small {
     font-style: italic;
     opacity: 0.8;
 }
-
 /* Responsive table */
 @media (max-width: 768px) {
     .results-table-container {
@@ -418,50 +371,41 @@ body {
     margin: 1rem 0;
     border-left: 4px solid var(--primary-purple);
 }
-
 .results-summary-text p {
     margin: 0.5rem 0;
     font-size: 1rem;
 }
-
 .individual-results {
     margin: 2rem 0;
 }
-
 .individual-results h4 {
     margin: 0 0 1rem 0;
     color: var(--text-primary);
     font-size: 1.2rem;
 }
-
 .result-item-detail {
     margin: 0.75rem 0;
     padding: 1rem;
     border-radius: 0.75rem;
     border: 2px solid var(--border);
 }
-
 .result-item-detail.correct {
     background: var(--success-light);
     border-color: var(--success);
 }
-
 .result-item-detail.incorrect {
     background: var(--danger-light);
     border-color: var(--danger);
 }
-
 .result-item-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 0.5rem;
 }
-
 .result-icon {
     font-size: 1.25rem;
 }
-
 .result-item-name {
     font-weight: 700;
     font-size: 1rem;
@@ -469,37 +413,31 @@ body {
     padding: 0.25rem 0.5rem;
     border-radius: 0.4rem;
 }
-
 .result-feedback {
     font-size: 0.95rem;
     line-height: 1.4;
 }
-
 .category-reference {
     margin-top: 2rem;
     padding-top: 2rem;
     border-top: 2px solid var(--border);
 }
-
 .category-reference h4 {
     margin: 0 0 1rem 0;
     color: var(--text-primary);
     font-size: 1.2rem;
 }
-
 .category-reference-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 1rem;
 }
-
 .category-reference-item {
     background: white;
     border: 1px solid var(--border);
     border-radius: 0.75rem;
     padding: 1rem;
 }
-
 .category-ref-header {
     display: flex;
     justify-content: space-between;
@@ -507,7 +445,6 @@ body {
     margin-bottom: 0.75rem;
     font-size: 1rem;
 }
-
 .category-ref-score {
     background: var(--primary-purple);
     color: white;
@@ -516,26 +453,22 @@ body {
     font-size: 0.875rem;
     font-weight: 600;
 }
-
 .category-ref-items {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
 }
-
 .ref-item {
     padding: 0.4rem 0.6rem;
     border-radius: 0.4rem;
     font-size: 0.9rem;
     font-weight: 500;
 }
-
 .ref-item.ref-correct {
     background: var(--success-light);
     color: var(--success);
     border: 1px solid var(--success);
 }
-
 .ref-item.ref-incorrect {
     background: var(--danger-light);
     color: var(--danger);
@@ -551,7 +484,6 @@ body {
 .summary-item{text-align:center;padding:1rem;background:var(--gray-50);border-radius:.75rem;}
 .summary-value{font-size:1.5rem;font-weight:800;color:var(--text-primary);}
 .summary-label{font-size:.875rem;color:var(--text-muted);margin-top:.25rem;}
-
 .results-grid{display:grid;gap:1.5rem;}
 .result-category{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:1.5rem;box-shadow:var(--shadow-sm);}
 .result-category.correct{border-left:6px solid var(--success);background:linear-gradient(135deg, rgba(16,185,129,.05), #fff);}
@@ -569,11 +501,9 @@ body {
 .d-none { display: none !important; }
 .result-explanation{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border);color:var(--text-secondary);line-height:1.6;}
 </style>
-
 <!-- FULL-BLEED MAIN WRAP -->
 <div class="main-container full-bleed">
-
-    <!-- optional “passed” banner -->
+    <!-- optional "passed" banner -->
     @if($alreadyPassed)
         <div class="edge-pad">
             <div class="card accent" style="margin-bottom: 1rem;">
@@ -586,7 +516,6 @@ body {
             </div>
         </div>
     @endif
-
     <!-- INSTRUCTIONS ON TOP -->
     <div class="edge-pad">
         <div class="card accent" id="instructionsCard" style="margin-bottom: 1.25rem;">
@@ -599,16 +528,13 @@ body {
             <div id="instruxBody" style="white-space: pre-wrap;">{!! nl2br(e($uiInstrux)) !!}</div>
         </div>
     </div>
-
     <!-- GAME BOARD -->
     <div class="edge-pad">
         <div class="game-board">
-
             <form id="ddForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
                 @csrf
                 <input type="hidden" name="score"   id="finalScore"  value="0">
                 <input type="hidden" name="answers" id="answersData" value="{}">
-
                 <!-- Items -->
                 <div class="items-container">
                     <div class="items-header">
@@ -619,7 +545,6 @@ body {
                             </div>
                         </div>
                     </div>
-
                     <div class="chips-container" id="chipsBucket">
                         @foreach($allItems as $txt)
                             <div class="chip" draggable="true" data-item="{{ $txt }}">
@@ -629,13 +554,31 @@ body {
                         @endforeach
                     </div>
                 </div>
-<!-- Add this after the game board div and before the closing edge-pad -->
 
-                <!-- Controls -->
+                <!-- Categories -->
+                <div class="categories-grid" id="catsGrid">
+                    @foreach($categories as $catName => $items)
+                        <div class="category-container" data-category="{{ $catName }}">
+                            <div class="category-header">
+                                <div class="category-name">{{ $catName }}</div>
+                                <div class="category-count"><span class="count">0</span> placed</div>
+                            </div>
+                            <div class="drop-zone" data-drop="{{ $catName }}"></div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <!-- Controls - MOVED TO BOTTOM UNDER CATEGORIES -->
                 <div class="controls-container">
                     <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
                     <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
                     <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
+                 <!-- Back to Stage button -->
+    <div style="margin-top:2rem;">
+        <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-primary">
+            <i class="fas fa-arrow-left"></i> Back to Stage
+        </a>
+    </div>
                 </div>
             </form>
             
@@ -668,30 +611,15 @@ body {
   <div class="results-grid" id="resultsGrid">
     <!-- Results will be rendered here by JS -->
   </div>
-
   <div style="text-align:center;margin-top:2rem;">
     <button type="button" class="btn btn-primary" id="btnBackToStage">
       <i class="fas fa-arrow-left"></i> Back to Stage
     </button>
   </div>
 </div>
-                <!-- Categories -->
-                <div class="categories-grid" id="catsGrid">
-                    @foreach($categories as $catName => $items)
-                        <div class="category-container" data-category="{{ $catName }}">
-                            <div class="category-header">
-                                <div class="category-name">{{ $catName }}</div>
-                                <div class="category-count"><span class="count">0</span> placed</div>
-                            </div>
-                            <div class="drop-zone" data-drop="{{ $catName }}"></div>
-                        </div>
-                    @endforeach
-                </div>
-
         </div>
     </div>
 </div>
-
 <!-- FULL-BLEED META BAR -->
 <div class="meta-container full-bleed edge-pad">
     <div class="meta-left">
@@ -703,12 +631,9 @@ body {
     </div>
     <div>Tips used: <span id="hintCount">0</span></div>
 </div>
-
 <div class="toast-container" id="toastWrap"></div>
-
 <!-- Icons & minimal dependency -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
 <script>
 (function(){
     // ---- Data from PHP ----
@@ -716,12 +641,10 @@ body {
     const maxHints   = {{ $maxHints }};
     const answerMap  = @json($answerMap); // {item: category}
     const categories = @json(array_keys($categories));
-
     // ---- State ----
     let timeRemaining = timeLimit;
     let hintsUsed = 0;
     let submitted = false;
-
     // ---- DOM ----
     const $timer     = document.getElementById('timeRemaining');
     const $statScore = document.getElementById('statScore');
@@ -730,7 +653,6 @@ body {
     const $progress  = document.getElementById('progressBar');
     const $hintCount = document.getElementById('hintCount');
     const $toastWrap = document.getElementById('toastWrap');
-
     const $chipsBucket = document.getElementById('chipsBucket');
     const $btnSubmit   = document.getElementById('btnSubmit');
     const $btnHint     = document.getElementById('btnHint');
@@ -738,7 +660,6 @@ body {
     const $form        = document.getElementById('ddForm');
     const $scoreInp    = document.getElementById('finalScore');
     const $ansInp      = document.getElementById('answersData');
-
     // instructions collapse
     const $toggleInstrux = document.getElementById('toggleInstrux');
     const $instruxBody   = document.getElementById('instruxBody');
@@ -751,7 +672,6 @@ body {
             $toggleInstrux.setAttribute('aria-expanded', String(!hidden));
         });
     }
-
     // ---- Helpers ----
     function fmtTime(sec){
         const m = Math.floor(sec/60).toString().padStart(2,'0');
@@ -795,7 +715,6 @@ body {
         });
         return m;
     }
-
     // ---- Drag & Drop ----
     let dragEl = null;
     function onDragStart(e){
@@ -827,7 +746,6 @@ body {
     });
     allowDropZone($chipsBucket);
     document.querySelectorAll('.drop-zone').forEach(allowDropZone);
-
     // Click-to-place helper
     document.addEventListener('click', (e) => {
         const chip = e.target.closest('.chip');
@@ -862,7 +780,6 @@ body {
         const onDoc = (ev)=>{ if (!menu.contains(ev.target)){ try{document.body.removeChild(menu)}catch(_){ } document.removeEventListener('click', onDoc); } };
         setTimeout(()=>document.addEventListener('click', onDoc),0);
     });
-
     // ---- Timer ----
     const $timerNode = document.getElementById('timeRemaining');
     if ($timerNode) $timerNode.textContent = fmtTime(timeRemaining);
@@ -875,7 +792,6 @@ body {
             if (!submitted){ toast('Time up — submitting…', 'warning'); submitNow(); }
         }
     }, 1000);
-
     // ---- Hints / Reset / Submit ----
     $btnHint.addEventListener('click', ()=>{
         if (submitted) return;
@@ -892,157 +808,164 @@ body {
         updateCounts(); toast('All items reset.', 'success');
     });
     $btnSubmit.addEventListener('click', ()=>{ if (!submitted) submitNow(); });
-
-    // ---- Submit & Grade ----
+    // ---- Submit & Grade ---- COMPLETELY REWRITTEN
 function submitNow(){
     submitted = true;
     $btnSubmit.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
     clearInterval(timerInterval);
-
+    
+    // Add submitted class to disable interactions
+    document.querySelector('.game-board').classList.add('submitted');
+    
     const placed = currentPlacements();
     let totalCount = 0, correct = 0;
     
-    // Analyze each item
-    const itemAnalysis = [];
-    for (const item in answerMap) {
-        totalCount++;
+    console.log('=== STARTING VISUAL FEEDBACK ===');
+    console.log('Answer Map:', answerMap);
+    console.log('User Placements:', placed);
+    
+    // Apply visual feedback to each chip
+    document.querySelectorAll('.chip').forEach((chip, index) => {
+        const item = chip.getAttribute('data-item');
         const correctCategory = answerMap[item];
         const userCategory = placed[item];
         const isCorrect = userCategory === correctCategory;
         
+        totalCount++;
         if (isCorrect) correct++;
         
-        itemAnalysis.push({
-            item: item,
-            correctCategory: correctCategory,
-            userCategory: userCategory || 'Not placed',
-            isCorrect: isCorrect
-        });
-    }
-
+        console.log(`Item "${item}": Correct="${correctCategory}", User="${userCategory}", IsCorrect=${isCorrect}`);
+        
+        // Remove any existing classes
+        chip.classList.remove('feedback-correct', 'feedback-incorrect');
+        
+        // Remove any existing tooltips
+        const existingTooltip = chip.querySelector('.correction-tooltip');
+        if (existingTooltip) {
+            existingTooltip.remove();
+        }
+        
+        // Apply feedback with delay to ensure visibility
+        setTimeout(() => {
+            if (isCorrect) {
+                // CORRECT ITEM - GREEN
+                chip.classList.add('feedback-correct');
+                chip.style.cssText = `
+                    background: #10b981 !important;
+                    color: white !important;
+                    border: 3px solid #059669 !important;
+                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
+                    transform: scale(1.05) !important;
+                    transition: all 0.3s ease !important;
+                `;
+                console.log(`✅ Made ${item} GREEN (correct)`);
+            } else {
+                // INCORRECT ITEM - RED WITH TOOLTIP
+                chip.classList.add('feedback-incorrect');
+                chip.style.cssText = `
+                    background: #fecaca !important;
+                    color: #dc2626 !important;
+                    border: 3px solid #ef4444 !important;
+                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important;
+                    position: relative !important;
+                    margin-bottom: 40px !important;
+                    transition: all 0.3s ease !important;
+                `;
+                
+                // Create correction tooltip as DOM element
+                const tooltip = document.createElement('div');
+                tooltip.className = 'correction-tooltip';
+                tooltip.textContent = `Should be in: ${correctCategory}`;
+                tooltip.style.cssText = `
+                    position: absolute;
+                    bottom: -35px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #ef4444;
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 6px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    white-space: nowrap;
+                    z-index: 1000;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    max-width: 250px;
+                    text-align: center;
+                `;
+                
+                // Add arrow to tooltip
+                const arrow = document.createElement('div');
+                arrow.style.cssText = `
+                    position: absolute;
+                    top: -5px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border-left: 5px solid transparent;
+                    border-right: 5px solid transparent;
+                    border-bottom: 5px solid #ef4444;
+                `;
+                tooltip.appendChild(arrow);
+                
+                chip.appendChild(tooltip);
+                
+                console.log(`❌ Made ${item} RED (incorrect) - should be in ${correctCategory}`);
+            }
+            
+            // Disable dragging
+            chip.draggable = false;
+            chip.style.cursor = 'default';
+            
+        }, index * 100); // Stagger the animations
+    });
+    
     const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
     const hintPenalty = hintsUsed * 5;
     const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
     const timeUsed = timeLimit - timeRemaining;
-
+    
+    console.log(`=== FINAL RESULTS ===`);
+    console.log(`Correct: ${correct}/${totalCount}`);
+    console.log(`Score: ${finalScore}%`);
+    
     // Update stats
     if ($statScore) $statScore.textContent = finalScore + '%';
     const stars = starsFor(finalScore);
     const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
     if ($statStars) $statStars.textContent = starDisplay;
     if ($metaStars) $metaStars.textContent = starDisplay;
-
-    // Hide game board and show results
-    document.querySelector('.game-board').classList.add('d-none');
-    document.getElementById('resultsSection').classList.remove('d-none');
-
-    // Update results header
-    document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
-    document.getElementById('finalStarsDisplay').textContent = starDisplay;
-    document.getElementById('correctCount').textContent = correct;
-    document.getElementById('incorrectCount').textContent = totalCount - correct;
-    document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
-    document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
-
-    // Build detailed results
-    const resultsGrid = document.getElementById('resultsGrid');
-    resultsGrid.innerHTML = '';
-
-    // Create main results card
-    const mainCard = document.createElement('div');
-    mainCard.className = 'result-category';
     
-    // Sort items: correct first, then alphabetically
-    itemAnalysis.sort((a, b) => {
-        if (a.isCorrect !== b.isCorrect) return b.isCorrect - a.isCorrect;
-        return a.item.localeCompare(b.item);
-    });
-
-    let resultsHTML = `
-        <div class="result-category-header">
-            <div class="result-category-name">📊 Your Results Breakdown</div>
-        </div>
-        <div class="results-summary-text">
-            <p><strong>Score:</strong> ${finalScore}% (${correct}/${totalCount} correct)</p>
-            <p><strong>Performance:</strong> ${finalScore >= 90 ? '🌟 Excellent!' : finalScore >= 70 ? '👍 Good job!' : '📚 Keep practicing!'}</p>
-        </div>
-        
-        <div class="individual-results">
-            <h4>📋 Item-by-Item Results:</h4>
-    `;
-
-    itemAnalysis.forEach(analysis => {
-        const icon = analysis.isCorrect ? '✅' : '❌';
-        const statusClass = analysis.isCorrect ? 'correct' : 'incorrect';
-        const feedbackText = analysis.isCorrect 
-            ? `Correct! This belongs in "${analysis.correctCategory}".`
-            : `Incorrect. You put this in "${analysis.userCategory}" but it belongs in "${analysis.correctCategory}".`;
-
-        resultsHTML += `
-            <div class="result-item-detail ${statusClass}">
-                <div class="result-item-header">
-                    <span class="result-icon">${icon}</span>
-                    <span class="result-item-name">"${escapeHtml(analysis.item)}"</span>
-                </div>
-                <div class="result-feedback">
-                    ${feedbackText}
-                </div>
-            </div>
-        `;
-    });
-
-    resultsHTML += `
-        </div>
-        
-        <div class="category-reference">
-            <h4>📚 Category Reference - What Belongs Where:</h4>
-            <div class="category-reference-grid">
-    `;
-
-    // Show what belongs in each category
-    categories.forEach(category => {
-        const categoryItems = itemAnalysis.filter(item => item.correctCategory === category);
-        const correctCount = categoryItems.filter(item => item.isCorrect).length;
-        
-        resultsHTML += `
-            <div class="category-reference-item">
-                <div class="category-ref-header">
-                    <strong>${escapeHtml(category)}</strong>
-                    <span class="category-ref-score">${correctCount}/${categoryItems.length}</span>
-                </div>
-                <div class="category-ref-items">
-                    ${categoryItems.map(item => 
-                        `<span class="ref-item ${item.isCorrect ? 'ref-correct' : 'ref-incorrect'}">
-                            ${escapeHtml(item.item)}
-                        </span>`
-                    ).join('')}
-                </div>
-            </div>
-        `;
-    });
-
-    resultsHTML += `
-            </div>
-        </div>
-    `;
-
-    mainCard.innerHTML = resultsHTML;
-    resultsGrid.appendChild(mainCard);
-
+    // Hide the controls and show back to stage button
+    document.getElementById('controlsContainer').classList.add('d-none');
+    document.getElementById('backToStageContainer').classList.remove('d-none');
+    document.getElementById('finalScoreText').textContent = finalScore + '%';
+    
     // Prepare form data
     $scoreInp.value = finalScore;
     $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct: correct });
-
+    
     // Show feedback toast
     const passReq = {{ (int)$level->pass_score }};
-    toast(finalScore >= passReq ? `Excellent! Score: ${finalScore}%` : `Score: ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'success' : 'error');
-
-    // Set up back button (submit form when clicked)
+    
+    // Show comprehensive feedback toast
+    setTimeout(() => {
+        toast(`Results: ${correct}/${totalCount} correct (${finalScore}%)`, finalScore >= passReq ? 'success' : 'error');
+        
+        // Additional feedback after 2 seconds
+        setTimeout(() => {
+            if (finalScore >= passReq) {
+                toast('Well done! Green items are correct!', 'success');
+            } else {
+                toast('Red items show where they should go. Study and try again!', 'warning');
+            }
+        }, 2000);
+    }, 1000);
+    
+    // Set up back button
     setTimeout(() => {
         const btnBackToStage = document.getElementById('btnBackToStage');
         if(btnBackToStage){
             btnBackToStage.addEventListener('click', () => {
-                // Submit the form when going back to stage
                 const form = document.getElementById('ddForm');
                 if(form.requestSubmit) form.requestSubmit(); else form.submit();
             });
@@ -1055,7 +978,6 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
     // keyboard helpers
     document.addEventListener('keydown', (e) => {
         if (submitted) return;
@@ -1063,7 +985,6 @@ function escapeHtml(text) {
         if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnHint.click(); }
         if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnReset.click(); }
     });
-
     // init
     updateCounts();
 })();

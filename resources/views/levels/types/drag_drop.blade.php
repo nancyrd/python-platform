@@ -531,56 +531,45 @@ body {
     <!-- GAME BOARD -->
     <div class="edge-pad">
         <div class="game-board">
-            <form id="ddForm" method="POST" action="{{ route('levels.submit', $level) }}" novalidate>
-                @csrf
-                <input type="hidden" name="score"   id="finalScore"  value="0">
-                <input type="hidden" name="answers" id="answersData" value="{}">
-                <!-- Items -->
-                <div class="items-container">
-                    <div class="items-header">
-                        <div class="items-title">Items to Place</div>
-                        <div class="progress-container">
-                            <div class="progress-bar">
-                                <div class="progress-fill" id="progressBar"></div>
-                            </div>
+            <!-- Items -->
+            <div class="items-container">
+                <div class="items-header">
+                    <div class="items-title">Items to Place</div>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressBar"></div>
                         </div>
                     </div>
-                    <div class="chips-container" id="chipsBucket">
-                        @foreach($allItems as $txt)
-                            <div class="chip" draggable="true" data-item="{{ $txt }}">
-                                <span class="chip-badge">drag</span>
-                                <span class="chip-text">{{ $txt }}</span>
-                            </div>
-                        @endforeach
-                    </div>
                 </div>
-
-                <!-- Categories -->
-                <div class="categories-grid" id="catsGrid">
-                    @foreach($categories as $catName => $items)
-                        <div class="category-container" data-category="{{ $catName }}">
-                            <div class="category-header">
-                                <div class="category-name">{{ $catName }}</div>
-                                <div class="category-count"><span class="count">0</span> placed</div>
-                            </div>
-                            <div class="drop-zone" data-drop="{{ $catName }}"></div>
+                <div class="chips-container" id="chipsBucket">
+                    @foreach($allItems as $txt)
+                        <div class="chip" draggable="true" data-item="{{ $txt }}">
+                            <span class="chip-badge">drag</span>
+                            <span class="chip-text">{{ $txt }}</span>
                         </div>
                     @endforeach
                 </div>
+            </div>
 
-                <!-- Controls - MOVED TO BOTTOM UNDER CATEGORIES -->
-                <div class="controls-container">
-                    <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
-                    <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
-                    <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
-                 <!-- Back to Stage button -->
-    <div style="margin-top:2rem;">
-        <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> Back to Stage
-        </a>
-    </div>
-                </div>
-            </form>
+            <!-- Categories -->
+            <div class="categories-grid" id="catsGrid">
+                @foreach($categories as $catName => $items)
+                    <div class="category-container" data-category="{{ $catName }}">
+                        <div class="category-header">
+                            <div class="category-name">{{ $catName }}</div>
+                            <div class="category-count"><span class="count">0</span> placed</div>
+                        </div>
+                        <div class="drop-zone" data-drop="{{ $catName }}"></div>
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- Controls -->
+            <div class="controls-container">
+                <button class="btn btn-primary"   type="button" id="btnSubmit"><i class="fas fa-check"></i> Submit Answer</button>
+                <button class="btn btn-secondary" type="button" id="btnHint"><i class="fas fa-lightbulb"></i> Get Hint</button>
+                <button class="btn btn-ghost"     type="button" id="btnReset"><i class="fas fa-rotate-left"></i> Reset All</button>
+            </div>
             
 <!-- RESULTS SECTION -->
 <div id="resultsSection" class="results-container d-none">
@@ -619,6 +608,9 @@ body {
 </div>
         </div>
     </div>
+
+    <!-- CSRF TOKEN for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </div>
 <!-- FULL-BLEED META BAR -->
 <div class="meta-container full-bleed edge-pad">
@@ -657,9 +649,7 @@ body {
     const $btnSubmit   = document.getElementById('btnSubmit');
     const $btnHint     = document.getElementById('btnHint');
     const $btnReset    = document.getElementById('btnReset');
-    const $form        = document.getElementById('ddForm');
-    const $scoreInp    = document.getElementById('finalScore');
-    const $ansInp      = document.getElementById('answersData');
+    
     // instructions collapse
     const $toggleInstrux = document.getElementById('toggleInstrux');
     const $instruxBody   = document.getElementById('instruxBody');
@@ -808,176 +798,188 @@ body {
         updateCounts(); toast('All items reset.', 'success');
     });
     $btnSubmit.addEventListener('click', ()=>{ if (!submitted) submitNow(); });
-    // ---- Submit & Grade ---- COMPLETELY REWRITTEN
-function submitNow(){
-    submitted = true;
-    $btnSubmit.disabled = true; $btnHint.disabled = true; $btnReset.disabled = true;
-    clearInterval(timerInterval);
-    
-    // Add submitted class to disable interactions
-    document.querySelector('.game-board').classList.add('submitted');
-    
-    const placed = currentPlacements();
-    let totalCount = 0, correct = 0;
-    
-    console.log('=== STARTING VISUAL FEEDBACK ===');
-    console.log('Answer Map:', answerMap);
-    console.log('User Placements:', placed);
-    
-    // Apply visual feedback to each chip
-    document.querySelectorAll('.chip').forEach((chip, index) => {
-        const item = chip.getAttribute('data-item');
-        const correctCategory = answerMap[item];
-        const userCategory = placed[item];
-        const isCorrect = userCategory === correctCategory;
+
+    // ---- Submit & Grade ---- UPDATED FOR AJAX
+    function submitNow(){
+        submitted = true;
+        $btnSubmit.disabled = true; 
+        $btnHint.disabled = true; 
+        $btnReset.disabled = true;
+        clearInterval(timerInterval);
         
-        totalCount++;
-        if (isCorrect) correct++;
+        // Add submitted class to disable interactions
+        document.querySelector('.game-board').classList.add('submitted');
         
-        console.log(`Item "${item}": Correct="${correctCategory}", User="${userCategory}", IsCorrect=${isCorrect}`);
+        const placed = currentPlacements();
+        let totalCount = 0, correct = 0;
+        const formattedAnswers = {};
         
-        // Remove any existing classes
-        chip.classList.remove('feedback-correct', 'feedback-incorrect');
-        
-        // Remove any existing tooltips
-        const existingTooltip = chip.querySelector('.correction-tooltip');
-        if (existingTooltip) {
-            existingTooltip.remove();
-        }
-        
-        // Apply feedback with delay to ensure visibility
-        setTimeout(() => {
-            if (isCorrect) {
-                // CORRECT ITEM - GREEN
-                chip.classList.add('feedback-correct');
-                chip.style.cssText = `
-                    background: #10b981 !important;
-                    color: white !important;
-                    border: 3px solid #059669 !important;
-                    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
-                    transform: scale(1.05) !important;
-                    transition: all 0.3s ease !important;
-                `;
-                console.log(`✅ Made ${item} GREEN (correct)`);
-            } else {
-                // INCORRECT ITEM - RED WITH TOOLTIP
-                chip.classList.add('feedback-incorrect');
-                chip.style.cssText = `
-                    background: #fecaca !important;
-                    color: #dc2626 !important;
-                    border: 3px solid #ef4444 !important;
-                    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important;
-                    position: relative !important;
-                    margin-bottom: 40px !important;
-                    transition: all 0.3s ease !important;
-                `;
-                
-                // Create correction tooltip as DOM element
-                const tooltip = document.createElement('div');
-                tooltip.className = 'correction-tooltip';
-                tooltip.textContent = `Should be in: ${correctCategory}`;
-                tooltip.style.cssText = `
-                    position: absolute;
-                    bottom: -35px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: #ef4444;
-                    color: white;
-                    padding: 6px 12px;
-                    border-radius: 6px;
-                    font-size: 12px;
-                    font-weight: 600;
-                    white-space: nowrap;
-                    z-index: 1000;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                    max-width: 250px;
-                    text-align: center;
-                `;
-                
-                // Add arrow to tooltip
-                const arrow = document.createElement('div');
-                arrow.style.cssText = `
-                    position: absolute;
-                    top: -5px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    border-left: 5px solid transparent;
-                    border-right: 5px solid transparent;
-                    border-bottom: 5px solid #ef4444;
-                `;
-                tooltip.appendChild(arrow);
-                
-                chip.appendChild(tooltip);
-                
-                console.log(`❌ Made ${item} RED (incorrect) - should be in ${correctCategory}`);
-            }
+        // Apply visual feedback to each chip
+        document.querySelectorAll('.chip').forEach((chip, index) => {
+            const item = chip.getAttribute('data-item');
+            const correctCategory = answerMap[item];
+            const userCategory = placed[item];
+            const isCorrect = userCategory === correctCategory;
             
-            // Disable dragging
-            chip.draggable = false;
-            chip.style.cursor = 'default';
+            totalCount++;
+            if (isCorrect) correct++;
             
-        }, index * 100); // Stagger the animations
-    });
-    
-    const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
-    const hintPenalty = hintsUsed * 5;
-    const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-    const timeUsed = timeLimit - timeRemaining;
-    
-    console.log(`=== FINAL RESULTS ===`);
-    console.log(`Correct: ${correct}/${totalCount}`);
-    console.log(`Score: ${finalScore}%`);
-    
-    // Update stats
-    if ($statScore) $statScore.textContent = finalScore + '%';
-    const stars = starsFor(finalScore);
-    const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
-    if ($statStars) $statStars.textContent = starDisplay;
-    if ($metaStars) $metaStars.textContent = starDisplay;
-    
-    // Hide the controls and show back to stage button
-    document.getElementById('controlsContainer').classList.add('d-none');
-    document.getElementById('backToStageContainer').classList.remove('d-none');
-    document.getElementById('finalScoreText').textContent = finalScore + '%';
-    
-    // Prepare form data
-    $scoreInp.value = finalScore;
-    $ansInp.value = JSON.stringify({ placements: placed, total: totalCount, correct: correct });
-    
-    // Show feedback toast
-    const passReq = {{ (int)$level->pass_score }};
-    
-    // Show comprehensive feedback toast
-    setTimeout(() => {
-        toast(`Results: ${correct}/${totalCount} correct (${finalScore}%)`, finalScore >= passReq ? 'success' : 'error');
+            const categoryIndex = categories.indexOf(correctCategory);
+            formattedAnswers[item] = isCorrect ? categoryIndex : -1;
+            
+            // Remove any existing classes and tooltips
+            chip.classList.remove('feedback-correct', 'feedback-incorrect');
+            const existingTooltip = chip.querySelector('.correction-tooltip');
+            if (existingTooltip) existingTooltip.remove();
+            
+            // Apply feedback with delay
+            setTimeout(() => {
+                if (isCorrect) {
+                    chip.classList.add('feedback-correct');
+                    chip.style.cssText = `
+                        background: #10b981 !important;
+                        color: white !important;
+                        border: 3px solid #059669 !important;
+                        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
+                        transform: scale(1.05) !important;
+                        transition: all 0.3s ease !important;
+                    `;
+                } else {
+                    chip.classList.add('feedback-incorrect');
+                    chip.style.cssText = `
+                        background: #fecaca !important;
+                        color: #dc2626 !important;
+                        border: 3px solid #ef4444 !important;
+                        box-shadow: 0 0 10px rgba(239, 68, 68, 0.5) !important;
+                        position: relative !important;
+                        margin-bottom: 40px !important;
+                        transition: all 0.3s ease !important;
+                    `;
+                    
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'correction-tooltip';
+                    tooltip.textContent = `Should be in: ${correctCategory}`;
+                    tooltip.style.cssText = `
+                        position: absolute; bottom: -35px; left: 50%;
+                        transform: translateX(-50%); background: #ef4444;
+                        color: white; padding: 6px 12px; border-radius: 6px;
+                        font-size: 12px; font-weight: 600; white-space: nowrap;
+                        z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        max-width: 250px; text-align: center;
+                    `;
+                    
+                    const arrow = document.createElement('div');
+                    arrow.style.cssText = `
+                        position: absolute; top: -5px; left: 50%;
+                        transform: translateX(-50%); border-left: 5px solid transparent;
+                        border-right: 5px solid transparent; border-bottom: 5px solid #ef4444;
+                    `;
+                    tooltip.appendChild(arrow);
+                    chip.appendChild(tooltip);
+                }
+                
+                chip.draggable = false;
+                chip.style.cursor = 'default';
+            }, index * 100);
+        });
         
-        // Additional feedback after 2 seconds
+        const rawPct = totalCount ? Math.round(100 * correct / totalCount) : 0;
+        const hintPenalty = hintsUsed * 5;
+        const finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+        const timeUsed = timeLimit - timeRemaining;
+        const stars = starsFor(finalScore);
+        const passReq = {{ (int)$level->pass_score }};
+        const passed = finalScore >= passReq;
+        
+        // Update stats display
+        if ($statScore) $statScore.textContent = finalScore + '%';
+        const starDisplay = stars > 0 ? '★'.repeat(stars) : '0';
+        if ($statStars) $statStars.textContent = starDisplay;
+        if ($metaStars) $metaStars.textContent = starDisplay;
+        
+        // Show feedback message
+        toast(`Score: ${finalScore}% - ${passed ? 'Level Passed!' : 'Try again!'}`, passed ? 'success' : 'warning');
+        
+        // Wait for visual feedback to complete, then show results and save progress
         setTimeout(() => {
-            if (finalScore >= passReq) {
-                toast('Well done! Green items are correct!', 'success');
-            } else {
-                toast('Red items show where they should go. Study and try again!', 'warning');
+            // Update results section
+            document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
+            document.getElementById('finalStarsDisplay').textContent = '★'.repeat(stars);
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('incorrectCount').textContent = totalCount - correct;
+            document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
+            document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+            
+            // Show results section
+            document.getElementById('resultsSection').classList.remove('d-none');
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            
+            // Save progress to database using AJAX (no redirect)
+            saveProgressToDatabase(finalScore, formattedAnswers, hintsUsed, timeUsed, stars, totalCount, correct, passed);
+            
+        }, Math.max(300, totalCount * 100)); // Wait for all animations to complete
+    }
+
+    // New function to save progress via AJAX
+    function saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, totalCount, correct, passed) {
+        const formData = new FormData();
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+        formData.append('score', finalScore);
+        formData.append('answers', JSON.stringify(answers));
+        formData.append('hints_used', hintsUsed);
+        formData.append('time_used', timeUsed);
+        formData.append('stars', stars);
+        formData.append('total_items', totalCount);
+        formData.append('correct_items', correct);
+        formData.append('passed', passed ? 1 : 0);
+
+        fetch('{{ route("levels.submit", $level) }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
             }
-        }, 2000);
-    }, 1000);
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('Response text:', text);
+                    throw new Error(`HTTP ${response.status}: ${text}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Progress saved successfully:', data);
+            if (data.success) {
+                toast('Progress saved successfully!', 'success');
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error saving progress:', error);
+            toast('Warning: Progress may not have been saved. Please try again.', 'warning');
+        });
+    }
+
+    // Back to stage button event listener - Updated for manual redirect only
+    const btnBackToStage = document.getElementById('btnBackToStage');
+    if(btnBackToStage){
+        btnBackToStage.addEventListener('click', () => {
+            // Simply redirect to stage dashboard
+            window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+        });
+    }
+
+    // Helper function for escaping HTML
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
     
-    // Set up back button
-    setTimeout(() => {
-        const btnBackToStage = document.getElementById('btnBackToStage');
-        if(btnBackToStage){
-            btnBackToStage.addEventListener('click', () => {
-                const form = document.getElementById('ddForm');
-                if(form.requestSubmit) form.requestSubmit(); else form.submit();
-            });
-        }
-    }, 100);
-}
-// Helper function for escaping HTML
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
     // keyboard helpers
     document.addEventListener('keydown', (e) => {
         if (submitted) return;
@@ -985,8 +987,10 @@ function escapeHtml(text) {
         if (e.key.toLowerCase() === 'h' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnHint.click(); }
         if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.altKey){ e.preventDefault(); $btnReset.click(); }
     });
+    
     // init
     updateCounts();
 })();
+
 </script>
 </x-app-layout>

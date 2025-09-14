@@ -344,28 +344,19 @@ body{
       </div>
       
       <div class="results-grid" id="resultsGrid">
-        <!-- Results will be rlign:center;margin-top:2rem;">
-        <a href="{{ route('stages.show', $level->stage_id) }}" class="btn btn-primary">
-          <i class="fas fa-arrow-left"></i> Back to Stage
-        </a>endered here by JS -->
+        <!-- Results will be rendered here by JS -->
       </div>
 
-      <div style="text-a
+      <div style="text-align:center;margin-top:2rem;">
+        <button type="button" class="btn btn-primary" id="btnBackToStage">
+          <i class="fas fa-arrow-left"></i> Back to Stage
+        </button>
       </div>
     </div>
 
-    <!-- SUBMIT FORM -->
-    <form method="POST" action="{{ route('levels.submit', $level) }}" id="scoreForm" style="display:none;">
-      @csrf
-      <input type="hidden" name="score" id="finalScore" value="0">
-      <input type="hidden" name="answers" id="answersPayload" value="">
-    </form>
+    <!-- CSRF TOKEN for AJAX requests -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
   </div>
-</div>
-<div style="text-align:center;margin-top:2rem;">
-  <button type="button" class="btn btn-primary" id="btnBackToStage">
-    <i class="fas fa-arrow-left"></i> Back to Stage
-  </button>
 </div>
 
 <!-- META BAR -->
@@ -522,7 +513,6 @@ body{
     answers[q.id] = val;
     
     // Update button states
-    // Update button states
     const buttons = $quizSection.querySelectorAll('.btn-true, .btn-false');
     buttons.forEach(b => b.classList.remove('selected'));
     const selectedBtn = $quizSection.querySelector(`.btn[data-val="${val}"]`);
@@ -552,106 +542,138 @@ body{
   }
 
   // -----------------------------
-  // Results display
+  // Results display - UPDATED FOR AJAX
   // -----------------------------
   function showResults(){
-  if(Object.keys(answers).length !== questions.length){
-    return toast('Please answer all questions first.', 'warn');
+    if(Object.keys(answers).length !== questions.length){
+      return toast('Please answer all questions first.', 'warn');
+    }
+
+    submitted = true;
+    clearInterval(timerInterval);
+    
+    // Calculate score
+    let correct = 0;
+    questions.forEach(q => {
+      const chosen = answers[q.id];          // 0|1
+      const truth  = q.correct ? 1 : 0;      // 0|1
+      const ok = chosen === truth;
+      if(ok) correct++;
+    });
+
+    const rawPct = Math.round(100 * correct / questions.length);
+    const hintPenalty = hintsUsed * 5;                 // -5% per hint
+    let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+    // Small time bonus
+    finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+
+    const timeUsed = timeLimit - timeRemaining;
+    const stars = starsFor(finalScore);
+    const starIcons = stars ? '★'.repeat(stars) : '0';
+    const passReq = {{ (int)$level->pass_score }};
+    const passed = finalScore >= passReq;
+
+    // Update header stats
+    $statScore.textContent = finalScore + '%';
+    $statStars.textContent = starIcons;
+    if($metaStars) $metaStars.textContent = starIcons;
+
+    // Show results section
+    $quizSection.classList.add('d-none');
+    $resultsSection.classList.remove('d-none');
+
+    // Update results header
+    document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
+    document.getElementById('finalStarsDisplay').textContent = starIcons;
+    document.getElementById('correctCount').textContent = correct;
+    document.getElementById('incorrectCount').textContent = questions.length - correct;
+    document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
+    document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+
+    // Render individual results
+    const resultsGrid = document.getElementById('resultsGrid');
+    resultsGrid.innerHTML = '';
+
+    questions.forEach((q, i) => {
+      const chosen = answers[q.id];
+      const truth = q.correct ? 1 : 0;
+      const isCorrect = chosen === truth;
+      const chosenText = chosen === 1 ? 'TRUE' : 'FALSE';
+      const correctText = truth === 1 ? 'TRUE' : 'FALSE';
+
+      const resultCard = document.createElement('div');
+      resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
+      
+      resultCard.innerHTML = `
+        <div class="result-header">
+          <div class="result-number">${i + 1}</div>
+          <div class="result-text">${escapeHtml(q.text || '')}</div>
+        </div>
+        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+          <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+          ${isCorrect ? 'Correct' : 'Incorrect'} - You answered: ${chosenText}
+          ${!isCorrect ? ` (Correct answer: ${correctText})` : ''}
+        </div>
+        <div class="result-explanation">
+          <strong>Explanation:</strong> ${escapeHtml(q.explanation || (isCorrect ? 'Well done!' : 'Review the statement and code carefully.'))}
+        </div>
+      `;
+      
+      resultsGrid.appendChild(resultCard);
+    });
+
+    // Show feedback message
+    toast(passed ? `Excellent! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, passed ? 'ok' : 'err');
+
+    // Save progress to database using AJAX (no redirect)
+    saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, questions.length, correct, passed);
   }
 
-  submitted = true;
-  clearInterval(timerInterval);
-  
-  // Calculate score
-  let correct = 0;
-  questions.forEach(q => {
-    const chosen = answers[q.id];          // 0|1
-    const truth  = q.correct ? 1 : 0;      // 0|1
-    const ok = chosen === truth;
-    if(ok) correct++;
-  });
+  // New function to save progress via AJAX
+  function saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, totalQuestions, correct, passed) {
+    const formData = new FormData();
+    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    formData.append('score', finalScore);
+    formData.append('answers', JSON.stringify(answers));
+    formData.append('hints_used', hintsUsed);
+    formData.append('time_used', timeUsed);
+    formData.append('stars', stars);
+    formData.append('total_questions', totalQuestions);
+    formData.append('correct_questions', correct);
+    formData.append('passed', passed ? 1 : 0);
 
-  const rawPct = Math.round(100 * correct / questions.length);
-  const hintPenalty = hintsUsed * 5;                 // -5% per hint
-  let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-  // Small time bonus
-  finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+    fetch('{{ route("levels.submit", $level) }}', {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(text => {
+          console.error('Response text:', text);
+          throw new Error(`HTTP ${response.status}: ${text}`);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Progress saved successfully:', data);
+      if (data.success) {
+        toast('Progress saved successfully!', 'ok');
+      } else {
+        throw new Error(data.message || 'Unknown error occurred');
+      }
+    })
+    .catch(error => {
+      console.error('Error saving progress:', error);
+      toast('Warning: Progress may not have been saved. Please try again.', 'warn');
+    });
+  }
 
-  const timeUsed = timeLimit - timeRemaining;
-  const stars = starsFor(finalScore);
-  const starIcons = stars ? '★'.repeat(stars) : '0';
-
-  // Update header stats
-  $statScore.textContent = finalScore + '%';
-  $statStars.textContent = starIcons;
-  if($metaStars) $metaStars.textContent = starIcons;
-
-  // Show results section
-  $quizSection.classList.add('d-none');
-  $resultsSection.classList.remove('d-none');
-
-  // Update results header
-  document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
-  document.getElementById('finalStarsDisplay').textContent = starIcons;
-  document.getElementById('correctCount').textContent = correct;
-  document.getElementById('incorrectCount').textContent = questions.length - correct;
-  document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
-  document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
-
-  // Render individual results
-  const resultsGrid = document.getElementById('resultsGrid');
-  resultsGrid.innerHTML = '';
-
-  questions.forEach((q, i) => {
-    const chosen = answers[q.id];
-    const truth = q.correct ? 1 : 0;
-    const isCorrect = chosen === truth;
-    const chosenText = chosen === 1 ? 'TRUE' : 'FALSE';
-    const correctText = truth === 1 ? 'TRUE' : 'FALSE';
-
-    const resultCard = document.createElement('div');
-    resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
-    
-    resultCard.innerHTML = `
-      <div class="result-header">
-        <div class="result-number">${i + 1}</div>
-        <div class="result-text">${escapeHtml(q.text || '')}</div>
-      </div>
-      ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-      <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
-        <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
-        ${isCorrect ? 'Correct' : 'Incorrect'} - You answered: ${chosenText}
-        ${!isCorrect ? ` (Correct answer: ${correctText})` : ''}
-      </div>
-      <div class="result-explanation">
-        <strong>Explanation:</strong> ${escapeHtml(q.explanation || (isCorrect ? 'Well done!' : 'Review the statement and code carefully.'))}
-      </div>
-    `;
-    
-    resultsGrid.appendChild(resultCard);
-  });
-
-  // Prepare and submit score data
-  document.getElementById('finalScore').value = finalScore;
-  document.getElementById('answersPayload').value = JSON.stringify(answers);
-
-  const passReq = {{ (int)$level->pass_score }};
-  toast(finalScore >= passReq ? `Excellent! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, finalScore >= passReq ? 'ok' : 'err');
-
-  // Submit score to server in background
-  const form = document.getElementById('scoreForm');
-  if(form.requestSubmit) form.requestSubmit(); else form.submit();
-
-  // Add back button event listener
-  setTimeout(() => {
-    const btnBackToStage = document.getElementById('btnBackToStage');
-    if(btnBackToStage){
-      btnBackToStage.addEventListener('click', () => {
-        window.location.href = "{{ route('stages.show', $level->stage_id) }}";
-      });
-    }
-  }, 100);
-}
   // -----------------------------
   // Instructions collapse
   // -----------------------------
@@ -717,13 +739,16 @@ body{
       selectAnswer(0); 
     }
   });
-// Add this after creating the results section
-const btnBackToStage = document.getElementById('btnBackToStage');
-if(btnBackToStage){
-  btnBackToStage.addEventListener('click', () => {
-    window.location.href = "{{ route('stages.show', $level->stage_id) }}";
-  });
-}
+
+  // Back to stage button event listener - Updated for manual redirect only
+  const btnBackToStage = document.getElementById('btnBackToStage');
+  if(btnBackToStage){
+    btnBackToStage.addEventListener('click', () => {
+      // Simply redirect to stage dashboard
+      window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+    });
+  }
+
   // -----------------------------
   // Initialize
   // -----------------------------

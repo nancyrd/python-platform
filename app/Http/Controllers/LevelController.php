@@ -172,4 +172,84 @@ public function executePython(Request $request)
     $out = trim($process->getOutput());
     return response()->json(['success' => true, 'output' => $out !== '' ? $out : '(No output)']);
 }
+public function saveAttempt(Request $request, Level $level)
+{
+    $validated = $request->validate([
+        'score' => 'required|integer|min:0|max:100',
+        'answers' => 'required|string',
+        'time_used' => 'integer|min:0'
+    ]);
+
+    $attemptId = DB::table('quiz_attempts')->insertGetId([
+        'user_id' => auth()->id(),
+        'stage_id' => $level->stage_id,
+        'level_id' => $level->id,
+        'kind' => 'drag_drop',
+        'score' => $validated['score'],
+        'passed' => $validated['score'] >= $level->pass_score,
+        'answers' => $validated['answers'],
+        'started_at' => now()->subSeconds($validated['time_used']),
+        'finished_at' => now(),
+        'created_at' => now(),
+        'updated_at' => now()
+    ]);
+
+    return response()->json(['success' => true, 'attempt_id' => $attemptId]);
+}
+
+public function saveProgress(Request $request, Level $level)
+{
+    $validated = $request->validate([
+        'score' => 'required|integer|min:0|max:100',
+        'stars' => 'required|integer|min:0|max:3'
+    ]);
+
+    $userId = auth()->id();
+    $score = $validated['score'];
+    $stars = $validated['stars'];
+    $passed = $score >= $level->pass_score;
+
+    $existing = DB::table('user_level_progress')
+        ->where('user_id', $userId)
+        ->where('level_id', $level->id)
+        ->first();
+
+    if ($existing) {
+        $updateData = [
+            'attempts_count' => $existing->attempts_count + 1,
+            'last_attempt_at' => now(),
+            'updated_at' => now()
+        ];
+
+        if ($score > $existing->best_score) {
+            $updateData['best_score'] = $score;
+            $updateData['stars'] = $stars;
+        }
+
+        if ($passed && !$existing->passed) {
+            $updateData['passed'] = true;
+            $updateData['first_passed_at'] = now();
+        }
+
+        DB::table('user_level_progress')
+            ->where('id', $existing->id)
+            ->update($updateData);
+    } else {
+        DB::table('user_level_progress')->insert([
+            'user_id' => $userId,
+            'stage_id' => $level->stage_id,
+            'level_id' => $level->id,
+            'best_score' => $score,
+            'stars' => $stars,
+            'attempts_count' => 1,
+            'passed' => $passed,
+            'first_passed_at' => $passed ? now() : null,
+            'last_attempt_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+    }
+
+    return response()->json(['success' => true]);
+}
 }

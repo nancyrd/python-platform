@@ -185,67 +185,67 @@ class Stages3Seeder extends Seeder
                     ],
                     // Each question: code + options True/False + correct + explanation
                     'questions'   => [
-                        [
-                            'code'        => "print(float('3.5') == 3.5)",
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "float('3.5') produces 3.5 → True.",
-                        ],
-                        [
-                            'code'        => "print(int('7.0'))",
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "int('7.0') raises ValueError; use float().",
-                        ],
-                        [
-                            'code'        => "age = ' 9 '\nprint('Age:', int(age.strip()))",
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Strip then cast → safe print with comma.",
-                        ],
-                        [
-                            'code'        => "x = '3'\nprint('Sum: ' + (x + 2))",
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "TypeError: cannot add str and int directly.",
-                        ],
-                        [
-                            'code'        => "price = '7.0'\nprint('Price:', float(price))",
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Convert to float before printing.",
-                        ],
-                        [
-                            'code'        => "s = ' 12 '\nprint(int(s) + 1)",
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Must strip first; int(' 12 ') is OK in CPython, but teaching best-practice: use s.strip() before casting.",
-                        ],
-                        [
-                            'code'        => "n = 10\nprint('N=' + n)",
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Join with str(n) or use commas.",
-                        ],
-                        [
-                            'code'        => "txt = '5.0'\nprint(int(float(txt)))",
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Two-step cast works: '5.0' → 5.0 → 5.",
-                        ],
-                        [
-                            'code'        => "v = input()\nprint('V:', v)",
-                            'options'     => ['True','False'],
-                            'correct'     => 'True',
-                            'explanation' => "Printing raw input as text is always safe.",
-                        ],
-                        [
-                            'code'        => "w = input()\nprint(int(w) + 1)",
-                            'options'     => ['True','False'],
-                            'correct'     => 'False',
-                            'explanation' => "Unsafe without strip()/validation; may crash on spaces/non-digits.",
-                        ],
-                    ],
+                [
+                    'code'        => "print(float('3.5') == 3.5)",
+                    'statement'   => "This prints True because '3.5' converts to the float 3.5.",
+                    'answer'      => true,
+                    'explanation' => "float('3.5') produces 3.5, so the comparison is True.",
+                ],
+                [
+                    'code'        => "print(int('7.0'))",
+                    'statement'   => "This works and prints 7.",
+                    'answer'      => false,
+                    'explanation' => "int('7.0') raises ValueError. Use float('7.0') or int(float('7.0')).",
+                ],
+                [
+                    'code'        => "age = ' 9 '\nprint('Age:', int(age.strip()))",
+                    'statement'   => "This prints Age: 9 safely after stripping and casting.",
+                    'answer'      => true,
+                    'explanation' => "Remove spaces, cast to int, then print with commas.",
+                ],
+                [
+                    'code'        => "x = '3'\nprint('Sum: ' + (x + 2))",
+                    'statement'   => "This prints Sum: 5.",
+                    'answer'      => false,
+                    'explanation' => "TypeError: cannot add str and int. Cast first (int(x) + 2) or use commas in print.",
+                ],
+                [
+                    'code'        => "price = '7.0'\nprint('Price:', float(price))",
+                    'statement'   => "This prints Price: 7.0 after converting to float.",
+                    'answer'      => true,
+                    'explanation' => "Convert text to float before printing or computing.",
+                ],
+                [
+                    'code'        => "s = ' 12 '\nprint(int(s) + 1)",
+                    'statement'   => "This prints 13 even without strip(), because int ignores surrounding spaces.",
+                    'answer'      => true,
+                    'explanation' => "int() tolerates leading/trailing whitespace in Python, but strip() is still best practice for user input.",
+                ],
+                [
+                    'code'        => "n = 10\nprint('N=' + n)",
+                    'statement'   => "This outputs N=10.",
+                    'answer'      => false,
+                    'explanation' => "TypeError: can’t concatenate str and int. Use 'N=' + str(n) or print('N=', n).",
+                ],
+                [
+                    'code'        => "txt = '5.0'\nprint(int(float(txt)))",
+                    'statement'   => "This prints 5 by converting to float then to int.",
+                    'answer'      => true,
+                    'explanation' => "Two-step cast works: '5.0' → 5.0 → 5.",
+                ],
+                [
+                    'code'        => "v = input()\nprint('V:', v)",
+                    'statement'   => "This safely prints whatever the user typed.",
+                    'answer'      => true,
+                    'explanation' => "input() returns text; printing text is safe.",
+                ],
+                [
+                    'code'        => "w = input()\nprint(int(w) + 1)",
+                    'statement'   => "This is always safe as-is.",
+                    'answer'      => false,
+                    'explanation' => "Unsafe without cleaning/validation. Spaces or non-digits will crash unless you do w.strip() and check.",
+                ],
+            ],
                 ],
             ]
         );

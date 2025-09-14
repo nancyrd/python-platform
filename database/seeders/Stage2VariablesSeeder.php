@@ -146,34 +146,49 @@ class Stage2VariablesSeeder extends Seeder
                     'time_limit' => 240,
                     'max_hints'  => 3,
                     'hints'      => [
-                        'Variable names cannot contain spaces',
-                        'Use descriptive names that explain what they store',
-                        'Case matters in variable names',
-                        'Constants use ALL_CAPS naming'
+                        'No spaces: use underscores (_) instead',
+                'First character cannot be a number',
+                'Hyphens (-) are not allowed',
+                'Keywords like return/for/if are not allowed',
                     ],
-                    'examples'   => [
-                        [
-                            'title' => 'Good variable names',
-                            'code'  => "student_age = 18\ncourse_grade = 95.5\nis_enrolled = True\nMAX_CLASS_SIZE = 30",
-                            'explain' => 'Descriptive names make code easier to understand,use print() to see the result',
-                            'expected_output' => ""
-                        ],
-                        [
-                            'title' => 'Invalid variable names',
-                            'code'  => "# These will cause errors:\n# 2nd_place = \"silver\"\n# total-score = 100\n# first name = \"John\"",
-                            'explain' => 'Variable names must follow specific rules',
-                            'expected_output' => "Syntax errors"
-                        ]
-                    ],
-                    'categories'  => [
-                        '✅ Valid Variable Names' => ['user_name', 'total_score', '_count', 'item2', 'MAX_SIZE'],
-                        '❌ Invalid Variable Names' => ['user name', 'total-score', '2ndplace', 'first-name', 'return'],
-                        '📝 Descriptive Names' => ['student_age', 'shopping_cart_total', 'is_logged_in', 'TAX_RATE'],
-                        '🚫 Poor Names' => ['a', 'x1', 'temp', 'var2', 'data']
-                    ],
+                   'examples'   => [
+    [
+        'title'           => 'Valid names — run this',
+        'code'            => "student_age = 18\nuser_name = \"Maya\"\n_count = 3\nMAX_SCORE = 100\nprint(student_age, user_name, _count, MAX_SCORE)",
+        'explain'         => 'All names follow rules: start with a letter/underscore; only letters, numbers, underscores; ALL_CAPS for constants.',
+        'expected_output' => "18 Maya 3 100",
+    ],
+    [
+        'title'           => 'Invalid names — these will error',
+        'code'            => "# Uncomment one line at a time to see the error:\n# 2age = 18\n# first name = \"Sam\"\n# total-score = 50\n# return = 1\n# class = \"A\"\n# full\$name = 10",
+        'explain'         => 'Each line breaks a rule: starts with a digit, contains a space, uses a hyphen, or is a keyword/special char.',
+        'expected_output' => "SyntaxError",
+    ],
+],
+
+            'categories' => [
+                '✅ Valid Variable Names' => [
+                    'user_name',
+                    'total2',
+                    '_count',
+                    'Age',          // valid but different from age
+                    'MAX_SCORE',
+                    'is_logged_in',
+                ],
+                '❌ Invalid Variable Names' => [
+                    '2age',         // starts with a digit
+                    'first name',   // contains space
+                    'total-score',  // hyphen not allowed
+                    'return',       // keyword
+                    'class',        // keyword
+                    'full$name',    // $ not allowed
+                ],
+            ],
                 ]
             ]
         );
+
+         // ---------- LEVEL 4 (True/False with Code Snippets) ----------
 Level::updateOrCreate(
     ['stage_id' => $stage->id, 'index' => 4],
     [
@@ -187,6 +202,26 @@ Level::updateOrCreate(
                          '- Can you use variables before creating them? ' .
                          '- What happens when you combine different types?',
         'content'      => [
+            'examples' => [
+                [
+                    'title'           => 'Changing values',
+                    'code'            => "x = 5\nx = 7\nprint(x)",
+                    'explain'         => "Variables can be updated: this prints 7.",
+                    'expected_output' => "7",
+                ],
+                [
+                    'title'           => 'Case sensitivity',
+                    'code'            => "name = \"Ali\"\nName = \"Sara\"\nprint(name)",
+                    'explain'         => "name and Name are different. This prints Ali.",
+                    'expected_output' => "Ali",
+                ],
+                [
+                    'title'           => 'Invalid name',
+                    'code'            => "first name = \"Sam\"",
+                    'explain'         => "This will cause an error because spaces are not allowed in variable names.",
+                    'expected_output' => "SyntaxError",
+                ],
+            ],
             'questions' => [
                 [
                     'code'        => "age = 25\nage = 30\nprint(age)",

@@ -1,20 +1,29 @@
-{{-- ========= NAV: full working version (no Tailwind/Vite required) ========= --}}
 @php
     $items = [];
-    // Home is a URL (not a named route)
-    $items[] = ['label' => 'Home', 'href' => url('/')];
 
-    if (Route::has('dashboard')) {
-        $items[] = ['label' => 'Dashboard', 'href' => route('dashboard'), 'route' => 'dashboard'];
+    if (Auth::check() && Auth::user()->role !== 'admin') {
+        // Normal user links only
+        $items[] = ['label' => 'Home', 'href' => url('/')];
+
+        if (Route::has('dashboard')) {
+            $items[] = ['label' => 'Dashboard', 'href' => route('dashboard'), 'route' => 'dashboard'];
+        }
+        if (Route::has('about')) {
+            $items[] = ['label' => 'About Us', 'href' => route('about'), 'route' => 'about'];
+        }
+        if (Route::has('support')) {
+            $items[] = ['label' => 'Support', 'href' => route('support'), 'route' => 'support'];
+        }
     }
-    if (Route::has('about')) {
-        $items[] = ['label' => 'About Us', 'href' => route('about'), 'route' => 'about'];
-    }
-    // use the actual route name you have (support), not "contact"
-    if (Route::has('support')) {
-        $items[] = ['label' => 'Support', 'href' => route('support'), 'route' => 'support'];
+
+    if (Auth::check() && Auth::user()->role === 'admin') {
+        // Admin links only
+        $items[] = ['label' => 'Admin Dashboard', 'href' => route('admin.dashboard'), 'route' => 'admin.dashboard'];
+        $items[] = ['label' => 'Manage Stages', 'href' => route('admin.stages.index'), 'route' => 'admin.stages.index'];
+        $items[] = ['label' => 'Manage Levels', 'href' => route('admin.levels.index'), 'route' => 'admin.levels.index'];
     }
 @endphp
+
 
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 

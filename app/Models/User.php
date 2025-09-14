@@ -46,4 +46,24 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+
+public function quizAttempts()
+{
+    return $this->hasMany(\App\Models\QuizAttempt::class);
+}
+
+public function levelProgress()
+{
+    return $this->hasMany(\App\Models\UserLevelProgress::class);
+}
+
+public function stageProgress()
+{
+    return $this->hasMany(\App\Models\UserStageProgress::class);
+}
+
+
+
+
 }

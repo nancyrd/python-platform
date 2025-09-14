@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminStageController;
 use App\Http\Controllers\Admin\AdminLevelController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminAssessmentController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Models\Assessment;
 
 Route::get('/', function () {
@@ -90,9 +91,7 @@ Route::view('/contact', 'contact')->name('contact');
 // ADMIN ROUTES
 // ---------------------
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Stage management
     Route::resource('stages', AdminStageController::class);
@@ -108,6 +107,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
      Route::resource('stages.levels', \App\Http\Controllers\Admin\AdminLevelController::class);
     Route::post('stages/{stage}/levels/reorder', [\App\Http\Controllers\Admin\AdminLevelController::class, 'reorder'])->name('levels.reorder');
 
+// User management
+Route::get('/users', [App\Http\Controllers\Admin\AdminUserController::class, 'index'])->name('users.index');
+Route::get('/users/{user}', [App\Http\Controllers\Admin\AdminUserController::class, 'show'])->name('users.show');
 
 Route::prefix('stages/{stage}')->name('stages.')->group(function () {
     Route::get('assessments/create', [AdminAssessmentController::class, 'create'])

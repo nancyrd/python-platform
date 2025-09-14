@@ -33,46 +33,45 @@
                 </div>
             </div>
         </div>
-
-        <!-- Quick Stats -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon purple">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">12</h3>
-                    <p class="stat-label">Active Stages</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon indigo">
-                    <i class="fas fa-puzzle-piece"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">48</h3>
-                    <p class="stat-label">Total Levels</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon violet">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">1,247</h3>
-                    <p class="stat-label">Active Users</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon amethyst">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number">89%</h3>
-                    <p class="stat-label">Completion Rate</p>
-                </div>
-            </div>
+<!-- Quick Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="fas fa-layer-group"></i>
         </div>
+        <div class="stat-content">
+            <h3 class="stat-number">{{ $stagesCount }}</h3>
+            <p class="stat-label">Active Stages</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon indigo">
+            <i class="fas fa-puzzle-piece"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-number">{{ $levelsCount }}</h3>
+            <p class="stat-label">Total Levels</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon violet">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-number">{{ number_format($usersCount) }}</h3>
+            <p class="stat-label">Active Users</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amethyst">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-number">{{ $completionRate }}%</h3>
+            <p class="stat-label">Completion Rate</p>
+        </div>
+    </div>
+</div>
 
         <!-- Management Tools -->
         <div class="management-section">
@@ -165,6 +164,38 @@
                     <span>System Settings</span>
                 </button>
             </div>
+        </div>
+    </div>
+      <!-- 🔥 Users Overview Section -->
+    <div class="users-overview-section">
+        <div class="section-header">
+            <h2 class="section-title">Users Overview</h2>
+            <p class="section-description">Overview of user progress and activity</p>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full border rounded-lg shadow-md bg-white">
+                <thead class="bg-gray-100 text-left">
+                    <tr>
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Quiz Attempts</th>
+                        <th class="p-3">Level Progress</th>
+                        <th class="p-3">Stage Progress</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(\App\Models\User::withCount('quizAttempts','levelProgress','stageProgress')->get() as $user)
+                    <tr class="border-t">
+                        <td class="p-3">{{ $user->name }}</td>
+                        <td class="p-3">{{ $user->email }}</td>
+                        <td class="p-3">{{ $user->quiz_attempts_count }}</td>
+                        <td class="p-3">{{ $user->level_progress_count }}</td>
+                        <td class="p-3">{{ $user->stage_progress_count }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
 

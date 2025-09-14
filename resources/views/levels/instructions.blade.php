@@ -65,7 +65,7 @@
                         Instructions & Overview
                     </div>
                     <div class="panel-controls">
-                        <button class="collapse-btn"  id="toggleInstructions">
+                        <button class="collapse-btn" id="toggleInstructions">
                             <i class="fas fa-chevron-up"></i>
                         </button>
                     </div>
@@ -158,7 +158,9 @@
                         <button class="layout-btn active" id="horizontalLayoutBtn" title="Horizontal Layout">
                             <i class="fas fa-grip-lines"></i> Horizontal
                         </button>
-                      
+                        <button class="layout-btn" id="fullscreenCodeBtn" title="Fullscreen Code">
+                            <i class="fas fa-expand"></i> Fullscreen
+                        </button>
                     </div>
                 </div>
             </div>
@@ -813,9 +815,6 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    width: 100%; /* Ensure full width */
-    margin: 0; /* Remove any margin */
-    padding: 0; /* Remove any padding */
 }
 
 /* Modern Header */
@@ -902,20 +901,16 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    width: 100%; /* Full width */
-    max-width: none; /* Remove max-width */
-    margin: 0; /* Remove margin */
-    padding: 0; /* Remove padding */
-    gap: 0; /* Remove gap */
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem;
+    gap: 1rem;
 }
-
 
 /* Top Section - Instructions */
 .top-section {
     flex-shrink: 0;
-    width: 100%; /* Full width */
 }
-
 
 .instructions-panel {
     background: var(--white);
@@ -1075,7 +1070,6 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 0;
-    width: 100%; /* Full width */
 }
 
 /* Console Header */
@@ -1278,14 +1272,11 @@ body {
     flex: 1;
     display: flex;
     background: var(--white);
-    border-radius: 0; /* Remove border radius */
+    border-radius: 0 0 12px 12px;
     overflow: hidden;
     min-height: 400px;
-    box-shadow: none; /* Remove shadow */
-    width: 100%; /* Full width */
-    height: 100%; /* Full height */
+    box-shadow: var(--shadow-md);
 }
-
 
 .workspace-container.horizontal {
     flex-direction: row;
@@ -1300,10 +1291,13 @@ body {
 }
 
 /* Editor Panel */
-.editor-panel, .output-panel {
-    border-radius: 0; /* Remove border radius */
+.editor-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-width: 0;
 }
-
 
 .workspace-container.horizontal .editor-panel {
     width: var(--editor-width);
@@ -1384,6 +1378,12 @@ body {
 }
 
 /* Output Panel */
+.output-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
 
 .workspace-container.horizontal .output-panel {
     width: var(--output-width);
@@ -1433,14 +1433,14 @@ body {
 
 /* Challenge Section */
 .challenge-section {
-    margin-top: 0; /* Remove margin */
+    margin-top: 1rem;
     background: var(--white);
-    border-radius: 0; /* Remove border radius */
+    border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: none; /* Remove shadow */
+    box-shadow: var(--shadow-md);
     flex-shrink: 0;
-    width: 100%; /* Full width */
 }
+
 .challenge-header {
     display: flex;
     align-items: center;
@@ -1613,63 +1613,5 @@ button:focus-visible,
 
 /* Utility Classes */
 .hidden { display: none !important; }
-.instructions-panel {
-    background: var(--white);
-    border-radius: 0; /* Remove border radius */
-    box-shadow: none; /* Remove shadow */
-    overflow: hidden;
-    width: 100%; /* Full width */
-}
-
-/* Update console header */
-.console-header {
-    padding: 1rem 1.5rem;
-    background: var(--dark);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 0; /* Remove border radius */
-    flex-shrink: 0;
-    width: 100%; /* Full width */
-}
-
-/* Update modern header */
-.modern-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    padding: 1rem 0;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-    width: 100%; /* Full width */
-    margin: 0; /* Remove margin */
-}
-
-/* Update header container */
-.header-container {
-    width: 100%; /* Full width */
-    max-width: none; /* Remove max-width */
-    margin: 0; /* Remove margin */
-    padding: 0 1.5rem; /* Keep horizontal padding */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-}
-
-/* Update responsive design */
-@media (max-width: 1024px) {
-    .main-layout {
-        padding: 0; /* Remove padding */
-    }
-}
-
-@media (max-width: 768px) {
-    .header-container {
-        padding: 0 1rem; /* Adjust padding for smaller screens */
-    }
-}
 </style>
 </x-app-layout>

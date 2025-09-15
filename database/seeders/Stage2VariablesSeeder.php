@@ -378,6 +378,7 @@ Level::updateOrCreate(
                 'correct_answer' => 3,
                 'explanation' => '5 items × $10 each = $50 total',
             ],
+ 
             [
                 'question' => "price = 20\ntax = 4\ntotal = price + tax\nprint(\"Total: $\" + str(total))\nWhat will this display?",
                 'options'  => ['Total: $24', 'Total: $20+4', 'Total: $204', 'Error'],

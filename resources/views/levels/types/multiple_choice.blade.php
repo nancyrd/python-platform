@@ -563,7 +563,7 @@ body {
 
   function showHint(){
     if(submitted) return;
-    if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
+   // if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
     
     hintsUsed++;
     $hintCount.textContent = hintsUsed;
@@ -716,7 +716,7 @@ body {
     })
     .catch(error => {
       console.error('Error saving progress:', error);
-      toast('Warning: Progress may not have been saved. Please try again.', 'warn');
+     // toast('Warning: Progress may not have been saved. Please try again.', 'warn');
     });
   }
 

@@ -61,51 +61,74 @@ class StageLevelSeeder extends Seeder
 👇 Try these examples: copy each code into the console and press 'Run' to see what happens.
 
 1) What is Python?
-Python is a high-level, general-purpose programming language focused on readability and rapid development. It uses clear, concise syntax and runs on Windows, macOS, and Linux.
+Think of it like this: If giving a computer instructions is like writing a recipe, Python is one of the clearest, easiest-to-read recipe books you can use. It's designed to be simple and straightforward, so you can focus on what you want the computer to do, not on confusing technical jargon.
 
 2) Who uses Python?
-Software engineers, data scientists, machine-learning engineers, DevOps/SRE, QA automation engineers, cybersecurity analysts, researchers, educators, hobbyists, and many enterprises (tech, finance, healthcare, media).
+In everyday terms: It's used by all sorts of people for all sorts of jobs!
+
+A Researcher might use it to analyze data from a study, like figuring out patterns in health trends.
+A Bank might use it to detect unusual transactions that could be fraud.
+A Website Developer uses it to build the *behind-the-scenes* logic of sites like Instagram or Pinterest.
+A Teacher might use it to automatically grade quizzes.
+
+You could use it to automatically rename hundreds of photos or send yourself a daily text message with the weather forecast.
 
 3) What is Python used for?
-Common uses include web backends and APIs (Django, Flask, FastAPI), data analysis (pandas, NumPy), machine learning and AI (scikit-learn, PyTorch, TensorFlow), scripting and automation, DevOps/infra tooling, scientific computing, test automation, and simple desktop tools.
+Websites & Apps: Building the *engine* that powers them (the part you don't see).
+
+Data Analysis: It's like a super-powered Excel. Imagine instantly finding patterns in thousands of sales receipts or survey results.
+Automation: Doing boring, repetitive tasks for you. For example, a script could automatically download your favorite memes every morning or organize files on your computer while you sleep.
+Artificial Intelligence (AI): Teaching a computer to recognize objects in photos, understand spoken commands, or recommend movies you might like.
 
 4) How can people benefit from learning Python?
-It has a gentle learning curve, huge library ecosystem, and broad job market. You can quickly automate repetitive tasks, prototype ideas fast, and transition between domains (web, data, ML) without switching languages.
+Automate Your Life: Stop doing tedious computer tasks manually. Write a small script once and let the computer do the work forever.
+
+Solve Problems: It teaches you a powerful way to break down big problems into small, solvable steps.
+
+Boost Your Career: Even basic knowledge is valuable in many fields like marketing, finance, and science, not just tech.
 
 5) Why is Python so popular?
-Readable syntax, extensive standard library, a massive third-party package index (PyPI), strong community support, and thriving ecosystems for data/ML and web development.
+It's easy to learn and has a huge toolbox. It's like if one brand of kitchen mixer (Python) was not only simple to use but also had attachments (libraries) for making pasta, grinding meat, and juicing oranges. You don't need a different appliance for every job.
 
 6) What are Python’s main strengths and limitations?
-Strengths: readability, productivity, cross-platform support, huge libraries.
-Limitations: slower than compiled languages in tight loops, the GIL affects some multi-threaded CPU-bound workloads, and it’s not the first choice for mobile UIs or ultra-low-latency systems.
+Strength: It's a quick and clear way to give instructions. It's perfect for getting ideas working fast.
+
+*Weakness*: It's not always the absolute fastest. For tasks that require millisecond precision (like the code in a car's airbag system), other, more complex languages are used. But for probably 95% of tasks, it's perfectly fast enough.
 
 7) Which industries use Python?
-Tech, finance and fintech, healthcare/biotech, media/streaming, retail/e-commerce, education/research, gaming tools, logistics, and government. It’s especially strong where data analysis and automation are important.
+Virtually all of them! Finance for analyzing markets, Healthcare for medical research, Filmmaking for creating special effects (Industrial Light & Magic uses it!), Retail for predicting what products will be popular, and Science for running experiments and calculations.
 
-8) Popular Python frameworks and libraries
-Web: Django, Flask, FastAPI.
-Data: pandas, NumPy.
-ML/AI: scikit-learn, PyTorch, TensorFlow.
-Viz: Matplotlib, Plotly, Seaborn.
-Automation/CLI: Click, Typer.
-Testing: pytest.
-Scraping: Requests, BeautifulSoup, Scrapy.
+8) Popular Python tools (frameworks and libraries)
+These are the *attachments* for the kitchen mixer:
 
-9) How do you install Python and manage packages?
-Install from python.org or a distribution (e.g., Anaconda). Verify with “python --version”.
-Use virtual environments (python -m venv .venv; activate it) and install packages via “pip install package_name”.
+Django/Flask: Toolkits for building websites.
+
+Pandas: A tool for organizing and analyzing information in tables, like a super-powered Excel.
+
+NumPy: A tool for doing really complex math quickly.
+
+Requests: A tool that lets your program grab information from other websites.
+
+9) How do you get started?
+Download Python from its official website (it's free!). It's like installing any other program.
+
+You write your *recipe* (a script) in a simple text editor made for coding.
+
+You tell your computer to *run* the script, and it follows your instructions.
 
 10) How does Python compare to other languages?
-Compared to C/C++/Rust it trades raw speed for developer speed.
-Compared to Java/C# it’s more dynamic and concise.
-Compared to JavaScript it excels in data/ML and server-side scripting, while JS dominates the browser.
+vs. C++: Writing in C++ is like building a car engine from scratch for maximum performance. Python is like getting a driver's license to use the car to get somewhere quickly.
+
+vs. JavaScript: JavaScript is primarily for making websites interactive (the parts you click on). Python is more often used for the logic and data processing happening on the server.
 
 11) Real-world things you can build with Python
-Data dashboards, recommendation engines, chatbots, ETL pipelines, web APIs, automation scripts (rename files, scrape sites, send reports), simulation tools, and proof-of-concept ML models.
+A program that texts you if it's going to rain so you remember an umbrella.
+A program that scans all your old documents and finds a specific receipt from 2018.
+A simple website for your family to share recipes.
+A program that tells you the average rating of all the movies you've watched this year.
 
 12) How to start learning effectively
-Focus on core syntax (variables, types, control flow, functions), then practice small scripts that automate real tasks.
-Learn a package manager and a framework aligned with your goal (e.g., pandas for data, Django/FastAPI for web).
+Don't just read do! Think of one small, annoying task you do on your computer and search : how to automate [task] with Python. You'll learn by solving a real problem for yourself. Start with tiny, useful projects, not with trying to learn everything at once.
 ",
         'content'      => [
             'categories' => [
@@ -127,9 +150,10 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
                     "🤖 AI & Automation"
                 ],
                 "🚫 Not Related to Python" => [
-                    "🥤 Drinking Soda",
-                    "🚗 Driving a Car",
-                    "🧑‍🍳 Cooking Pasta"
+                    "🎨 Graphic Design",
+                    "🔧 Direct Hardware Access", 
+                    "🖥️ Operating System Development",
+                    "📣 Marketing & Advertising"
                 ]
             ],
             'hints'      => [
@@ -152,7 +176,10 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
                 'type' => 'multiple_choice',
                 'title' => 'Making Python Talk',
                 'pass_score' => 60,
-                'instructions' => 'The print() function is how we make Python show us information. Think of it like Python\'s voice - whatever you put inside print() will appear on the screen.',
+                'instructions' => 'The print() function is how we make Python show us information. Think of it like Python\'s voice - whatever you put inside print() will appear on the screen.
+                To print words, you must surround them with quotation marks, like this: print("Hello").
+                
+                You can also tell print() to say multiple things at once by placing a comma between them. For example, print("Hello", "World") will output Hello World. The comma automatically adds a space between the two items',
                 'content' => [
                     'intro' => 'In Python, we use print() to display messages. Text goes inside quotes, numbers don\'t need quotes.',
                     'time_limit' => 300,
@@ -160,13 +187,13 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
                         [
                             'title' => 'Printing text',
                             'code' => 'print("Hello there!")',
-                            'explain' => 'Text must be in quotes so Python knows it\'s words, not instructions.',
+                            'explain' => "Text must be in quotes so Python knows its words, not instructions.",
                             'expected_output' => 'Hello there!'
                         ],
                         [
                             'title' => 'Printing numbers',
                             'code' => 'print(42)',
-                            'explain' => 'Numbers don\'t need quotes because Python recognizes them automatically.',
+                            'explain' => 'Numbers dont need quotes because Python recognizes them automatically.',
                             'expected_output' => '42'
                         ],
                         [
@@ -176,6 +203,7 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
                             'expected_output' => 'I am 25 years old'
                         ]
                     ],
+                  
                     'questions' => [
                         [
                             'question' => 'How do you print the word "Welcome"?',
@@ -201,7 +229,16 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
                             'correct_answer' => 2,
                             'explanation' => 'Both work! You can put the whole message in quotes, or separate text and numbers with commas.'
                         ]
-                    ]
+                        ],
+                        'hints'      => [
+                "You can mix words and numbers.Just separate each with a comma.",
+                "Words need to wear quotes.",
+                "Numbers dont need quotes.",
+               
+            ],
+             'time_limit' => 300,
+          
+                
                 ]
             ]
         );
@@ -218,12 +255,10 @@ Learn a package manager and a framework aligned with your goal (e.g., pandas for
 - Text (like names, messages) - called "strings" - always in quotes
 - Whole numbers (like age, count) - called "integers" - no quotes
 - Decimal numbers (like price, height) - called "floats" - no quotes
-- True/False values - called "booleans" - no quotes
-
-Drag each item to its correct category!',
+- True/False values - called "booleans" - no quotes',
                 'content' => [
                     'time_limit' => 300,
-                    'max_hints' => 3,
+                    'max_hints' => 4,
                     'categories' => [
                         'Text (strings)' => ['"Hello"', '"Python"', '"My name"', '"2023"'],
                         'Whole numbers (integers)' => ['42', '7', '0', '100'],

@@ -33,7 +33,6 @@
     // Optional single expected_output (fallback when example lacks its own)
     $globalExpected = is_array($content) ? ($content['expected_output'] ?? null) : null;
 @endphp
-
 <x-slot name="header">
     <div class="modern-header">
         <div class="header-container">
@@ -46,13 +45,17 @@
                     <p>Interactive Learning Journey</p>
                 </div>
             </div>
-            <a href="{{ route('stages.show', $level->stage_id) }}" class="back-btn">
-                <i class="fas fa-arrow-left"></i> Back to Stage
-            </a>
+            <div class="header-actions">
+                <a href="{{ route('levels.show', $level) }}" class="start-level-btn">
+                    <i class="fas fa-play"></i> Start Level
+                </a>
+                <a href="{{ route('stages.show', $level->stage_id) }}" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Stage
+                </a>
+            </div>
         </div>
     </div>
 </x-slot>
-
 <div class="learning-interface">
     <!-- Main Layout Container -->
     <div class="main-layout">
@@ -108,7 +111,6 @@
                         </div>
                     </div>
                     @endif
-
                     <!-- Instructions Steps -->
                     @if(count($instructionSteps) > 0)
                     <div class="instructions-container">
@@ -136,7 +138,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Bottom Section: Code Workspace -->
         <div class="bottom-section">
             <!-- Console Header -->
@@ -164,7 +165,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Example Navigation -->
             @if(count($examples) > 0)
             <div class="example-nav" id="exampleNav">
@@ -184,14 +184,12 @@
                     </button>
                 </div>
             </div>
-
             <!-- Example Code Preview -->
             <div class="example-preview" id="examplePreview" style="display: none;">
                 <div class="example-code" id="exampleCodeDisplay"></div>
                 <div class="example-explanation" id="exampleExplanation" style="display: none;"></div>
             </div>
             @endif
-
             <!-- Resizable Workspace -->
             <div class="workspace-container" id="workspaceContainer">
                 <!-- Editor Panel -->
@@ -230,12 +228,10 @@ print('Hello, Python!')"
                         ></textarea>
                     </div>
                 </div>
-
                 <!-- Resize Handle -->
                 <div class="resize-handle" id="resizeHandle">
                     <div class="resize-line"></div>
                 </div>
-
                 <!-- Output Panel -->
                 <div class="output-panel" id="outputPanel">
                     <div class="panel-header">
@@ -262,7 +258,6 @@ print('Hello, Python!')"
             </div>
         </div>
     </div>
-
     <!-- Challenge Section -->
     <div class="challenge-section" id="challengeSection" data-expected="{{ $globalExpected ?? '' }}">
         <div class="challenge-header">
@@ -279,7 +274,6 @@ print('Hello, Python!')"
         <p>Complete the exercises and test your understanding using the console above.</p>
         @endif
     </div>
-
     <!-- Hidden Data Container for Examples -->
     @if(count($examples) > 0)
     <div id="examplesData" style="display:none">
@@ -299,7 +293,6 @@ print('Hello, Python!')"
     </div>
     @endif
 </div>
-
 {{-- Pyodide (client-side Python) --}}
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <script>
@@ -313,7 +306,6 @@ print('Hello, Python!')"
     let expectedOutput = '';
     let isResizing = false;
     let currentLayout = 'horizontal'; // 'horizontal', 'vertical', 'code-only', 'output-only'
-
     // Initialize Python environment
     async function initializePython() {
         try {
@@ -322,7 +314,6 @@ print('Hello, Python!')"
                 stdout: (text) => appendOutput(text + "\n", 'ok'),
                 stderr: (text) => appendOutput(text + "\n", 'err')
             });
-
             await pyodide.runPythonAsync(`
 import builtins
 try:
@@ -331,7 +322,6 @@ try:
 except Exception:
     pass
             `);
-
             pyReady = true;
             updateStatus('Ready to code!');
             updateOutputStatus('Ready to run');
@@ -340,18 +330,15 @@ except Exception:
             appendOutput(`Failed to load Python: ${error.message}`, 'err');
         }
     }
-
     // Status update functions
     function updateStatus(message) {
         const statusEl = document.getElementById('pythonStatus');
         if (statusEl) statusEl.textContent = message;
     }
-
     function updateOutputStatus(message) {
         const statusEl = document.getElementById('outputStatus');
         if (statusEl) statusEl.textContent = message;
     }
-
     // Output functions
     function clearOutput() {
         const outputEl = document.getElementById('consoleOutput');
@@ -364,42 +351,34 @@ except Exception:
             `;
         }
     }
-
     function appendOutput(text, type = 'ok') {
         const outputEl = document.getElementById('consoleOutput');
         if (!outputEl) return;
-
         const welcomeMsg = outputEl.querySelector('.welcome-message');
         if (welcomeMsg) welcomeMsg.remove();
-
         const span = document.createElement('span');
         span.className = type;
         span.textContent = text;
         outputEl.appendChild(span);
         outputEl.scrollTop = outputEl.scrollHeight;
     }
-
     // Code execution
     async function runCode() {
         const codeEl = document.getElementById('codeEditor');
         const code = codeEl ? codeEl.value : '';
-
         if (!code.trim()) {
             appendOutput('No code to run!\n', 'err');
             return;
         }
-
         clearOutput();
         
         if (!pyReady) {
             appendOutput('Python runtime is still loading. Please wait...\n', 'err');
             return { out: '', err: 'not-ready' };
         }
-
         try {
             updateOutputStatus('Running code...');
             updateStatus('Executing...');
-
             pyodide.globals.set("USER_CODE", code);
             await pyodide.runPythonAsync(`
 import sys, io
@@ -418,16 +397,12 @@ finally:
 OUT = _out.getvalue()
 ERR = _err.getvalue()
             `);
-
             const out = pyodide.globals.get('OUT') || '';
             const err = pyodide.globals.get('ERR') || '';
-
             if (out) appendOutput(out, 'ok');
             if (err) appendOutput(err, 'err');
-
             updateStatus('Ready to code!');
             updateOutputStatus(err ? 'Error occurred' : 'Code executed successfully');
-
             return { out, err };
         } catch (error) {
             appendOutput(`Error: ${error.message}\n`, 'err');
@@ -436,7 +411,6 @@ ERR = _err.getvalue()
             return { out: '', err: error.message };
         }
     }
-
     // Check answer function
     async function checkAnswer() {
         const { out } = await runCode();
@@ -455,7 +429,6 @@ ERR = _err.getvalue()
             appendOutput('\n✅ Code executed successfully! Great work! 🚀\n', 'ok');
         }
     }
-
     // Copy/Paste functionality
     async function copyCode() {
         const codeEditor = document.getElementById('codeEditor');
@@ -478,7 +451,6 @@ ERR = _err.getvalue()
             }
         }
     }
-
     async function pasteCode() {
         const codeEditor = document.getElementById('codeEditor');
         if (codeEditor) {
@@ -494,7 +466,6 @@ ERR = _err.getvalue()
             }
         }
     }
-
     // Layout management
     function setLayout(layout) {
         const container = document.getElementById('workspaceContainer');
@@ -502,9 +473,7 @@ ERR = _err.getvalue()
         const outputPanel = document.getElementById('outputPanel');
         const resizeHandle = document.getElementById('resizeHandle');
         const buttons = document.querySelectorAll('.layout-btn');
-
         buttons.forEach(btn => btn.classList.remove('active'));
-
         switch(layout) {
             case 'vertical':
                 container.className = 'workspace-container vertical';
@@ -530,7 +499,6 @@ ERR = _err.getvalue()
         }
         currentLayout = layout;
     }
-
     // Resize functionality
     function initializeResize() {
         const resizeHandle = document.getElementById('resizeHandle');
@@ -542,7 +510,6 @@ ERR = _err.getvalue()
             document.addEventListener('mouseup', stopResize);
             e.preventDefault();
         });
-
         function handleResize(e) {
             if (!isResizing) return;
             
@@ -562,33 +529,28 @@ ERR = _err.getvalue()
                 }
             }
         }
-
         function stopResize() {
             isResizing = false;
             document.removeEventListener('mousemove', handleResize);
             document.removeEventListener('mouseup', stopResize);
         }
     }
-
     // Step navigation
     function updateStepDisplay() {
         const currentStepEl = document.getElementById('currentStep');
         const stepContents = document.querySelectorAll('.step-content');
         const prevBtn = document.getElementById('prevStepBtn');
         const nextBtn = document.getElementById('nextStepBtn');
-
         if (currentStepEl) currentStepEl.textContent = currentStepIndex + 1;
         
         stepContents.forEach((content, index) => {
             content.style.display = index === currentStepIndex ? 'block' : 'none';
         });
-
         if (prevBtn) prevBtn.disabled = currentStepIndex === 0;
         if (nextBtn) {
             nextBtn.disabled = currentStepIndex === stepContents.length - 1;
         }
     }
-
     function navigateStep(direction) {
         const stepContents = document.querySelectorAll('.step-content');
         if (direction === 'prev' && currentStepIndex > 0) {
@@ -599,11 +561,9 @@ ERR = _err.getvalue()
             updateStepDisplay();
         }
     }
-
     // Example management
     function updateExampleDisplay() {
         if (examples.length === 0) return;
-
         const exampleBadgeEl = document.getElementById('exampleBadge');
         const exampleTitleEl = document.getElementById('exampleTitle');
         const exampleCodeDisplayEl = document.getElementById('exampleCodeDisplay');
@@ -611,7 +571,6 @@ ERR = _err.getvalue()
         const examplePreviewEl = document.getElementById('examplePreview');
         const prevExampleBtn = document.getElementById('prevExampleBtn');
         const nextExampleBtn = document.getElementById('nextExampleBtn');
-
         const currentExample = examples[currentExampleIndex];
         
         if (exampleBadgeEl) exampleBadgeEl.textContent = `Example ${currentExampleIndex + 1} / ${examples.length}`;
@@ -634,14 +593,11 @@ ERR = _err.getvalue()
                 exampleExplanationEl.style.display = 'none';
             }
         }
-
         if (prevExampleBtn) prevExampleBtn.disabled = currentExampleIndex === 0;
         if (nextExampleBtn) nextExampleBtn.disabled = currentExampleIndex === examples.length - 1;
-
         expectedOutput = currentExample.expected_output || '';
         updateChallengeDisplay();
     }
-
     function navigateExample(direction) {
         if (direction === 'prev' && currentExampleIndex > 0) {
             currentExampleIndex--;
@@ -651,7 +607,6 @@ ERR = _err.getvalue()
             updateExampleDisplay();
         }
     }
-
     function loadExampleToEditor() {
         const codeEditor = document.getElementById('codeEditor');
         const exampleCodeDisplay = document.getElementById('exampleCodeDisplay');
@@ -664,14 +619,12 @@ ERR = _err.getvalue()
             codeEditor.focus();
         }
     }
-
     function updateChallengeDisplay() {
         const expectedOutputPreviewEl = document.getElementById('expectedOutputPreview');
         if (expectedOutput && expectedOutputPreviewEl) {
             expectedOutputPreviewEl.textContent = expectedOutput;
         }
     }
-
     function initializeExamples() {
         const exampleRows = document.querySelectorAll('#examplesData .ex-row');
         examples = [];
@@ -689,12 +642,10 @@ ERR = _err.getvalue()
                 expected_output
             });
         });
-
         if (examples.length > 0) {
             updateExampleDisplay();
         }
     }
-
     // Toggle instructions panel
     function toggleInstructions() {
         const content = document.getElementById('instructionsContent');
@@ -709,7 +660,6 @@ ERR = _err.getvalue()
             icon.className = 'fas fa-chevron-down';
         }
     }
-
     // Event listeners
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize
@@ -718,7 +668,6 @@ ERR = _err.getvalue()
         updateStepDisplay();
         initializeResize();
         setLayout('horizontal');
-
         // Button event listeners
         document.getElementById('runBtn')?.addEventListener('click', runCode);
         document.getElementById('checkBtn')?.addEventListener('click', checkAnswer);
@@ -728,24 +677,19 @@ ERR = _err.getvalue()
         });
         document.getElementById('copyBtn')?.addEventListener('click', copyCode);
         document.getElementById('pasteBtn')?.addEventListener('click', pasteCode);
-
         // Layout controls
         document.getElementById('verticalLayoutBtn')?.addEventListener('click', () => setLayout('vertical'));
         document.getElementById('horizontalLayoutBtn')?.addEventListener('click', () => setLayout('horizontal'));
         document.getElementById('fullscreenCodeBtn')?.addEventListener('click', () => setLayout('code-only'));
-
         // Step navigation
         document.getElementById('prevStepBtn')?.addEventListener('click', () => navigateStep('prev'));
         document.getElementById('nextStepBtn')?.addEventListener('click', () => navigateStep('next'));
-
         // Example navigation
         document.getElementById('prevExampleBtn')?.addEventListener('click', () => navigateExample('prev'));
         document.getElementById('nextExampleBtn')?.addEventListener('click', () => navigateExample('next'));
         document.getElementById('loadExampleBtn')?.addEventListener('click', loadExampleToEditor);
-
         // Instructions toggle
         document.getElementById('toggleInstructions')?.addEventListener('click', toggleInstructions);
-
         // Panel expansion
         document.getElementById('expandEditorBtn')?.addEventListener('click', () => setLayout('code-only'));
         document.getElementById('expandOutputBtn')?.addEventListener('click', () => {
@@ -757,7 +701,6 @@ ERR = _err.getvalue()
                 outputPanel.style.display = outputPanel.style.display === 'none' ? 'flex' : 'none';
             }
         });
-
         // Keyboard shortcuts
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -769,7 +712,6 @@ ERR = _err.getvalue()
                 setLayout('horizontal');
             }
         });
-
         // Auto-focus code editor
         const codeEditor = document.getElementById('codeEditor');
         if (codeEditor) {
@@ -777,7 +719,6 @@ ERR = _err.getvalue()
         }
     });
 </script>
-
 <style>
 :root {
     --primary: #3b82f6;
@@ -801,7 +742,6 @@ ERR = _err.getvalue()
     --editor-height: 50%;
     --output-height: 50%;
 }
-
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
@@ -810,13 +750,15 @@ body {
     margin: 0;
     padding: 0;
 }
-
 .learning-interface {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    margin: 0;
 }
-
 /* Modern Header */
 .modern-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -825,8 +767,8 @@ body {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    width: 100%;
 }
-
 .modern-header::before {
     content: '';
     position: absolute;
@@ -837,24 +779,22 @@ body {
     background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     opacity: 0.3;
 }
-
 .header-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: relative;
     z-index: 2;
 }
-
 .header-info {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
-
 .header-icon {
     width: 48px;
     height: 48px;
@@ -866,19 +806,43 @@ body {
     font-size: 20px;
     backdrop-filter: blur(10px);
 }
-
 .header-text h1 {
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 0.25rem;
+    color: white;
 }
-
 .header-text p {
     opacity: 0.9;
     font-size: 0.9rem;
     margin: 0;
+    color: white;
 }
-
+.header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+.start-level-btn {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.start-level-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, var(--success) 100%);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
 .back-btn {
     padding: 0.75rem 1.25rem;
     background: rgba(255, 255, 255, 0.2);
@@ -889,36 +853,37 @@ body {
     font-weight: 500;
     transition: all 0.3s ease;
     backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
-
 .back-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     color: white;
 }
-
 /* Main Layout */
 .main-layout {
     flex: 1;
     display: flex;
     flex-direction: column;
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 1rem;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 1.5rem;
     gap: 1rem;
 }
-
 /* Top Section - Instructions */
 .top-section {
     flex-shrink: 0;
+    width: 100%;
 }
-
 .instructions-panel {
     background: var(--white);
     border-radius: 12px;
     box-shadow: var(--shadow-md);
     overflow: hidden;
+    width: 100%;
 }
-
 .panel-header {
     padding: 1rem 1.5rem;
     background: linear-gradient(135deg, var(--light-gray) 0%, #e2e8f0 100%);
@@ -927,20 +892,18 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-
 .panel-title {
     font-size: 1.1rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    color: var(--dark);
 }
-
 .panel-controls {
     display: flex;
     gap: 0.5rem;
 }
-
 .collapse-btn, .control-btn {
     width: 32px;
     height: 32px;
@@ -952,28 +915,24 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    color: var(--dark);
 }
-
 .collapse-btn:hover, .control-btn:hover {
     background: var(--primary);
     color: white;
 }
-
 .panel-content {
     padding: 1.5rem;
 }
-
 /* Overview Section */
 .overview-section {
     margin-bottom: 1.5rem;
 }
-
 .overview-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1rem;
 }
-
 .meta-card {
     display: flex;
     align-items: center;
@@ -983,27 +942,22 @@ body {
     border-radius: 8px;
     border-left: 4px solid var(--primary);
 }
-
 .meta-icon {
     font-size: 1.25rem;
 }
-
 .meta-content {
     display: flex;
     flex-direction: column;
 }
-
 .meta-label {
     font-size: 0.8rem;
     color: var(--gray);
     font-weight: 500;
 }
-
 .meta-value {
     font-weight: 600;
     color: var(--dark);
 }
-
 /* Instructions Container */
 .instructions-container {
     background: var(--white);
@@ -1011,7 +965,6 @@ body {
     border-radius: 8px;
     overflow: hidden;
 }
-
 .step-navigation {
     display: flex;
     justify-content: space-between;
@@ -1020,7 +973,6 @@ body {
     background: var(--light-gray);
     border-bottom: 1px solid var(--border);
 }
-
 .nav-btn {
     width: 36px;
     height: 36px;
@@ -1032,46 +984,40 @@ body {
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    color: var(--dark);
 }
-
 .nav-btn:hover:not(:disabled) {
     background: var(--primary);
     color: white;
 }
-
 .nav-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-
 .step-info {
     font-weight: 600;
     color: var(--dark);
 }
-
 .step-current {
     color: var(--primary);
     font-size: 1.1rem;
 }
-
 .step-container {
     padding: 1.5rem;
     min-height: 100px;
 }
-
 .step-content {
     line-height: 1.7;
     color: var(--dark);
 }
-
 /* Bottom Section - Code Workspace */
 .bottom-section {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
+    width: 100%;
 }
-
 /* Console Header */
 .console-header {
     padding: 1rem 1.5rem;
@@ -1083,13 +1029,11 @@ body {
     border-radius: 12px 12px 0 0;
     flex-shrink: 0;
 }
-
 .console-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
 }
-
 .console-icon {
     width: 36px;
     height: 36px;
@@ -1098,33 +1042,31 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    color: white;
 }
-
 .console-title {
     font-weight: 600;
     margin-bottom: 0.25rem;
+    color: white;
 }
-
 .console-status {
     font-size: 0.8rem;
     opacity: 0.8;
+    color: white;
 }
-
 .console-actions {
     display: flex;
     gap: 0.5rem;
     align-items: center;
 }
-
 /* Editor Actions */
 .editor-actions {
     display: flex;
     gap: 0.5rem;
     margin-right: 0.75rem;
     padding-right: 0.75rem;
-    border-right: 1px solid var(--border);
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 .console-btn {
     padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.1);
@@ -1139,22 +1081,26 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
-
 .console-btn:hover {
     background: rgba(255, 255, 255, 0.2);
+    color: white;
 }
-
-.btn-run:hover { background: var(--success) !important; }
-.btn-check:hover { background: var(--primary) !important; }
-.btn-clear:hover { background: var(--error) !important; }
-.console-btn:hover:has(i.fa-copy) { background: var(--accent) !important; }
-.console-btn:hover:has(i.fa-paste) { background: var(--secondary) !important; }
-
+.btn-run:hover { 
+    background: var(--success) !important; 
+    color: white !important;
+}
+.btn-check:hover { 
+    background: var(--primary) !important; 
+    color: white !important;
+}
+.btn-clear:hover { 
+    background: var(--error) !important; 
+    color: white !important;
+}
 .layout-controls {
     display: flex;
     gap: 0.5rem;
 }
-
 .layout-btn {
     padding: 0.5rem 0.75rem;
     background: rgba(255, 255, 255, 0.1);
@@ -1169,12 +1115,11 @@ body {
     align-items: center;
     gap: 0.5rem;
 }
-
 .layout-btn:hover, .layout-btn.active {
     background: rgba(255, 255, 255, 0.2);
     border-color: rgba(255, 255, 255, 0.3);
+    color: white;
 }
-
 /* Example Navigation */
 .example-nav {
     padding: 0.75rem 1.5rem;
@@ -1185,13 +1130,11 @@ body {
     align-items: center;
     flex-shrink: 0;
 }
-
 .example-info {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
 }
-
 .example-badge {
     font-size: 0.75rem;
     background: var(--primary);
@@ -1200,18 +1143,15 @@ body {
     border-radius: 10px;
     width: fit-content;
 }
-
 .example-title {
     font-weight: 600;
     color: var(--dark);
     font-size: 0.9rem;
 }
-
 .example-controls {
     display: flex;
     gap: 0.5rem;
 }
-
 .btn-example {
     padding: 0.4rem 0.75rem;
     border: 1px solid var(--border);
@@ -1223,18 +1163,16 @@ body {
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    color: var(--dark);
 }
-
 .btn-example:hover:not(:disabled) {
     background: var(--primary);
     color: white;
 }
-
 .btn-example:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-
 /* Example Preview */
 .example-preview {
     padding: 1rem 1.5rem;
@@ -1242,7 +1180,6 @@ body {
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
 }
-
 .example-code {
     background: var(--white);
     border: 1px solid var(--border);
@@ -1256,7 +1193,6 @@ body {
     overflow-x: auto;
     margin-bottom: 0.75rem;
 }
-
 .example-explanation {
     background: rgba(16, 185, 129, 0.1);
     border-left: 3px solid var(--success);
@@ -1266,7 +1202,6 @@ body {
     color: var(--dark);
     line-height: 1.5;
 }
-
 /* Workspace Container */
 .workspace-container {
     flex: 1;
@@ -1276,20 +1211,17 @@ body {
     overflow: hidden;
     min-height: 400px;
     box-shadow: var(--shadow-md);
+    width: 100%;
 }
-
 .workspace-container.horizontal {
     flex-direction: row;
 }
-
 .workspace-container.vertical {
     flex-direction: column;
 }
-
 .workspace-container.code-only .output-panel {
     display: none;
 }
-
 /* Editor Panel */
 .editor-panel {
     flex: 1;
@@ -1298,26 +1230,21 @@ body {
     border-right: 1px solid var(--border);
     min-width: 0;
 }
-
 .workspace-container.horizontal .editor-panel {
     width: var(--editor-width);
 }
-
 .workspace-container.vertical .editor-panel {
     height: var(--editor-height);
     border-right: none;
     border-bottom: 1px solid var(--border);
 }
-
 .workspace-container.code-only .editor-panel {
     border-right: none;
 }
-
 .editor-content {
     flex: 1;
     position: relative;
 }
-
 .code-editor {
     width: 100%;
     height: 100%;
@@ -1331,11 +1258,9 @@ body {
     color: var(--dark);
     outline: none;
 }
-
 .code-editor:focus {
     background: var(--white);
 }
-
 /* Resize Handle */
 .resize-handle {
     background: var(--border);
@@ -1347,36 +1272,29 @@ body {
     position: relative;
     transition: background-color 0.2s ease;
 }
-
 .workspace-container.horizontal .resize-handle {
     width: 4px;
     cursor: ew-resize;
 }
-
 .workspace-container.vertical .resize-handle {
     height: 4px;
     cursor: ns-resize;
 }
-
 .resize-handle:hover {
     background: var(--primary);
 }
-
 .resize-line {
     background: var(--white);
     border-radius: 2px;
 }
-
 .workspace-container.horizontal .resize-line {
     width: 2px;
     height: 20px;
 }
-
 .workspace-container.vertical .resize-line {
     width: 20px;
     height: 2px;
 }
-
 /* Output Panel */
 .output-panel {
     flex: 1;
@@ -1384,21 +1302,17 @@ body {
     flex-direction: column;
     min-width: 0;
 }
-
 .workspace-container.horizontal .output-panel {
     width: var(--output-width);
 }
-
 .workspace-container.vertical .output-panel {
     height: var(--output-height);
 }
-
 .output-content {
     flex: 1;
     background: var(--dark);
     position: relative;
 }
-
 .console-output {
     width: 100%;
     height: 100%;
@@ -1411,15 +1325,12 @@ body {
     white-space: pre-wrap;
     background: var(--dark);
 }
-
 .console-output .ok {
     color: #86efac;
 }
-
 .console-output .err {
     color: #fca5a5;
 }
-
 .welcome-message {
     display: flex;
     align-items: center;
@@ -1430,7 +1341,6 @@ body {
     border-left: 3px solid var(--success);
     color: #86efac;
 }
-
 /* Challenge Section */
 .challenge-section {
     margin-top: 1rem;
@@ -1439,41 +1349,36 @@ body {
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
     flex-shrink: 0;
+    width: 100%;
 }
-
 .challenge-header {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     margin-bottom: 1rem;
 }
-
 .challenge-header h3 {
     font-size: 1.2rem;
     font-weight: 700;
     color: var(--dark);
     margin: 0;
 }
-
 .challenge-section p {
     margin-bottom: 1rem;
     color: var(--dark);
     line-height: 1.6;
 }
-
 .expected-output {
     background: var(--light-gray);
     border-radius: 8px;
     padding: 1rem;
 }
-
 .output-label {
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--gray);
     margin-bottom: 0.5rem;
 }
-
 .output-preview {
     background: var(--white);
     border: 2px solid var(--success);
@@ -1484,17 +1389,16 @@ body {
     color: var(--dark);
     font-weight: 600;
 }
-
 .output-status {
     font-size: 0.8rem;
     opacity: 0.8;
     margin-right: 0.5rem;
+    color: white;
 }
-
 /* Responsive Design */
 @media (max-width: 1024px) {
     .main-layout {
-        padding: 0.75rem;
+        padding: 1rem;
     }
     
     .console-header {
@@ -1509,12 +1413,22 @@ body {
         padding-right: 0.5rem;
     }
 }
-
 @media (max-width: 768px) {
     .header-container {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+        padding: 0 1rem;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .start-level-btn, .back-btn {
+        width: 100%;
+        justify-content: center;
     }
     
     .workspace-container.horizontal {
@@ -1562,42 +1476,35 @@ body {
     
     .editor-actions {
         border-right: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         padding-bottom: 0.5rem;
         margin-right: 0;
         padding-right: 0;
     }
 }
-
 /* Custom Scrollbar */
 .console-output::-webkit-scrollbar,
 .panel-content::-webkit-scrollbar {
     width: 6px;
 }
-
 .console-output::-webkit-scrollbar-track {
     background: #374151;
 }
-
 .panel-content::-webkit-scrollbar-track {
     background: var(--light-gray);
 }
-
 .console-output::-webkit-scrollbar-thumb {
     background: #6b7280;
     border-radius: 3px;
 }
-
 .panel-content::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 3px;
 }
-
 .console-output::-webkit-scrollbar-thumb:hover,
 .panel-content::-webkit-scrollbar-thumb:hover {
     background: var(--gray);
 }
-
 /* Focus States */
 button:focus-visible,
 .nav-btn:focus-visible,
@@ -1605,12 +1512,10 @@ button:focus-visible,
     outline: 2px solid var(--primary);
     outline-offset: 2px;
 }
-
 .code-editor:focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: -2px;
 }
-
 /* Utility Classes */
 .hidden { display: none !important; }
 </style>

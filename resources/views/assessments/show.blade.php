@@ -11,6 +11,23 @@
     // Optional instructions
     $instructions = $assessment->instructions
       ?? ($assessment->content['instructions'] ?? null);
+    
+    // Pass score for assessment
+    $passScore = (int)($assessment->pass_score ?? 60);
+    
+    // Get assessment progress
+    $progress = App\Models\UserStageProgress::where('user_id', Auth::id())
+        ->where('stage_id', $assessment->stage_id)
+        ->first();
+        
+    $assessmentProgress = App\Models\UserLevelProgress::where('user_id', Auth::id())
+        ->where('stage_id', $assessment->stage_id)
+        ->where('level_id', $assessment->id)
+        ->first();
+        
+    $alreadyPassed = ($assessmentProgress && $assessmentProgress->passed) && !request()->boolean('replay');
+    $savedScore = $assessmentProgress->best_score ?? null;
+    $savedStars = $assessmentProgress->stars ?? 0;
   @endphp
   {{-- HEADER — SAME structure/colors as your purple level pages --}}
   <x-slot name="header">
@@ -418,9 +435,9 @@
       box-shadow: 0 0 0 3px rgba(124,58,237,.12) inset;
     }
     .q-card {
-  /* Add this to your existing .q-card styles */
-  scroll-margin-top: 120px; /* Adjust this value as needed */
-}
+      /* Add this to your existing .q-card styles */
+      scroll-margin-top: 120px; /* Adjust this value as needed */
+    }
     .q-error {
       margin-top:.65rem;
       background:var(--danger-light);
@@ -490,6 +507,159 @@
       opacity:.6; 
       cursor:not-allowed; 
     }
+    /* ==============================
+     RESULTS SECTION
+     ============================== */
+    .results-container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .results-header {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .results-title {
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 0 0 1rem 0;
+      color: var(--text-primary);
+    }
+    .results-score {
+      font-size: 3rem;
+      font-weight: 900;
+      margin: 1rem 0;
+      color: var(--primary-purple);
+    }
+    .results-stars {
+      font-size: 2rem;
+      margin: 1rem 0;
+      color: #fbbf24;
+    }
+    .results-summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .summary-item {
+      text-align: center;
+      padding: 1rem;
+      background: var(--gray-50);
+      border-radius: .75rem;
+    }
+    .summary-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .summary-label {
+      font-size: .875rem;
+      color: var(--text-muted);
+      margin-top: .25rem;
+    }
+    .results-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .result-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .result-card.correct {
+      border-left: 6px solid var(--success);
+      background: linear-gradient(135deg, rgba(16,185,129,.05), #fff);
+    }
+    .result-card.incorrect {
+      border-left: 6px solid var(--danger);
+      background: linear-gradient(135deg, rgba(239,68,68,.05), #fff);
+    }
+    .result-header {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    .result-number {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: .5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary-purple), var(--secondary-purple));
+    }
+    .result-text {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .result-options {
+      margin: 1rem 0;
+    }
+    .result-option {
+      padding: .5rem .75rem;
+      margin: .25rem 0;
+      border-radius: .5rem;
+      font-size: .9rem;
+    }
+    .result-option.chosen.correct {
+      background: var(--success);
+      color: white;
+      font-weight: 600;
+      border: 2px solid var(--success);
+    }
+    .result-option.chosen.incorrect {
+      background: var(--danger);
+      color: white;
+      font-weight: 600;
+      border: 2px solid var(--danger);
+    }
+    .result-option.correct {
+      background: var(--success);
+      color: white;
+      font-weight: 600;
+    }
+    .result-option.incorrect {
+      background: var(--danger);
+      color: white;
+      font-weight: 600;
+    }
+    .result-option.neutral {
+      background: var(--gray-100);
+      color: var(--text-muted);
+    }
+    .result-status {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-weight: 700;
+      font-size: .9rem;
+      margin-bottom: 1rem;
+    }
+    .result-status.correct {
+      color: var(--success);
+    }
+    .result-status.incorrect {
+      color: var(--danger);
+    }
+    .result-explanation {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
     .toast-container { 
       position:fixed; 
       top:1rem; 
@@ -522,6 +692,11 @@
       border-left:4px solid var(--danger);  
       background:linear-gradient(135deg,var(--danger-light),  #fff); 
     }
+    .toast.ok {
+      border-left: 4px solid var(--success);
+      background: linear-gradient(135deg, var(--success-light), #fff);
+    }
+    .d-none { display: none !important; }
     @keyframes slideIn{ 
       from{opacity:0; transform:translateX(100%)} 
       to{opacity:1; transform:translateX(0)} 
@@ -533,6 +708,7 @@
       .opt { padding:.85rem 1rem; }
       .stats-grid { grid-template-columns: 1fr; }
       .progress-container { max-width: 100%; }
+      .results-summary { grid-template-columns: 1fr; }
     }
   </style>
   <!-- PROGRESS BAND (under header) -->
@@ -560,8 +736,9 @@
       </div>
     </div>
   @endif
-  <!-- QUESTIONS -->
-  <div class="full-bleed edge-pad">
+  
+  <!-- QUIZ SECTION -->
+  <div class="full-bleed edge-pad" id="quizSection">
     <form method="POST" action="{{ route('assessments.submit', $assessment) }}" id="quizForm" novalidate>
       @csrf
       @if(!$total)
@@ -597,6 +774,7 @@
                       name="answers[{{ $i }}]"
                       value="{{ $opt }}"
                       data-q-index="{{ $i }}"
+                      data-opt-index="{{ $k }}"
                       {{ $oldValue === $opt ? 'checked' : '' }}
                       required
                     >
@@ -637,17 +815,65 @@
       @endif
     </form>
   </div>
+  <!-- RESULTS SECTION -->
+  <div class="full-bleed edge-pad d-none" id="resultsSection">
+    <div class="results-container">
+      <div class="results-header">
+        <div class="results-title">Assessment Complete!</div>
+        <div class="results-score" id="finalScoreDisplay">0%</div>
+        <div class="results-stars" id="finalStarsDisplay"></div>
+        <div class="results-summary">
+          <div class="summary-item">
+            <div class="summary-value" id="correctCount">0</div>
+            <div class="summary-label">Correct</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="incorrectCount">0</div>
+            <div class="summary-label">Incorrect</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="timeUsedDisplay">0:00</div>
+            <div class="summary-label">Time Used</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="passStatusDisplay">-</div>
+            <div class="summary-label">Status</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="results-grid" id="resultsGrid">
+        <!-- Results will be rendered here by JS -->
+      </div>
+      <div style="text-align:center;margin-top:2rem;">
+        <button type="button" class="btn btn-primary" id="btnBackToStage">
+          <i class="fas fa-arrow-left"></i> Back to Stage
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- CSRF TOKEN for AJAX requests -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <div class="toast-container" id="toastWrap"></div>
 <script>
   (function(){
     const TOTAL = {{ $total }};
     const TIME_LIMIT = {{ (int)$timeLimit }};
+    const PASS_SCORE = {{ $passScore }};
+    const QUESTIONS_DATA = {!! json_encode($questions, JSON_UNESCAPED_UNICODE) !!};
     const $form = document.getElementById('quizForm');
     const $progress = document.getElementById('progressBar');
     const $answeredPct = document.getElementById('answeredPct');
     const $answeredCount = document.getElementById('answeredCount');
     const $time = document.getElementById('timeRemaining');
     const $toastWrap = document.getElementById('toastWrap');
+    const $quizSection = document.getElementById('quizSection');
+    const $resultsSection = document.getElementById('resultsSection');
+    
+    let timeRemaining = TIME_LIMIT;
+    let timerInterval;
+    let startTime = Date.now();
+    let userAnswers = {}; // Track user answers
     
     // Instructions collapse (if present)
     const $toggleInstrux = document.getElementById('toggleInstrux');
@@ -664,10 +890,29 @@
     
     function toast(msg, kind='ok'){
       const el = document.createElement('div');
-      el.className = 'toast ' + (kind === 'warn' ? 'warn' : kind === 'err' ? 'err' : '');
+      el.className = 'toast ' + (kind === 'warn' ? 'warn' : kind === 'err' ? 'err' : 'ok');
       el.textContent = msg;
       $toastWrap.appendChild(el);
       setTimeout(()=>el.remove(), 2200);
+    }
+    
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+    
+    function starsFor(score) {
+      if (score >= 90) return 3;
+      if (score >= 70) return 2;
+      if (score >= 50) return 1;
+      return 0;
+    }
+    
+    function fmtTime(sec) {
+      const m = String(Math.floor(sec/60)).padStart(2,'0');
+      const s = String(sec%60).padStart(2,'0');
+      return `${m}:${s}`;
     }
     
     if (!TOTAL) return;
@@ -677,6 +922,14 @@
       if (r.checked) r.closest('.opt')?.classList.add('selected');
       r.addEventListener('change', (e) => {
         const idx = e.target.dataset.qIndex;
+        const optText = e.target.nextElementSibling.textContent;
+        
+        // Store user answer
+        userAnswers[idx] = {
+          selectedOption: optText,
+          selectedIndex: parseInt(e.target.dataset.optIndex)
+        };
+        
         document.querySelectorAll(`input[name="answers[${idx}]"]`).forEach(x => x.closest('.opt')?.classList.remove('selected'));
         e.target.closest('.opt')?.classList.add('selected');
         updateProgress();
@@ -694,17 +947,16 @@
     updateProgress();
     
     // Timer
-    let timeRemaining = TIME_LIMIT;
     function fmt(sec){ const m=String(Math.floor(sec/60)).padStart(2,'0'); const s=String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
     if ($time) $time.textContent = fmt(timeRemaining);
-    const timer = setInterval(() => {
+    timerInterval = setInterval(() => {
       timeRemaining--;
       if ($time) $time.textContent = fmt(timeRemaining);
       if ([60,30,10].includes(timeRemaining)) toast(`${timeRemaining}s remaining`, 'warn');
       if (timeRemaining <= 0) {
-        clearInterval(timer);
+        clearInterval(timerInterval);
         toast("⏰ Time's up! Submitting…", 'err');
-        $form.submit();
+        submitAssessment();
       }
     }, 1000);
     
@@ -796,11 +1048,10 @@
       });
     });
     
-    // Submit gate — require all questions answered
-    $form.addEventListener('submit', (e) => {
+    // Submit function
+    function submitAssessment() {
       const answered = document.querySelectorAll('.opt input[type="radio"]:checked').length;
       if (answered !== TOTAL) {
-        e.preventDefault();
         toast('Please answer all questions before submitting.', 'warn');
         // Jump to first unanswered
         for (let i=0;i<TOTAL;i++){
@@ -809,7 +1060,17 @@
             break;
           }
         }
+        return;
       }
+      
+      clearInterval(timerInterval);
+      showResults();
+    }
+    
+    // Submit gate — require all questions answered
+    $form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      submitAssessment();
     });
     
     // Back to top
@@ -829,6 +1090,167 @@
         else if ($submit && $submit.style.display !== 'none') $submit.click();
       }
     });
+    
+    // Results display function
+    function showResults() {
+      // Calculate score
+      let correct = 0;
+      const resultsData = [];
+      
+      QUESTIONS_DATA.forEach((q, i) => {
+        const userAnswer = userAnswers[i];
+        const correctAnswer = q.correct;
+        const isCorrect = userAnswer && userAnswer.selectedOption === correctAnswer;
+        
+        if (isCorrect) correct++;
+        
+        resultsData.push({
+          question: q,
+          userAnswer: userAnswer,
+          correctAnswer: correctAnswer,
+          isCorrect: isCorrect,
+          index: i
+        });
+      });
+      
+      const rawPct = Math.round(100 * correct / TOTAL);
+      const timeUsed = TIME_LIMIT - timeRemaining;
+      const stars = starsFor(rawPct);
+      const starIcons = stars ? '★'.repeat(stars) : '0';
+      const passed = rawPct >= PASS_SCORE;
+      
+      console.log(`Final calculation:`);
+      console.log(`  Correct answers: ${correct} out of ${TOTAL}`);
+      console.log(`  Raw percentage: ${rawPct}%`);
+      console.log(`  Pass score needed: ${PASS_SCORE}%`);
+      console.log(`  Passed: ${passed}`);
+      
+      // Hide quiz section and show results
+      $quizSection.classList.add('d-none');
+      $resultsSection.classList.remove('d-none');
+      
+      // Update results header
+      document.getElementById('finalScoreDisplay').textContent = rawPct + '%';
+      document.getElementById('finalStarsDisplay').textContent = starIcons;
+      document.getElementById('correctCount').textContent = correct;
+      document.getElementById('incorrectCount').textContent = TOTAL - correct;
+      document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+      document.getElementById('passStatusDisplay').textContent = passed ? 'PASSED' : 'FAILED';
+      
+      // Update header stats
+      if (document.getElementById('answeredPct')) {
+        document.getElementById('answeredPct').textContent = rawPct + '%';
+      }
+      
+      // Render individual results
+      const resultsGrid = document.getElementById('resultsGrid');
+      resultsGrid.innerHTML = '';
+      
+      resultsData.forEach((result, i) => {
+        const { question, userAnswer, correctAnswer, isCorrect } = result;
+        
+        const resultCard = document.createElement('div');
+        resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
+        
+        // Build options display
+        const optionsHtml = (question.options || []).map((option, optIndex) => {
+          let className = 'result-option neutral';
+          let prefix = '';
+          
+          if (userAnswer && userAnswer.selectedOption === option) {
+            if (option === correctAnswer) {
+              className = 'result-option correct';
+              prefix = 'Your answer (Correct): ';
+            } else {
+              className = 'result-option incorrect';
+              prefix = 'Your answer (Incorrect): ';
+            }
+          } else if (option === correctAnswer) {
+            className = 'result-option correct';
+            prefix = 'Correct answer: ';
+          }
+          
+          return `<div class="${className}">${prefix}${escapeHtml(option)}</div>`;
+        }).join('');
+        
+        resultCard.innerHTML = `
+          <div class="result-header">
+            <div class="result-number">${i + 1}</div>
+            <div class="result-text">${escapeHtml(question.prompt || question.question || '')}</div>
+          </div>
+          ${question.code ? `<pre class="q-code">${escapeHtml(question.code)}</pre>` : ''}
+          <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
+            <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
+            ${isCorrect ? 'Correct' : 'Incorrect'}
+          </div>
+          <div class="result-options">
+            ${optionsHtml}
+          </div>
+          <div class="result-explanation">
+            <strong>Explanation:</strong> ${escapeHtml(question.explanation || (isCorrect ? 'Correct! Well done.' : 'The correct answer is: ' + correctAnswer))}
+          </div>
+        `;
+        
+        resultsGrid.appendChild(resultCard);
+      });
+      
+      // Show feedback message
+      toast(passed ? `Excellent! Score ${rawPct}%` : `Score ${rawPct}%. Keep practicing!`, passed ? 'ok' : 'err');
+      
+      // Save progress to database using AJAX
+      saveProgressToDatabase(rawPct, userAnswers, timeUsed, stars, TOTAL, correct, passed);
+    }
+    
+    // Save progress function
+    function saveProgressToDatabase(finalScore, answers, timeUsed, stars, totalQuestions, correct, passed) {
+      const formData = new FormData();
+      formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+      formData.append('answers', JSON.stringify(answers));
+      formData.append('time_used', timeUsed);
+      formData.append('stars', stars);
+      formData.append('total_questions', totalQuestions);
+      formData.append('correct_questions', correct);
+      formData.append('passed', passed ? 1 : 0);
+      
+      fetch('{{ route("assessments.submit", $assessment) }}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          return response.text().then(text => {
+            console.error('Response text:', text);
+            throw new Error(`HTTP ${response.status}: ${text}`);
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Progress saved successfully:', data);
+        if (data.success) {
+          toast('Progress saved successfully!', 'ok');
+        } else {
+          throw new Error(data.message || 'Unknown error occurred');
+        }
+      })
+      .catch(error => {
+        console.error('Error saving progress:', error);
+        toast('Warning: Progress may not have been saved. Please try again.', 'warn');
+      });
+    }
+    
+    // Back to stage button
+    const btnBackToStage = document.getElementById('btnBackToStage');
+    if (btnBackToStage) {
+      btnBackToStage.addEventListener('click', () => {
+        // Redirect to stage dashboard
+        window.location.href = "{{ route('stages.show', $assessment->stage_id) }}";
+      });
+    }
   })();
 </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">

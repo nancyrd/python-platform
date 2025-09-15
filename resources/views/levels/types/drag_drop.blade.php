@@ -785,7 +785,8 @@ body {
     // ---- Hints / Reset / Submit ----
     $btnHint.addEventListener('click', ()=>{
         if (submitted) return;
-        if (hintsUsed >= maxHints){ toast('No more hints available.', 'warning'); return; }
+        if (hintsUsed >= maxHints){ toast('No more hints available.', 'warning');
+             return; }
         hintsUsed++; $hintCount.textContent = hintsUsed;
         const hintsList = @json($hintsForJs);
         const hint = hintsList[Math.floor(Math.random() * hintsList.length)] || 'Think about what category this line belongs to.';
@@ -960,7 +961,7 @@ body {
         })
         .catch(error => {
             console.error('Error saving progress:', error);
-            toast('Warning: Progress may not have been saved. Please try again.', 'warning');
+           // toast('Warning: Progress may not have been saved. Please try again.', 'warning');
         });
     }
 

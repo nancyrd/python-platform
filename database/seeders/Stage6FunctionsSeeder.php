@@ -136,25 +136,21 @@ For computers to process
                             'explain' => "b defaults to 2, so 3*2 = 6.",
                             'expected_output' => "6",
                         ],
-                        [
-                            'title'   => '5) Convert text to number before math',
-                            'code'    =>
-                                "def plus_two(x_text):\n".
-                                "    x = int(x_text)\n".
-                                "    return x + 2\n".
-                                "\n".
-                                "print(plus_two('5'))",
-'explain' => "The name
-We called the parameter x_text. That name suggests it is text (a string), not a number. Good names tell the reader what type we expect.
+                    [
+    'title'   => '5) Convert text to number before math',
+    'code'    =>
+        "def plus_two(x_text):\n".
+        "    x = int(x_text)\n".
+        "    return x + 2\n".
+        "\n".
+        "print(plus_two('5'))",
+    'explain' => "The parameter x_text suggests it is a string. We pass 5 as text, which is a string in Python. To perform math, we convert it to a number using int(). This is typical when getting input from users, as input() always returns a string. After converting 5 to 5, we add 2.",
+    'expected_output' => "7",
+]
 
-The caller passes \"5\"
-In the call we used quotes: \"5\". Anything in quotes in Python is a string, not a number.
 
-Typical source: input()
-In beginner programs, values often come from input(), and input() always returns a string. So it is common to convert with int(...) or float(...). Turn \"5\" into 5 with int(\"5\"), then add.",
-'expected_output' => "7",
 
-                        ],
+
                     ],
                     'questions'    => [
                         [
@@ -287,6 +283,33 @@ In beginner programs, values often come from input(), and input() always returns
                     ],
                     'time_limit'  => 300,
                     'max_hints'   => 3,
+                    'examples' => [
+    [
+        'title'   => 'Calculate the area of a rectangle',
+        'code'    => "def area(w, h):\n    product = w * h\n    return product\n\nprint(area(5, 3))",
+        'explain' => 'This function calculates the area of a rectangle given width and height. The result is returned after multiplication.',
+        'expected_output' => "15"
+    ],
+    [
+        'title'   => 'Generate a greeting message',
+        'code'    => "def greet(name):\n    message = 'Hello, ' + name + '!'\n    return message\n\nprint(greet('Alice'))",
+        'explain' => 'This function creates a greeting message by concatenating the name with Hello, . It then returns the greeting message.',
+        'expected_output' => "Hello, Alice!"
+    ],
+    [
+        'title'   => 'Calculate the sum of two numbers',
+        'code'    => "def sum_two(a, b):\n    result = a + b\n    return result\n\nprint(sum_two(5, 7))",
+        'explain' => 'This function adds two numbers and returns the result.',
+        'expected_output' => "12"
+    ],
+    [
+        'title'   => 'Make lemonade from lemons and sugar',
+        'code'    => "def make_lemonade(lemons, sugar):\n    mix = lemons + sugar\n    return mix\n\nprint(make_lemonade(5, 3))",
+        'explain' => 'This function mixes lemons and sugar to make lemonade and returns the mix.',
+        'expected_output' => "8"
+    ]
+]
+
                 ],
             ]
         );
@@ -324,6 +347,39 @@ In beginner programs, values often come from input(), and input() always returns
                 'content'      => [
                     'time_limit' => 300,
                     'max_hints'  => 3,
+                    'examples' => [
+    [
+        'title'   => 'Call a function that returns a value',
+        'code'    => "def add(a, b):\n    return a + b\n\nprint(add(3, 4))",
+        'explain' => 'This example defines a function to add two numbers. The function is called with arguments 3 and 4 and returns 7.',
+        'expected_output' => "7"
+    ],
+    [
+        'title'   => 'Calling a function without parentheses',
+        'code'    => "def say_hello():\n    print('Hello!')\n\nsay_hello",
+        'explain' => 'Here, we call the function say_hello. Without parentheses, the function is not called, so nothing happens.',
+        'expected_output' => ""
+    ],
+    [
+        'title'   => 'Function with default argument',
+        'code'    => "def greet(name='Guest'):\n    return 'Hello ' + name\n\nprint(greet())",
+        'explain' => 'This function has a default argument Guest. Since no argument is passed, the default is used.',
+        'expected_output' => "Hello Guest"
+    ],
+    [
+        'title'   => 'Adding two numbers and printing the result',
+        'code'    => "def add_and_print(a, b):\n    result = a + b\n    print(result)\n\nadd_and_print(5, 7)",
+        'explain' => 'This function adds two numbers and prints the result instead of returning it.',
+        'expected_output' => "12"
+    ],
+    [
+        'title'   => 'Return and print inside a function',
+        'code'    => "def test_func():\n    return 'Return value'\n    print('This won’t print')\n\nprint(test_func())",
+        'explain' => 'Once a return statement is reached, the function exits. Therefore, the print statement below return is never executed.',
+        'expected_output' => "Return value"
+    ]
+    ],
+
                     'hints'      => [
                         "Call with parentheses: name().",
                         "Missing required argument → error.",

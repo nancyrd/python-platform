@@ -432,51 +432,90 @@ Drag the sequences to the correct range().",
         );
 
         // ─────────────────────────────────────────────
-        // Level 7 — Loop Olympics: For vs While (tf1 - true/false)
-        // ─────────────────────────────────────────────
-        Level::updateOrCreate(
-            ['stage_id' => $stage5->id, 'index' => 7],
-            [
-                'type'         => 'tf1',
-                'title'        => 'Loop Olympics: For vs While',
-                'pass_score'   => 70,
-                'instructions' => "Decide whether each statement is true or false. Think carefully about when to use for loops vs while loops!<br><br>
-                <strong>Remember:</strong><br>
-                • Use FOR loops when you know how many times to repeat<br>
-                • Use WHILE loops when you want to repeat until a condition changes<br>
-                • Both can often solve the same problem, but one is usually more appropriate<br><br>
-                Test your knowledge with these true/false questions!",
-                'content'      => [
-                    'questions' => [
-                        [
-                            'statement' => 'A for loop is better when you know exactly how many times to repeat something.',
-                            'correct' => true,
-                            'explanation' => 'Yes! For loops are perfect for counting or going through a known number of items.'
-                        ],
-                        [
-                            'statement' => 'A while loop always needs a counter variable like i = 0.',
-                            'correct' => false,
-                            'explanation' => 'Not always! While loops can use any condition, not just counters. For example: while raining: bring_umbrella()'
-                        ],
-                        [
-                            'statement' => 'range(5) creates the numbers 0, 1, 2, 3, 4.',
-                            'correct' => true,
-                            'explanation' => 'Correct! range(stop) starts at 0 and goes up to but not including the stop value.'
-                        ],
-                        [
-                            'statement' => 'A while loop will always run at least once.',
-                            'correct' => false,
-                            'explanation' => 'Not true! If the condition is false from the beginning, the while loop won\'t run at all.'
-                        ],
-                        [
-                            'statement' => 'for i in range(3): will run exactly 3 times.',
-                            'correct' => true,
-                            'explanation' => 'Yes! range(3) creates 3 numbers: 0, 1, and 2, so the loop runs 3 times.'
-                        ]
-                    ]
+// Level 7 — Loop Olympics: For vs While (tf1 - true/false)
+// ─────────────────────────────────────────────
+Level::updateOrCreate(
+    ['stage_id' => $stage5->id, 'index' => 7],
+    [
+        'type'         => 'tf1',
+        'title'        => 'Loop Olympics: For vs While',
+        'pass_score'   => 70,
+        'instructions' => "Decide whether each statement is true or false. Think carefully about when to use for loops vs while loops!\n\n
+        Key Points:
+        • Use FOR loops when you know how many times to repeat
+        • Use WHILE loops when you want to repeat until a condition changes
+        • Both can often solve the same problem, but one is usually more appropriate
+        \n\nTest your knowledge with these true/false questions!",
+        'content'      => [
+            'questions' => [
+                [
+                    'statement' => 'For loops are best when iterating over a list of items.',
+                    'answer' => true,
+                    'explanation' => 'Yes! For loops are perfect when you know exactly how many items you have or are iterating over a list.'
+                ],
+                [
+                    'statement' => 'While loops are ideal for reading input until the user types "quit".',
+                    'answer' => true,
+                    'explanation' => 'Correct! You don’t know in advance how many times the loop will run; it continues while the condition is true.'
+                ],
+                [
+                    'statement' => 'You can always replace a while loop with a for loop and it will work the same.',
+                    'answer' => false,
+                    'explanation' => 'Not always! While loops are better when the number of repetitions depends on a changing condition rather than a fixed count.'
+                ],
+                [
+                    'statement' => 'A for loop with range(5) will iterate 5 times.',
+                    'answer' => true,
+                    'explanation' => 'Yes! range(5) produces 0,1,2,3,4 which is 5 iterations.'
+                ],
+                [
+                    'statement' => 'While loops are never used with counters.',
+                    'answer' => false,
+                    'explanation' => 'Incorrect! While loops can use counters if needed, but they can also use any condition.'
+                ],
+                [
+                    'statement' => 'A while loop can continue indefinitely if the condition never becomes false.',
+                    'answer' => true,
+                    'explanation' => 'Correct! This is called an infinite loop, which happens when the condition always evaluates to True.'
+                ],
+                [
+                    'statement' => 'For loops are more readable when counting a specific number of repetitions.',
+                    'answer' => true,
+                    'explanation' => 'Yes! Using for loops with range() clearly shows how many times the loop will run.'
+                ]
+            ],
+            // Practical examples to run
+            'examples' => [
+                [
+                    'title'   => 'Sum numbers using for loop',
+                    'code'    => "total = 0\nfor i in range(1, 6):\n    total += i\nprint(total)",
+                    'explain' => 'This for loop sums numbers from 1 to 5. It is perfect for a known range.',
+                    'expected_output' => "15"
+                ],
+               [
+    'title'   => 'Continue playing until you lose',
+    'code'    => "lives = 3\nwhile lives > 0:\n    print('You have', lives, 'lives left')\n    lives -= 1\nprint('Game over!')",
+    'explain' => 'This loop continues while the player has lives. Once lives reach 0, the loop stops and prints "Game over!"',
+    'expected_output' => "You have 3 lives left\nYou have 2 lives left\nYou have 1 lives left\nGame over!"
+]
+,
+                [
+                    'title'   => 'Print even numbers using for loop',
+                    'code'    => "for i in range(2, 11, 2):\n    print(i)",
+                    'explain' => 'For loop iterates over even numbers from 2 to 10.',
+                    'expected_output' => "2\n4\n6\n8\n10"
+                ],
+                [
+                    'title'   => 'Countdown using while loop',
+                    'code'    => "count = 5\nwhile count > 0:\n    print(count)\n    count -= 1",
+                    'explain' => 'While loop counts down from 5 to 1. The loop stops when the condition becomes false.',
+                    'expected_output' => "5\n4\n3\n2\n1"
                 ]
             ]
-        );
+        ]
+    ]
+);
+
 
         // ─────────────────────────────────────────────
         // Level 8 — Fix the Loop Errors (reorder)
@@ -491,6 +530,27 @@ Drag the sequences to the correct range().",
         'content' => [
             'time_limit' => 240,
             'max_hints'  => 3,
+            'examples' => [
+    [
+        'title'   => 'Calculate the sum of numbers 1 through 5',
+        'code'    => "sum = 0\nfor i in range(1, 6):\n    sum += i\nprint(sum)",
+        'explain' => 'This loop adds the numbers from 1 to 5 and prints the sum.',
+        'expected_output' => "15"
+    ],
+    [
+        'title'   => 'Print "Running" until a counter reaches 5',
+        'code'    => "counter = 0\nwhile counter < 5:\n    print('Running')\n    counter += 1",
+        'explain' => 'This loop prints Running until the counter reaches 5.',
+        'expected_output' => "Running\nRunning\nRunning\nRunning\nRunning"
+    ],
+    [
+        'title'   => 'Sum numbers until the user types "exit"',
+        'code'    => "total = 0\nwhile True:\n    number = input('Enter a number: ')\n    if number == 'exit':\n        break\n    total += int(number)\nprint('Total:', total)",
+        'explain' => 'This loop continuously asks for a number, adding it to the total until exit is entered.',
+        'expected_output' => "Enter a number: 5\nTotal: 5\nEnter a number: 10\nTotal: 15\nEnter a number: exit\nTotal: 15"
+    ]
+    ],
+
             'tasks' => [
                 [
                     'title' => 'Countdown from 3 to 1',

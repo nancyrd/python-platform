@@ -203,7 +203,7 @@ class Stage7CollectionsSeeder extends Seeder
                         [
                             'question' => "book = {'title':'Python','pages':200}\nbook['author'] = 'Alice'\nprint(len(book))",
                             'options' => ['2','3','Error','0'],
-                            'correct_answer' => 0,
+                            'correct_answer' => 1,
                             'explanation' => "We start with a dictionary with 2 key-value pairs: 'title':'Python' and 'pages':200. Then we add a new key-value pair: 'author':'Alice'. Now the dictionary has 3 pairs total, so len(book) returns 3. It's like adding a new piece of information to a file."
                         ]
                     ],
@@ -295,7 +295,7 @@ class Stage7CollectionsSeeder extends Seeder
                         [
                             'title' => 'Safe dict lookup',
                             'code'  => "ages = {'Ali':20, 'Sam':25}\nprint('Maya\\'s age:', ages.get('Maya', 'Unknown'))",
-                            'explain' => "We try to get Maya's age from the ages dictionary. Since Maya isn't in the dictionary, get() returns the fallback value Unknown instead of causing an error.",
+                            'explain' => "We try to get Maya s age from the ages dictionary. Since Maya is not in the dictionary, get() returns the fallback value Unknown instead of causing an error.",
                             'expected_output' => "Maya's age: Unknown"
                         ],
                         [

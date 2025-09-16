@@ -298,7 +298,7 @@ class Stages3Seeder extends Seeder
                 'questions' => json_encode([
                     [
                         'prompt'  => 'Exact output: s=" 9 "; print(int(s.strip())+1)',
-                        'options' => ['9', '10', ' 10 ', 'Error'],
+                        'options' => ['9', '11', ' 10 ', 'Error'],
                         'correct' => '10',
                     ],
                     [

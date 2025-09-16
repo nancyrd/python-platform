@@ -99,7 +99,27 @@ A one-branch if runs its block only when the condition is True. Practice predict
                         'if block runs only when its condition is True.'
                     ],
                     'time_limit'  => 240,
-                    'max_hints'   => 4
+                    'max_hints'   => 4 ,
+                    'examples'    => [
+                [
+                    'title'   => 'Age check',
+                    'code'    => "age = 10\nif age >= 10:\n    print('Ten or more')\nelse:\n    print('Too young')",
+                    'explain' => 'Checks if the age is 10 or more.',
+                    'expected_output' => "Ten or more"
+                ],
+                [
+                    'title'   => 'Temperature check',
+                    'code'    => "temperature = 25\nif temperature > 30:\n    print('Too hot')\nelse:\n    print('Nice weather')",
+                    'explain' => 'Checks if the temperature is greater than 30.',
+                    'expected_output' => "Nice weather"
+                ],
+                [
+                    'title'   => 'Number check',
+                    'code'    => "x = 4\ny = 10\nif x < y:\n    print('x is less than y')\nelse:\n    print('x is greater than or equal to y')",
+                    'explain' => 'Compares if x is less than y.',
+                    'expected_output' => "x is less than y"
+                ],
+            ],
                 ],
             ]
         );
@@ -115,43 +135,18 @@ Level::updateOrCreate(
         'type'         => 'drag_drop',
         'title'        => 'Build the branch',
         'pass_score'   => 50,
-        'instructions' => 'Think of **if/else** as making choices, just like you do every day.  
-It helps the computer decide between different paths depending on the situation.  
+        'instructions' => 'Think of if/else as making decisions. It’s like when you make choices in real life:  
+  • If something is true, do one thing;  
+  • If not, do something else.  
+  
+For example, if you’re hungry, you eat food. If not, you drink water.  
 
-### 🍝 Real-world example (Cooking pasta):
-- If the water is boiling → add the pasta.  
-- Else → wait until it boils.  
-
-The program is basically asking: *Is the condition true?* If yes, do something. If not, do something else.  
-
----
-
-### ✅ Simple Python examples:
-
-```python
-if age >= 18:
-    print("You can vote")
-else:
-    print("Sory, too young")
-
-Example 2
-if temperature > 30:
-    print("It’s hot, wear shorts")
-else:
-    print("It’s cool, wear a jacket")
-
-    
-    
- Example 3:
-
-if hungry:
-    print("Eat food")
-elif thirsty:
-    print("Drink water")
-else:
-    print("Take a nap")
-
-',
+In Python, you can make choices using:  
+  • if → checks if a condition is true  
+  • elif → checks if another condition is true when the first one isn’t  
+  • else → runs when none of the conditions are true  
+  
+Let’s build these branches using conditions and actions in the right place.',
                 'content'      => [
                     'categories' => [
                         '🧠 Conditions' => [
@@ -217,11 +212,19 @@ else:
                 'type'         => 'tf1',
                 'title'        => 'Will it print?',
                 'pass_score'   => 50,
-                'instructions' => 'Predict whether each print statement actually runs.  
-Remember:  
-  • Only the first True branch in an if/elif/else chain executes.  
-  • A nested if inside another if only runs if its outer condition is True.  
-  • Use and / or / not rules from Level 1.',
+                'instructions' => "In this level, you will predict whether a statement will print based on the conditions provided.  
+You have learned how to build if/elif/else blocks and handle comparisons, logical operators (and/or/not), and nested conditions.
+
+Now, it's time to test your understanding by:
+- Predicting whether a print statement will be executed based on the condition.
+- Identifying whether the correct branch (if, elif, else) will run, and why.
+
+Key Points:
+- Only one branch in an if/elif/else structure will run. The first True branch is the one that executes.
+- Nested ifs inside an if/else block only execute if the outer condition is True.
+- Logical operators (and, or, not) may change the outcome based on the combination of conditions.
+
+In each question, you'll decide whether the print statement inside the code will run based on the condition and print the result accordingly.",
                 'content'      => [
                     'questions' => [
                         [

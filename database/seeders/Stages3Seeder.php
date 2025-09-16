@@ -27,10 +27,10 @@ class Stages3Seeder extends Seeder
         'type'         => 'flip_cards',
         'title'        => 'Input Essentials Made Easy!',
         'pass_score'   => 60,
-        'instructions' => "Flip the cards to learn how to handle user input like a pro!\n• input() always gives text\n• Clean it with .strip()\n• Convert with int() or float()\n• Print safely with commas",
+        'instructions' => "Flip the cards to learn how to handle user input like a pro!\n• The input() function is how Python listens to user. It pauses the program and waits for user to type something on the keyboard. Whatever he types is then given to the program to use. You can think of it as Python asking you a question. You can even put a prompt inside the parentheses,  to tell the user what to enter.\n• Clean it with .strip()\n• Convert with int() or float()\n• Print safely with commas",
         'content'      => [
             'intro'       => "Tap each card to learn with simple, real-life examples!",
-            'time_limit'  => 200,
+            'time_limit'  => 500,
             'max_hints'   => 3,
             'hints'       => [
                 'input() gives text - even if you type numbers!',

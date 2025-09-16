@@ -15,7 +15,6 @@
     if (is_array($instructions)) {
         $instructionSteps = array_values(array_filter(array_map(fn($s)=>is_string($s)?trim($s):'', $instructions)));
     } elseif (is_string($instructions)) {
-        // split by: blank lines OR lines of --- OR headings
         $instructionSteps = array_values(array_filter(array_map('trim',
             preg_split('/(\R{2,}|^\s*[-]{3,}\s*$|^#+\s.*$)/m', $instructions)
         )));
@@ -23,1500 +22,511 @@
     }
     // Examples (array of dicts)
     $examples = is_array($content) ? ($content['examples'] ?? []) : [];
-    // If examples is a single dict, wrap it
     if ($examples && array_keys($examples) !== range(0, count($examples) - 1)) {
         $examples = [$examples];
     }
     $estimatedTime  = is_array($content) ? ($content['estimated_time'] ?? null) : null;
     $goals          = is_array($content) ? ($content['goals'] ?? []) : [];
     $prerequisites  = is_array($content) ? ($content['prerequisites'] ?? []) : [];
-    // Optional single expected_output (fallback when example lacks its own)
     $globalExpected = is_array($content) ? ($content['expected_output'] ?? null) : null;
 @endphp
 <x-slot name="header">
-    <div class="modern-header">
-        <div class="header-container">
-            <div class="header-info">
-                <div class="header-icon">
-                    <i class="fas fa-rocket"></i>
+    <div class="game-header-container">
+        <div class="header-flex">
+            <div class="header-left">
+                <div class="stage-icon-container me-3">
+                    <div class="stage-icon-wrapper">
+                        <i class="fas fa-dungeon stage-icon"></i>
+                    </div>
                 </div>
-                <div class="header-text">
-                    <h1>Level {{ $level->index ?? '' }} - {!! $level->title ?? 'Level Instructions' !!}</h1>
-                    <p>Interactive Learning Journey</p>
+                <div class="min-w-0">
+                    <h2 class="stage-title mb-0 text-truncate">Level {{ $level->index ?? '' }}: {!! $level->title ?? 'Instructions' !!}</h2>
+                    <div class="stage-subtitle">
+                        <i class="fas fa-map-marker-alt me-1"></i>
+                        Adventure Zone
+                    </div>
                 </div>
             </div>
-            <div class="header-actions">
-                <a href="{{ route('levels.show', $level) }}" class="start-level-btn">
-                    <i class="fas fa-play"></i> Start Level
-                </a>
-                <a href="{{ route('stages.show', $level->stage_id) }}" class="back-btn">
-                    <i class="fas fa-arrow-left"></i> Back to Stage
+            <div class="header-right">
+                <a href="{{ route('dashboard') }}" class="btn btn-game">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Back to Map
                 </a>
             </div>
         </div>
     </div>
 </x-slot>
-<div class="learning-interface">
-    <!-- Main Layout Container -->
-    <div class="main-layout">
-        <!-- Top Section: Instructions & Overview -->
-        <div class="top-section">
-            <div class="instructions-panel">
-                <div class="panel-header">
-                    <div class="panel-title">
-                        <i class="fas fa-book-open"></i>
-                        Instructions & Overview
-                    </div>
-                    <div class="panel-controls">
-                        <button class="collapse-btn" id="toggleInstructions">
-                            <i class="fas fa-chevron-up"></i>
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="panel-content" id="instructionsContent">
-                    <!-- Overview Section -->
-                    @if($estimatedTime || !empty($goals) || !empty($prerequisites))
-                    <div class="overview-section">
-                        <div class="overview-grid">
-                            @if($estimatedTime)
-                            <div class="meta-card">
-                                <span class="meta-icon">⏱️</span>
-                                <div class="meta-content">
-                                    <span class="meta-label">Estimated Time</span>
-                                    <span class="meta-value">{!! $estimatedTime !!}</span>
-                                </div>
-                            </div>
-                            @endif
-                            
-                            @if(!empty($goals))
-                            <div class="meta-card">
-                                <span class="meta-icon">🎯</span>
-                                <div class="meta-content">
-                                    <span class="meta-label">Goals</span>
-                                    <span class="meta-value">{{ count($goals) }} learning objectives</span>
-                                </div>
-                            </div>
-                            @endif
-                            
-                            @if(!empty($prerequisites))
-                            <div class="meta-card">
-                                <span class="meta-icon">📚</span>
-                                <div class="meta-content">
-                                    <span class="meta-label">Prerequisites</span>
-                                    <span class="meta-value">{{ count($prerequisites) }} requirements</span>
-                                </div>
-                            </div>
-                            @endif
-                        </div>
-                    </div>
-                    @endif
-                    <!-- Instructions Steps -->
-                    @if(count($instructionSteps) > 0)
-                    <div class="instructions-container">
-                        <div class="step-navigation">
-                            <button class="nav-btn" id="prevStepBtn" disabled>
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <div class="step-info">
-                                <span class="step-current" id="currentStep">1</span> / <span id="totalSteps">{{ count($instructionSteps) }}</span>
-                            </div>
-                            <button class="nav-btn" id="nextStepBtn">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                        
-                        <div class="step-container">
-                            @foreach($instructionSteps as $i => $step)
-                            <div class="step-content" data-step="{{ $i }}" style="{{ $i === 0 ? '' : 'display:none' }}">
-                                <div class="step-text">{!! nl2br($step) !!}</div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-        </div>
-        <!-- Bottom Section: Code Workspace -->
-        <div class="bottom-section">
-            <!-- Console Header -->
-            <div class="console-header">
-                <div class="console-info">
-                    <div class="console-icon">
-                        <i class="fab fa-python"></i>
-                    </div>
-                    <div>
-                        <div class="console-title">Python Playground</div>
-                        <div class="console-status" id="pythonStatus">Loading...</div>
-                    </div>
-                </div>
-                <div class="console-actions">
-                    <div class="layout-controls">
-                        <button class="layout-btn" id="verticalLayoutBtn" title="Vertical Layout">
-                            <i class="fas fa-columns"></i> Vertical
-                        </button>
-                        <button class="layout-btn active" id="horizontalLayoutBtn" title="Horizontal Layout">
-                            <i class="fas fa-grip-lines"></i> Horizontal
-                        </button>
-                        <button class="layout-btn" id="fullscreenCodeBtn" title="Fullscreen Code">
-                            <i class="fas fa-expand"></i> Fullscreen
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <!-- Example Navigation -->
-            @if(count($examples) > 0)
-            <div class="example-nav" id="exampleNav">
-                <div class="example-info">
-                    <div class="example-badge" id="exampleBadge">Example 1 / {{ count($examples) }}</div>
-                    <div class="example-title" id="exampleTitle"></div>
-                </div>
-                <div class="example-controls">
-                    <button class="btn-example" id="prevExampleBtn" {{ count($examples) > 1 ? '' : 'disabled' }}>
-                        <i class="fas fa-chevron-left"></i> Prev
-                    </button>
-                    <button class="btn-example" id="loadExampleBtn">
-                        <i class="fas fa-download"></i> Load
-                    </button>
-                    <button class="btn-example" id="nextExampleBtn" {{ count($examples) > 1 ? '' : 'disabled' }}>
-                        Next <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div>
-            <!-- Example Code Preview -->
-            <div class="example-preview" id="examplePreview" style="display: none;">
-                <div class="example-code" id="exampleCodeDisplay"></div>
-                <div class="example-explanation" id="exampleExplanation" style="display: none;"></div>
-            </div>
-            @endif
-            <!-- Resizable Workspace -->
-            <div class="workspace-container" id="workspaceContainer">
-                <!-- Editor Panel -->
-                <div class="editor-panel" id="editorPanel">
-                    <div class="panel-header">
-                        <div class="panel-title">
-                            <i class="fab fa-python"></i>
-                            Code Editor
-                        </div>
-                        <div class="panel-controls">
-                            <!-- Action buttons moved here -->
-                            <div class="editor-actions">
-                                <button class="console-btn btn-run" id="runBtn" title="Run Code (Ctrl+Enter)">
-                                    <i class="fas fa-play"></i> Run
-                                </button>
-                                <button class="console-btn btn-check" id="checkBtn" title="Check Answer">
-                                    <i class="fas fa-check"></i> Check
-                                </button>
-                                <button class="console-btn btn-clear" id="clearBtn" title="Clear Code">
-                                    <i class="fas fa-broom"></i> Clear
-                                </button>
-                        
-                            </div>
-                            <button class="control-btn" id="expandEditorBtn" title="Expand Editor">
-                                <i class="fas fa-expand-arrows-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="editor-content">
-                        <textarea 
-                            class="code-editor" 
-                            id="codeEditor" 
-                            placeholder="# Write your Python code here
-# Press Ctrl+Enter to run quickly
-print('Hello, Python!')"
-                        ></textarea>
-                    </div>
-                </div>
-                <!-- Resize Handle -->
-                <div class="resize-handle" id="resizeHandle">
-                    <div class="resize-line"></div>
-                </div>
-                <!-- Output Panel -->
-                <div class="output-panel" id="outputPanel">
-                    <div class="panel-header">
-                        <div class="panel-title">
-                            <i class="fas fa-terminal"></i>
-                            Output
-                        </div>
-                        <div class="panel-controls">
-                            <div class="output-status" id="outputStatus">Ready</div>
-                            <button class="control-btn" id="expandOutputBtn" title="Expand Output">
-                                <i class="fas fa-expand-arrows-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="output-content">
-                        <div class="console-output" id="consoleOutput">
-                            <div class="welcome-message">
-                                <i class="fas fa-rocket"></i>
-                                <span>Ready to code! Write your Python code and click "Run" to see the magic.</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<div class="game-viewport">
+  <div class="game-container">
+    <div class="floating-elements">
+      <div class="floating-coin" style="top:10%; left:5%;">🪙</div>
+      <div class="floating-gem"  style="top:20%; left:92%;">💎</div>
+      <div class="floating-star" style="top:65%; left:3%;">⭐</div>
+      <div class="floating-coin" style="top:82%; left:96%;">🪙</div>
+      <div class="floating-gem"  style="top:38%; left:4%;">💎</div>
+      <div class="floating-star" style="top:18%; left:86%;">⭐</div>
     </div>
-    <!-- Challenge Section -->
-    <div class="challenge-section" id="challengeSection" data-expected="{{ $globalExpected ?? '' }}">
-        <div class="challenge-header">
-            <i class="fas fa-bullseye"></i>
-            <h3>Your Challenge</h3>
+
+    <div class="content-wrap">
+      <!-- PREAMBLE / OVERVIEW -->
+      <div class="cosmic-separator"><div class="label">Instructions & Overview</div></div>
+      <div class="card-surface instructions-card">
+        <div class="overview-grid mb-3">
+          @if($estimatedTime)
+          <div class="meta-card">
+            <div class="meta-icon">⏱️</div>
+            <div class="meta-content">
+              <div class="meta-label muted">Estimated Time</div>
+              <div class="meta-value">{!! $estimatedTime !!}</div>
+            </div>
+          </div>
+          @endif
+          @if(!empty($goals))
+          <div class="meta-card">
+            <div class="meta-icon">🎯</div>
+            <div class="meta-content">
+              <div class="meta-label muted">Goals</div>
+              <div class="meta-value">{{ count($goals) }} learning objectives</div>
+            </div>
+          </div>
+          @endif
+          @if(!empty($prerequisites))
+          <div class="meta-card">
+            <div class="meta-icon">📚</div>
+            <div class="meta-content">
+              <div class="meta-label muted">Prerequisites</div>
+              <div class="meta-value">{{ count($prerequisites) }} requirements</div>
+            </div>
+          </div>
+          @endif
         </div>
-        @if($globalExpected)
-        <p>Make your code produce the exact output below!</p>
-        <div class="expected-output">
-            <div class="output-label">Expected Output:</div>
-            <div class="output-preview" id="expectedOutputPreview">{!! $globalExpected !!}</div>
+
+        @if(count($instructionSteps) > 0)
+        <div class="instructions-container">
+          <div class="step-navigation">
+            <button class="nav-btn" id="prevStepBtn" disabled><i class="fas fa-chevron-left"></i></button>
+            <div class="step-info">
+              <span class="step-current" id="currentStep">1</span>
+              <span class="muted">/</span>
+              <span id="totalSteps">{{ count($instructionSteps) }}</span>
+            </div>
+            <button class="nav-btn" id="nextStepBtn"><i class="fas fa-chevron-right"></i></button>
+          </div>
+          <div class="step-progress">
+            <div class="step-progress-fill" id="stepProgressFill" style="width: {{ max(1, (int)(100 / max(1,count($instructionSteps)))) }}%"></div>
+          </div>
+          <div class="step-container">
+            @foreach($instructionSteps as $i => $step)
+              <div class="step-content" data-step="{{ $i }}" style="{{ $i === 0 ? '' : 'display:none' }}">
+                <div class="step-text">{!! nl2br($step) !!}</div>
+              </div>
+            @endforeach
+          </div>
         </div>
-        @else
-        <p>Complete the exercises and test your understanding using the console above.</p>
         @endif
-    </div>
-    <!-- Hidden Data Container for Examples -->
-    @if(count($examples) > 0)
-    <div id="examplesData" style="display:none">
+      </div>
+
+      <!-- PLAYGROUND / EDITOR -->
+      <div class="cosmic-separator"><div class="label">Python Playground</div></div>
+      <div class="card-surface mb-4">
+        @if(count($examples) > 0)
+        <div class="example-nav" id="exampleNav">
+          <div class="example-info">
+            <div class="example-badge" id="exampleBadge">Example 1 / {{ count($examples) }}</div>
+            <div class="example-title" id="exampleTitle"></div>
+          </div>
+          <div class="example-controls">
+            <button class="btn-example" id="prevExampleBtn" {{ count($examples) > 1 ? '' : 'disabled' }}>
+              <i class="fas fa-chevron-left"></i> Prev
+            </button>
+            <button class="btn-example" id="loadExampleBtn">
+              <i class="fas fa-download"></i> Load
+            </button>
+            <button class="btn-example" id="nextExampleBtn" {{ count($examples) > 1 ? '' : 'disabled' }}>
+              Next <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </div>
+        <div class="example-preview" id="examplePreview" style="display:none;">
+          <div class="example-code" id="exampleCodeDisplay"></div>
+          <div class="example-explanation" id="exampleExplanation" style="display:none;"></div>
+        </div>
+        @endif
+
+        <div class="console-header">
+          <div class="console-info">
+            <div class="console-icon"><i class="fab fa-python"></i></div>
+            <div>
+              <div class="console-title">Python Playground</div>
+              <div class="console-status" id="pythonStatus">Loading...</div>
+            </div>
+          </div>
+          <div class="console-actions">
+            <div class="editor-actions">
+              <button class="console-btn btn-run" id="runBtn" title="Run Code (Ctrl+Enter)"><i class="fas fa-play"></i> Run</button>
+              <button class="console-btn btn-check" id="checkBtn" title="Check Answer"><i class="fas fa-check"></i> Check</button>
+              <button class="console-btn btn-clear" id="clearBtn" title="Clear Code"><i class="fas fa-broom"></i> Clear</button>
+            </div>
+            <div class="layout-controls">
+              <button class="layout-btn" id="verticalLayoutBtn" title="Vertical Layout"><i class="fas fa-columns"></i> Vertical</button>
+              <button class="layout-btn active" id="horizontalLayoutBtn" title="Horizontal Layout"><i class="fas fa-grip-lines"></i> Horizontal</button>
+              <button class="layout-btn" id="fullscreenCodeBtn" title="Code Only"><i class="fas fa-expand"></i> Code Only</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="workspace-container" id="workspaceContainer">
+          <div class="editor-panel" id="editorPanel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fab fa-python me-2"></i>Code Editor</div>
+              <div class="panel-controls">
+                <button class="control-btn" id="expandEditorBtn" title="Expand Editor"><i class="fas fa-expand-arrows-alt"></i></button>
+              </div>
+            </div>
+            <div class="editor-content">
+              <textarea class="code-editor" id="codeEditor" placeholder="# Write your Python code here\n# Press Ctrl+Enter to run quickly\nprint('Hello, Python!')"></textarea>
+            </div>
+          </div>
+          <div class="resize-handle" id="resizeHandle"><div class="resize-line"></div></div>
+          <div class="output-panel" id="outputPanel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fas fa-terminal me-2"></i>Output</div>
+              <div class="panel-controls">
+                <div class="output-status" id="outputStatus">Ready</div>
+                <button class="control-btn" id="expandOutputBtn" title="Expand Output"><i class="fas fa-expand-arrows-alt"></i></button>
+              </div>
+            </div>
+            <div class="output-content">
+              <div class="console-output" id="consoleOutput">
+                <div class="welcome-message"><i class="fas fa-rocket me-2"></i><span>Ready to code! Write your Python code and click "Run".</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHALLENGE -->
+      <div class="cosmic-separator"><div class="label">Challenge</div></div>
+      <div class="card-surface challenge-section" id="challengeSection" data-expected="{{ $globalExpected ?? '' }}">
+        <div class="challenge-header"><i class="fas fa-bullseye me-2"></i><h3 class="final-boss-title mb-0">Your Challenge</h3></div>
+        @if($globalExpected)
+          <p class="muted">Make your code produce the exact output below!</p>
+          <div class="expected-output">
+            <div class="output-label">Expected Output</div>
+            <div class="output-preview" id="expectedOutputPreview">{!! $globalExpected !!}</div>
+          </div>
+        @else
+          <p class="muted">Complete the exercises and test your understanding using the console above.</p>
+        @endif
+      </div>
+
+      @if(count($examples) > 0)
+      <div id="examplesData" style="display:none">
         @foreach($examples as $i => $ex)
-        @php
+          @php
             $title   = trim($ex['title'] ?? ('Example '.($i+1)));
             $code    = (string)($ex['code'] ?? '');
             $explain = (string)($ex['explain'] ?? '');
             $expect  = (string)($ex['expected_output'] ?? ($globalExpected ?? ''));
-        @endphp
-        <div class="ex-row"
-             data-title="{{ e($title) }}"
-             data-code="{{ base64_encode($code) }}"
-             data-explain="{{ e($explain) }}"
-             data-expected="{{ e($expect) }}"></div>
+          @endphp
+          <div class="ex-row" data-title="{{ e($title) }}" data-code="{{ base64_encode($code) }}" data-explain="{{ e($explain) }}" data-expected="{{ e($expect) }}"></div>
         @endforeach
+      </div>
+      @endif
     </div>
-    @endif
+  </div>
 </div>
+
 {{-- Pyodide (client-side Python) --}}
 <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 <script>
-    // Global variables
-    let pyodide;
-    let pyReady = false;
-    let currentStepIndex = 0;
-    let currentExampleIndex = 0;
-    let instructionSteps = [];
-    let examples = [];
-    let expectedOutput = '';
-    let isResizing = false;
-    let currentLayout = 'horizontal'; // 'horizontal', 'vertical', 'code-only', 'output-only'
-    // Initialize Python environment
-    async function initializePython() {
-        try {
-            updateStatus('Loading Python runtime...');
-            pyodide = await loadPyodide({
-                stdout: (text) => appendOutput(text + "\n", 'ok'),
-                stderr: (text) => appendOutput(text + "\n", 'err')
-            });
-            await pyodide.runPythonAsync(`
+  let pyodide; let pyReady=false; let currentStepIndex=0; let currentExampleIndex=0;
+  let examples=[]; let expectedOutput=''; let isResizing=false; let currentLayout='horizontal';
+
+  async function initializePython(){
+    try{
+      updateStatus('Loading Python runtime...');
+      pyodide = await loadPyodide({
+        stdout: t=>appendOutput(t+"\n",'ok'), stderr: t=>appendOutput(t+"\n",'err')
+      });
+      await pyodide.runPythonAsync(`
 import builtins
 try:
     from js import prompt as __prompt
     builtins.input = lambda p='': __prompt(p)
 except Exception:
     pass
-            `);
-            pyReady = true;
-            updateStatus('Ready to code!');
-            updateOutputStatus('Ready to run');
-        } catch (error) {
-            updateStatus('Failed to load Python');
-            appendOutput(`Failed to load Python: ${error.message}`, 'err');
-        }
-    }
-    // Status update functions
-    function updateStatus(message) {
-        const statusEl = document.getElementById('pythonStatus');
-        if (statusEl) statusEl.textContent = message;
-    }
-    function updateOutputStatus(message) {
-        const statusEl = document.getElementById('outputStatus');
-        if (statusEl) statusEl.textContent = message;
-    }
-    // Output functions
-    function clearOutput() {
-        const outputEl = document.getElementById('consoleOutput');
-        if (outputEl) {
-            outputEl.innerHTML = `
-                <div class="welcome-message">
-                    <i class="fas fa-broom"></i>
-                    <span>Console cleared! Ready for new code.</span>
-                </div>
-            `;
-        }
-    }
-    function appendOutput(text, type = 'ok') {
-        const outputEl = document.getElementById('consoleOutput');
-        if (!outputEl) return;
-        const welcomeMsg = outputEl.querySelector('.welcome-message');
-        if (welcomeMsg) welcomeMsg.remove();
-        const span = document.createElement('span');
-        span.className = type;
-        span.textContent = text;
-        outputEl.appendChild(span);
-        outputEl.scrollTop = outputEl.scrollHeight;
-    }
-    // Code execution
-    async function runCode() {
-        const codeEl = document.getElementById('codeEditor');
-        const code = codeEl ? codeEl.value : '';
-        if (!code.trim()) {
-            appendOutput('No code to run!\n', 'err');
-            return;
-        }
-        clearOutput();
-        
-        if (!pyReady) {
-            appendOutput('Python runtime is still loading. Please wait...\n', 'err');
-            return { out: '', err: 'not-ready' };
-        }
-        try {
-            updateOutputStatus('Running code...');
-            updateStatus('Executing...');
-            pyodide.globals.set("USER_CODE", code);
-            await pyodide.runPythonAsync(`
+      `);
+      pyReady=true; updateStatus('Ready to code!'); updateOutputStatus('Ready');
+    }catch(err){ updateStatus('Failed to load Python'); appendOutput('Failed to load Python: '+err.message,'err'); }
+  }
+  function updateStatus(msg){ const el=document.getElementById('pythonStatus'); if(el) el.textContent=msg; }
+  function updateOutputStatus(msg){ const el=document.getElementById('outputStatus'); if(el) el.textContent=msg; }
+  function clearOutput(){ const out=document.getElementById('consoleOutput'); if(!out) return; out.innerHTML=`<div class="welcome-message"><i class=\"fas fa-broom me-2\"></i><span>Console cleared! Ready for new code.</span></div>`; }
+  function appendOutput(text,type='ok'){ const out=document.getElementById('consoleOutput'); if(!out) return; const w=out.querySelector('.welcome-message'); if(w) w.remove(); const s=document.createElement('span'); s.className=type; s.textContent=text; out.appendChild(s); out.scrollTop=out.scrollHeight; }
+
+  async function runCode(){
+    const codeEl=document.getElementById('codeEditor'); const code=codeEl?codeEl.value:'';
+    if(!code.trim()){ appendOutput('No code to run!\n','err'); return; }
+    clearOutput(); if(!pyReady){ appendOutput('Python runtime is still loading. Please wait...\n','err'); return; }
+    try{
+      updateOutputStatus('Running code...'); updateStatus('Executing...');
+      pyodide.globals.set('USER_CODE', code);
+      await pyodide.runPythonAsync(`
 import sys, io
-_out = io.StringIO()
-_err = io.StringIO()
+_out = io.StringIO(); _err = io.StringIO()
 __so, __se = sys.stdout, sys.stderr
 sys.stdout, sys.stderr = _out, _err
 ns = {}
 try:
     exec(USER_CODE, ns, ns)
 except Exception:
-    import traceback
-    traceback.print_exc()
+    import traceback; traceback.print_exc()
 finally:
     sys.stdout, sys.stderr = __so, __se
-OUT = _out.getvalue()
-ERR = _err.getvalue()
-            `);
-            const out = pyodide.globals.get('OUT') || '';
-            const err = pyodide.globals.get('ERR') || '';
-            if (out) appendOutput(out, 'ok');
-            if (err) appendOutput(err, 'err');
-            updateStatus('Ready to code!');
-            updateOutputStatus(err ? 'Error occurred' : 'Code executed successfully');
-            return { out, err };
-        } catch (error) {
-            appendOutput(`Error: ${error.message}\n`, 'err');
-            updateStatus('Ready to code!');
-            updateOutputStatus('Error occurred');
-            return { out: '', err: error.message };
-        }
+OUT = _out.getvalue(); ERR = _err.getvalue()
+      `);
+      const out=pyodide.globals.get('OUT')||''; const err=pyodide.globals.get('ERR')||'';
+      if(out) appendOutput(out,'ok'); if(err) appendOutput(err,'err');
+      updateStatus('Ready to code!'); updateOutputStatus(err? 'Error occurred' : 'Code executed successfully');
+      return {out, err};
+    }catch(e){ appendOutput('Error: '+e.message+'\n','err'); updateStatus('Ready to code!'); updateOutputStatus('Error occurred'); return {out:'', err:e.message}; }
+  }
+  async function checkAnswer(){ const {out} = await runCode(); const clean=(out||'').trim(); if(expectedOutput){ if(clean===expectedOutput.trim()){ appendOutput('\n🎉 Perfect! Your output matches exactly! 🌟\n','ok'); } else { appendOutput(`\n🤔 Almost there! Let's compare:\n`,'err'); appendOutput(`Expected: "${expectedOutput.trim()}"\n`,'err'); appendOutput(`Your output: "${clean}"\n`,'err'); appendOutput('💡 Tip: Check your code carefully!\n','err'); } } else { appendOutput('\n✅ Code executed successfully! Great work! 🚀\n','ok'); } }
+
+  function setLayout(layout){
+    const container=document.getElementById('workspaceContainer');
+    const editor=document.getElementById('editorPanel'); const output=document.getElementById('outputPanel');
+    const resize=document.getElementById('resizeHandle'); document.querySelectorAll('.layout-btn').forEach(b=>b.classList.remove('active'));
+    if(layout==='vertical'){ container.className='workspace-container vertical'; document.getElementById('verticalLayoutBtn').classList.add('active'); resize.style.display='block'; editor.style.display='flex'; output.style.display='flex'; }
+    else if(layout==='horizontal'){ container.className='workspace-container horizontal'; document.getElementById('horizontalLayoutBtn').classList.add('active'); resize.style.display='block'; editor.style.display='flex'; output.style.display='flex'; }
+    else { container.className='workspace-container code-only'; document.getElementById('fullscreenCodeBtn').classList.add('active'); resize.style.display='none'; editor.style.display='flex'; output.style.display='none'; }
+    currentLayout=layout;
+  }
+
+  function initializeResize(){
+    const resize=document.getElementById('resizeHandle'); const container=document.getElementById('workspaceContainer');
+    resize.addEventListener('mousedown',e=>{ isResizing=true; document.addEventListener('mousemove',handle); document.addEventListener('mouseup',stop); e.preventDefault(); });
+    function handle(e){ if(!isResizing) return; const rect=container.getBoundingClientRect();
+      if(currentLayout==='horizontal'){ const w=((e.clientX-rect.left)/rect.width)*100; if(w>=20 && w<=80){ document.documentElement.style.setProperty('--editor-width', w+'%'); document.documentElement.style.setProperty('--output-width', (100-w)+'%'); } }
+      else if(currentLayout==='vertical'){ const h=((e.clientY-rect.top)/rect.height)*100; if(h>=20 && h<=80){ document.documentElement.style.setProperty('--editor-height', h+'%'); document.documentElement.style.setProperty('--output-height', (100-h)+'%'); } }
     }
-    // Check answer function
-    async function checkAnswer() {
-        const { out } = await runCode();
-        const cleanOutput = (out || '').trim();
-        
-        if (expectedOutput) {
-            if (cleanOutput === expectedOutput.trim()) {
-                appendOutput('\n🎉 Perfect! Your output matches exactly! 🌟\n', 'ok');
-            } else {
-                appendOutput(`\n🤔 Almost there! Let's compare:\n`, 'err');
-                appendOutput(`Expected: "${expectedOutput.trim()}"\n`, 'err');
-                appendOutput(`Your output: "${cleanOutput}"\n`, 'err');
-                appendOutput(`💡 Tip: Check your code carefully!\n`, 'err');
-            }
-        } else {
-            appendOutput('\n✅ Code executed successfully! Great work! 🚀\n', 'ok');
-        }
-    }
-    // Copy/Paste functionality
-    async function copyCode() {
-        const codeEditor = document.getElementById('codeEditor');
-        if (codeEditor) {
-            try {
-                await navigator.clipboard.writeText(codeEditor.value);
-                updateOutputStatus('Code copied to clipboard!');
-                setTimeout(() => updateOutputStatus('Ready'), 2000);
-            } catch (error) {
-                codeEditor.select();
-                codeEditor.setSelectionRange(0, 99999);
-                try {
-                    document.execCommand('copy');
-                    updateOutputStatus('Code copied to clipboard!');
-                    setTimeout(() => updateOutputStatus('Ready'), 2000);
-                } catch (fallbackError) {
-                    updateOutputStatus('Copy failed - please select and copy manually');
-                    setTimeout(() => updateOutputStatus('Ready'), 3000);
-                }
-            }
-        }
-    }
-    async function pasteCode() {
-        const codeEditor = document.getElementById('codeEditor');
-        if (codeEditor) {
-            try {
-                const text = await navigator.clipboard.readText();
-                codeEditor.value = text;
-                updateOutputStatus('Code pasted from clipboard!');
-                setTimeout(() => updateOutputStatus('Ready'), 2000);
-                codeEditor.focus();
-            } catch (error) {
-                updateOutputStatus('Paste failed - please use Ctrl+V manually');
-                setTimeout(() => updateOutputStatus('Ready'), 3000);
-            }
-        }
-    }
-    // Layout management
-    function setLayout(layout) {
-        const container = document.getElementById('workspaceContainer');
-        const editorPanel = document.getElementById('editorPanel');
-        const outputPanel = document.getElementById('outputPanel');
-        const resizeHandle = document.getElementById('resizeHandle');
-        const buttons = document.querySelectorAll('.layout-btn');
-        buttons.forEach(btn => btn.classList.remove('active'));
-        switch(layout) {
-            case 'vertical':
-                container.className = 'workspace-container vertical';
-                document.getElementById('verticalLayoutBtn').classList.add('active');
-                resizeHandle.style.display = 'block';
-                editorPanel.style.display = 'flex';
-                outputPanel.style.display = 'flex';
-                break;
-            case 'horizontal':
-                container.className = 'workspace-container horizontal';
-                document.getElementById('horizontalLayoutBtn').classList.add('active');
-                resizeHandle.style.display = 'block';
-                editorPanel.style.display = 'flex';
-                outputPanel.style.display = 'flex';
-                break;
-            case 'code-only':
-                container.className = 'workspace-container code-only';
-                document.getElementById('fullscreenCodeBtn').classList.add('active');
-                resizeHandle.style.display = 'none';
-                editorPanel.style.display = 'flex';
-                outputPanel.style.display = 'none';
-                break;
-        }
-        currentLayout = layout;
-    }
-    // Resize functionality
-    function initializeResize() {
-        const resizeHandle = document.getElementById('resizeHandle');
-        const container = document.getElementById('workspaceContainer');
-        
-        resizeHandle.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            document.addEventListener('mousemove', handleResize);
-            document.addEventListener('mouseup', stopResize);
-            e.preventDefault();
-        });
-        function handleResize(e) {
-            if (!isResizing) return;
-            
-            const containerRect = container.getBoundingClientRect();
-            
-            if (currentLayout === 'horizontal') {
-                const newWidth = ((e.clientX - containerRect.left) / containerRect.width) * 100;
-                if (newWidth >= 20 && newWidth <= 80) {
-                    document.documentElement.style.setProperty('--editor-width', `${newWidth}%`);
-                    document.documentElement.style.setProperty('--output-width', `${100 - newWidth}%`);
-                }
-            } else if (currentLayout === 'vertical') {
-                const newHeight = ((e.clientY - containerRect.top) / containerRect.height) * 100;
-                if (newHeight >= 20 && newHeight <= 80) {
-                    document.documentElement.style.setProperty('--editor-height', `${newHeight}%`);
-                    document.documentElement.style.setProperty('--output-height', `${100 - newHeight}%`);
-                }
-            }
-        }
-        function stopResize() {
-            isResizing = false;
-            document.removeEventListener('mousemove', handleResize);
-            document.removeEventListener('mouseup', stopResize);
-        }
-    }
-    // Step navigation
-    function updateStepDisplay() {
-        const currentStepEl = document.getElementById('currentStep');
-        const stepContents = document.querySelectorAll('.step-content');
-        const prevBtn = document.getElementById('prevStepBtn');
-        const nextBtn = document.getElementById('nextStepBtn');
-        if (currentStepEl) currentStepEl.textContent = currentStepIndex + 1;
-        
-        stepContents.forEach((content, index) => {
-            content.style.display = index === currentStepIndex ? 'block' : 'none';
-        });
-        if (prevBtn) prevBtn.disabled = currentStepIndex === 0;
-        if (nextBtn) {
-            nextBtn.disabled = currentStepIndex === stepContents.length - 1;
-        }
-    }
-    function navigateStep(direction) {
-        const stepContents = document.querySelectorAll('.step-content');
-        if (direction === 'prev' && currentStepIndex > 0) {
-            currentStepIndex--;
-            updateStepDisplay();
-        } else if (direction === 'next' && currentStepIndex < stepContents.length - 1) {
-            currentStepIndex++;
-            updateStepDisplay();
-        }
-    }
-    // Example management
-    function updateExampleDisplay() {
-        if (examples.length === 0) return;
-        const exampleBadgeEl = document.getElementById('exampleBadge');
-        const exampleTitleEl = document.getElementById('exampleTitle');
-        const exampleCodeDisplayEl = document.getElementById('exampleCodeDisplay');
-        const exampleExplanationEl = document.getElementById('exampleExplanation');
-        const examplePreviewEl = document.getElementById('examplePreview');
-        const prevExampleBtn = document.getElementById('prevExampleBtn');
-        const nextExampleBtn = document.getElementById('nextExampleBtn');
-        const currentExample = examples[currentExampleIndex];
-        
-        if (exampleBadgeEl) exampleBadgeEl.textContent = `Example ${currentExampleIndex + 1} / ${examples.length}`;
-        if (exampleTitleEl) exampleTitleEl.textContent = currentExample.title || `Example ${currentExampleIndex + 1}`;
-        
-        if (exampleCodeDisplayEl) {
-            exampleCodeDisplayEl.textContent = currentExample.code || '';
-            if (currentExample.code) {
-                examplePreviewEl.style.display = 'block';
-            } else {
-                examplePreviewEl.style.display = 'none';
-            }
-        }
-        
-        if (exampleExplanationEl) {
-            if (currentExample.explain) {
-                exampleExplanationEl.textContent = currentExample.explain;
-                exampleExplanationEl.style.display = 'block';
-            } else {
-                exampleExplanationEl.style.display = 'none';
-            }
-        }
-        if (prevExampleBtn) prevExampleBtn.disabled = currentExampleIndex === 0;
-        if (nextExampleBtn) nextExampleBtn.disabled = currentExampleIndex === examples.length - 1;
-        expectedOutput = currentExample.expected_output || '';
-        updateChallengeDisplay();
-    }
-    function navigateExample(direction) {
-        if (direction === 'prev' && currentExampleIndex > 0) {
-            currentExampleIndex--;
-            updateExampleDisplay();
-        } else if (direction === 'next' && currentExampleIndex < examples.length - 1) {
-            currentExampleIndex++;
-            updateExampleDisplay();
-        }
-    }
-    function loadExampleToEditor() {
-        const codeEditor = document.getElementById('codeEditor');
-        const exampleCodeDisplay = document.getElementById('exampleCodeDisplay');
-        
-        if (codeEditor && exampleCodeDisplay) {
-            codeEditor.value = exampleCodeDisplay.textContent;
-            clearOutput();
-            updateOutputStatus('Example loaded!');
-            setTimeout(() => updateOutputStatus('Ready'), 2000);
-            codeEditor.focus();
-        }
-    }
-    function updateChallengeDisplay() {
-        const expectedOutputPreviewEl = document.getElementById('expectedOutputPreview');
-        if (expectedOutput && expectedOutputPreviewEl) {
-            expectedOutputPreviewEl.textContent = expectedOutput;
-        }
-    }
-    function initializeExamples() {
-        const exampleRows = document.querySelectorAll('#examplesData .ex-row');
-        examples = [];
-        
-        exampleRows.forEach(row => {
-            const title = row.dataset.title || '';
-            const code = row.dataset.code ? atob(row.dataset.code) : '';
-            const explain = row.dataset.explain || '';
-            const expected_output = row.dataset.expected || '';
-            
-            examples.push({
-                title,
-                code,
-                explain,
-                expected_output
-            });
-        });
-        if (examples.length > 0) {
-            updateExampleDisplay();
-        }
-    }
-    // Toggle instructions panel
-    function toggleInstructions() {
-        const content = document.getElementById('instructionsContent');
-        const button = document.getElementById('toggleInstructions');
-        const icon = button.querySelector('i');
-        
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            icon.className = 'fas fa-chevron-up';
-        } else {
-            content.style.display = 'none';
-            icon.className = 'fas fa-chevron-down';
-        }
-    }
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize
-        initializePython();
-        initializeExamples();
-        updateStepDisplay();
-        initializeResize();
-        setLayout('horizontal');
-        // Button event listeners
-        document.getElementById('runBtn')?.addEventListener('click', runCode);
-        document.getElementById('checkBtn')?.addEventListener('click', checkAnswer);
-        document.getElementById('clearBtn')?.addEventListener('click', () => {
-            document.getElementById('codeEditor').value = '';
-            clearOutput();
-        });
-        document.getElementById('copyBtn')?.addEventListener('click', copyCode);
-        document.getElementById('pasteBtn')?.addEventListener('click', pasteCode);
-        // Layout controls
-        document.getElementById('verticalLayoutBtn')?.addEventListener('click', () => setLayout('vertical'));
-        document.getElementById('horizontalLayoutBtn')?.addEventListener('click', () => setLayout('horizontal'));
-        document.getElementById('fullscreenCodeBtn')?.addEventListener('click', () => setLayout('code-only'));
-        // Step navigation
-        document.getElementById('prevStepBtn')?.addEventListener('click', () => navigateStep('prev'));
-        document.getElementById('nextStepBtn')?.addEventListener('click', () => navigateStep('next'));
-        // Example navigation
-        document.getElementById('prevExampleBtn')?.addEventListener('click', () => navigateExample('prev'));
-        document.getElementById('nextExampleBtn')?.addEventListener('click', () => navigateExample('next'));
-        document.getElementById('loadExampleBtn')?.addEventListener('click', loadExampleToEditor);
-        // Instructions toggle
-        document.getElementById('toggleInstructions')?.addEventListener('click', toggleInstructions);
-        // Panel expansion
-        document.getElementById('expandEditorBtn')?.addEventListener('click', () => setLayout('code-only'));
-        document.getElementById('expandOutputBtn')?.addEventListener('click', () => {
-            if (currentLayout === 'code-only') {
-                setLayout('horizontal');
-            } else {
-                // Toggle output visibility
-                const outputPanel = document.getElementById('outputPanel');
-                outputPanel.style.display = outputPanel.style.display === 'none' ? 'flex' : 'none';
-            }
-        });
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                runCode();
-            }
-            // ESC to return to normal layout
-            if (e.key === 'Escape' && currentLayout === 'code-only') {
-                setLayout('horizontal');
-            }
-        });
-        // Auto-focus code editor
-        const codeEditor = document.getElementById('codeEditor');
-        if (codeEditor) {
-            codeEditor.focus();
-        }
-    });
+    function stop(){ isResizing=false; document.removeEventListener('mousemove',handle); document.removeEventListener('mouseup',stop); }
+  }
+
+  function updateStepDisplay(){
+    const cur=document.getElementById('currentStep'); const items=document.querySelectorAll('.step-content'); const prev=document.getElementById('prevStepBtn'); const next=document.getElementById('nextStepBtn');
+    if(cur) cur.textContent=currentStepIndex+1; items.forEach((el,i)=>{ el.style.display = (i===currentStepIndex)?'block':'none'; });
+    if(prev) prev.disabled = currentStepIndex===0; if(next) next.disabled = currentStepIndex===items.length-1;
+    const progress=document.getElementById('stepProgressFill'); if(progress && items.length){ const pct = ((currentStepIndex+1)/items.length)*100; progress.style.width=pct+'%'; }
+  }
+  function navigateStep(dir){ const items=document.querySelectorAll('.step-content'); if(dir==='prev' && currentStepIndex>0){ currentStepIndex--; updateStepDisplay(); } else if(dir==='next' && currentStepIndex<items.length-1){ currentStepIndex++; updateStepDisplay(); } }
+
+  function initializeExamples(){ const rows=document.querySelectorAll('#examplesData .ex-row'); examples=[]; rows.forEach(r=>{ const title=r.dataset.title||''; const code=r.dataset.code?atob(r.dataset.code):''; const explain=r.dataset.explain||''; const expected=r.dataset.expected||''; examples.push({title, code, explain, expected_output: expected}); }); if(examples.length>0) updateExampleDisplay(); }
+  function updateExampleDisplay(){ if(!examples.length) return; const badge=document.getElementById('exampleBadge'); const title=document.getElementById('exampleTitle'); const codeDisp=document.getElementById('exampleCodeDisplay'); const expl=document.getElementById('exampleExplanation'); const preview=document.getElementById('examplePreview'); const prev=document.getElementById('prevExampleBtn'); const next=document.getElementById('nextExampleBtn'); const cur=examples[currentExampleIndex];
+    if(badge) badge.textContent=`Example ${currentExampleIndex+1} / ${examples.length}`; if(title) title.textContent=cur.title||`Example ${currentExampleIndex+1}`;
+    if(codeDisp){ codeDisp.textContent=cur.code||''; preview.style.display = cur.code? 'block':'none'; }
+    if(expl){ if(cur.explain){ expl.textContent=cur.explain; expl.style.display='block'; } else { expl.style.display='none'; } }
+    if(prev) prev.disabled = currentExampleIndex===0; if(next) next.disabled = currentExampleIndex===examples.length-1; expectedOutput = cur.expected_output || ''; updateChallengeDisplay(); }
+  function navigateExample(d){ if(d==='prev' && currentExampleIndex>0){ currentExampleIndex--; updateExampleDisplay(); } else if(d==='next' && currentExampleIndex<examples.length-1){ currentExampleIndex++; updateExampleDisplay(); } }
+  function loadExampleToEditor(){ const editor=document.getElementById('codeEditor'); const disp=document.getElementById('exampleCodeDisplay'); if(editor && disp){ editor.value = disp.textContent; clearOutput(); updateOutputStatus('Example loaded!'); setTimeout(()=>updateOutputStatus('Ready'),1500); editor.focus(); } }
+  function updateChallengeDisplay(){ const el=document.getElementById('expectedOutputPreview'); if(expectedOutput && el){ el.textContent = expectedOutput; } }
+
+  document.addEventListener('DOMContentLoaded',()=>{
+    initializePython(); initializeExamples(); updateStepDisplay(); initializeResize(); setLayout('horizontal');
+    document.getElementById('runBtn')?.addEventListener('click', runCode);
+    document.getElementById('checkBtn')?.addEventListener('click', checkAnswer);
+    document.getElementById('clearBtn')?.addEventListener('click', ()=>{ document.getElementById('codeEditor').value=''; clearOutput(); });
+    document.getElementById('verticalLayoutBtn')?.addEventListener('click', ()=>setLayout('vertical'));
+    document.getElementById('horizontalLayoutBtn')?.addEventListener('click', ()=>setLayout('horizontal'));
+    document.getElementById('fullscreenCodeBtn')?.addEventListener('click', ()=>setLayout('code-only'));
+    document.getElementById('prevStepBtn')?.addEventListener('click', ()=>navigateStep('prev'));
+    document.getElementById('nextStepBtn')?.addEventListener('click', ()=>navigateStep('next'));
+    document.getElementById('prevExampleBtn')?.addEventListener('click', ()=>navigateExample('prev'));
+    document.getElementById('nextExampleBtn')?.addEventListener('click', ()=>navigateExample('next'));
+    document.getElementById('loadExampleBtn')?.addEventListener('click', loadExampleToEditor);
+    const codeEditor=document.getElementById('codeEditor'); if(codeEditor) codeEditor.focus();
+    document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); runCode(); } if(e.key==='Escape' && currentLayout==='code-only'){ setLayout('horizontal'); } });
+  });
 </script>
+
 <style>
-:root {
-    --primary: #3b82f6;
-    --primary-light: #60a5fa;
-    --primary-dark: #1d4ed8;
-    --secondary: #8b5cf6;
-    --accent: #f59e0b;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --error: #ef4444;
-    --dark: #1f2937;
-    --gray: #6b7280;
-    --light-gray: #f3f4f6;
-    --border: #e5e7eb;
-    --white: #ffffff;
-    --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --editor-width: 50%;
-    --output-width: 50%;
-    --editor-height: 50%;
-    --output-height: 50%;
-}
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    color: var(--dark);
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-}
-.learning-interface {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: none;
-    padding: 0;
-    margin: 0;
-}
-/* Modern Header */
-.modern-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-    padding: 1rem 0;
-    color: white;
-    position: relative;
-    overflow: hidden;
-    flex-shrink: 0;
-    width: 100%;
-}
-.modern-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.3;
-}
-.header-container {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 0 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-}
-.header-info {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-.header-icon {
-    width: 48px;
-    height: 48px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    backdrop-filter: blur(10px);
-}
-.header-text h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    color: white;
-}
-.header-text p {
-    opacity: 0.9;
-    font-size: 0.9rem;
-    margin: 0;
-    color: white;
-}
-.header-actions {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-}
-.start-level-btn {
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, var(--success) 0%, #34d399 100%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.start-level-btn:hover {
-    background: linear-gradient(135deg, #059669 0%, var(--success) 100%);
-    color: white;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-.back-btn {
-    padding: 0.75rem 1.25rem;
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.back-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
-}
-/* Main Layout */
-.main-layout {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 1.5rem;
-    gap: 1rem;
-}
-/* Top Section - Instructions */
-.top-section {
-    flex-shrink: 0;
-    width: 100%;
-}
-.instructions-panel {
-    background: var(--white);
-    border-radius: 12px;
-    box-shadow: var(--shadow-md);
-    overflow: hidden;
-    width: 100%;
-}
-.panel-header {
-    padding: 1rem 1.5rem;
-    background: linear-gradient(135deg, var(--light-gray) 0%, #e2e8f0 100%);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.panel-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: var(--dark);
-}
-.panel-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-.collapse-btn, .control-btn {
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--white);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    color: var(--dark);
-}
-.collapse-btn:hover, .control-btn:hover {
-    background: var(--primary);
-    color: white;
-}
-.panel-content {
-    padding: 1.5rem;
-}
-/* Overview Section */
-.overview-section {
-    margin-bottom: 1.5rem;
-}
-.overview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-}
-.meta-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: var(--light-gray);
-    border-radius: 8px;
-    border-left: 4px solid var(--primary);
-}
-.meta-icon {
-    font-size: 1.25rem;
-}
-.meta-content {
-    display: flex;
-    flex-direction: column;
-}
-.meta-label {
-    font-size: 0.8rem;
-    color: var(--gray);
-    font-weight: 500;
-}
-.meta-value {
-    font-weight: 600;
-    color: var(--dark);
-}
-/* Instructions Container */
-.instructions-container {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-}
-.step-navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1rem;
-    background: var(--light-gray);
-    border-bottom: 1px solid var(--border);
-}
-.nav-btn {
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--white);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    color: var(--dark);
-}
-.nav-btn:hover:not(:disabled) {
-    background: var(--primary);
-    color: white;
-}
-.nav-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-.step-info {
-    font-weight: 600;
-    color: var(--dark);
-}
-.step-current {
-    color: var(--primary);
-    font-size: 1.1rem;
-}
-.step-container {
-    padding: 1.5rem;
-    min-height: 100px;
-}
-.step-content {
-    line-height: 1.7;
-    color: var(--dark);
-}
-/* Bottom Section - Code Workspace */
-.bottom-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    width: 100%;
-}
-/* Console Header */
-.console-header {
-    padding: 1rem 1.5rem;
-    background: var(--dark);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 12px 12px 0 0;
-    flex-shrink: 0;
-}
-.console-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-.console-icon {
-    width: 36px;
-    height: 36px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-}
-.console-title {
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-    color: white;
-}
-.console-status {
-    font-size: 0.8rem;
-    opacity: 0.8;
-    color: white;
-}
-.console-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-/* Editor Actions */
-.editor-actions {
-    display: flex;
-    gap: 0.5rem;
-    margin-right: 0.75rem;
-    padding-right: 0.75rem;
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-}
-.console-btn {
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.console-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-}
-.btn-run:hover { 
-    background: var(--success) !important; 
-    color: white !important;
-}
-.btn-check:hover { 
-    background: var(--primary) !important; 
-    color: white !important;
-}
-.btn-clear:hover { 
-    background: var(--error) !important; 
-    color: white !important;
-}
-.layout-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-.layout-btn {
-    padding: 0.5rem 0.75rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 6px;
-    color: white;
-    cursor: pointer;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.layout-btn:hover, .layout-btn.active {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    color: white;
-}
-/* Example Navigation */
-.example-nav {
-    padding: 0.75rem 1.5rem;
-    background: var(--light-gray);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-shrink: 0;
-}
-.example-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-.example-badge {
-    font-size: 0.75rem;
-    background: var(--primary);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 10px;
-    width: fit-content;
-}
-.example-title {
-    font-weight: 600;
-    color: var(--dark);
-    font-size: 0.9rem;
-}
-.example-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-.btn-example {
-    padding: 0.4rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--white);
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    color: var(--dark);
-}
-.btn-example:hover:not(:disabled) {
-    background: var(--primary);
-    color: white;
-}
-.btn-example:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-/* Example Preview */
-.example-preview {
-    padding: 1rem 1.5rem;
-    background: #f8f9fa;
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-}
-.example-code {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 1rem;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--dark);
-    white-space: pre-wrap;
-    overflow-x: auto;
-    margin-bottom: 0.75rem;
-}
-.example-explanation {
-    background: rgba(16, 185, 129, 0.1);
-    border-left: 3px solid var(--success);
-    padding: 0.75rem;
-    border-radius: 4px;
-    font-size: 0.9rem;
-    color: var(--dark);
-    line-height: 1.5;
-}
-/* Workspace Container */
-.workspace-container {
-    flex: 1;
-    display: flex;
-    background: var(--white);
-    border-radius: 0 0 12px 12px;
-    overflow: hidden;
-    min-height: 400px;
-    box-shadow: var(--shadow-md);
-    width: 100%;
-}
-.workspace-container.horizontal {
-    flex-direction: row;
-}
-.workspace-container.vertical {
-    flex-direction: column;
-}
-.workspace-container.code-only .output-panel {
-    display: none;
-}
-/* Editor Panel */
-.editor-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    min-width: 0;
-}
-.workspace-container.horizontal .editor-panel {
-    width: var(--editor-width);
-}
-.workspace-container.vertical .editor-panel {
-    height: var(--editor-height);
-    border-right: none;
-    border-bottom: 1px solid var(--border);
-}
-.workspace-container.code-only .editor-panel {
-    border-right: none;
-}
-.editor-content {
-    flex: 1;
-    position: relative;
-}
-.code-editor {
-    width: 100%;
-    height: 100%;
-    border: none;
-    padding: 1rem;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.6;
-    resize: none;
-    background: #fafafa;
-    color: var(--dark);
-    outline: none;
-}
-.code-editor:focus {
-    background: var(--white);
-}
-/* Resize Handle */
-.resize-handle {
-    background: var(--border);
-    cursor: ew-resize;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    transition: background-color 0.2s ease;
-}
-.workspace-container.horizontal .resize-handle {
-    width: 4px;
-    cursor: ew-resize;
-}
-.workspace-container.vertical .resize-handle {
-    height: 4px;
-    cursor: ns-resize;
-}
-.resize-handle:hover {
-    background: var(--primary);
-}
-.resize-line {
-    background: var(--white);
-    border-radius: 2px;
-}
-.workspace-container.horizontal .resize-line {
-    width: 2px;
-    height: 20px;
-}
-.workspace-container.vertical .resize-line {
-    width: 20px;
-    height: 2px;
-}
-/* Output Panel */
-.output-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-.workspace-container.horizontal .output-panel {
-    width: var(--output-width);
-}
-.workspace-container.vertical .output-panel {
-    height: var(--output-height);
-}
-.output-content {
-    flex: 1;
-    background: var(--dark);
-    position: relative;
-}
-.console-output {
-    width: 100%;
-    height: 100%;
-    padding: 1rem;
-    color: #e5e7eb;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-    line-height: 1.6;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    background: var(--dark);
-}
-.console-output .ok {
-    color: #86efac;
-}
-.console-output .err {
-    color: #fca5a5;
-}
-.welcome-message {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    border-left: 3px solid var(--success);
-    color: #86efac;
-}
-/* Challenge Section */
-.challenge-section {
-    margin-top: 1rem;
-    background: var(--white);
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: var(--shadow-md);
-    flex-shrink: 0;
-    width: 100%;
-}
-.challenge-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-.challenge-header h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--dark);
-    margin: 0;
-}
-.challenge-section p {
-    margin-bottom: 1rem;
-    color: var(--dark);
-    line-height: 1.6;
-}
-.expected-output {
-    background: var(--light-gray);
-    border-radius: 8px;
-    padding: 1rem;
-}
-.output-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray);
-    margin-bottom: 0.5rem;
-}
-.output-preview {
-    background: var(--white);
-    border: 2px solid var(--success);
-    border-radius: 6px;
-    padding: 0.75rem;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 14px;
-    color: var(--dark);
-    font-weight: 600;
-}
-.output-status {
-    font-size: 0.8rem;
-    opacity: 0.8;
-    margin-right: 0.5rem;
-    color: white;
-}
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .main-layout {
-        padding: 1rem;
-    }
-    
-    .console-header {
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-start;
-    }
-    
-    .editor-actions {
-        flex-wrap: wrap;
-        margin-right: 0.5rem;
-        padding-right: 0.5rem;
-    }
-}
-@media (max-width: 768px) {
-    .header-container {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-        padding: 0 1rem;
-    }
-    
-    .header-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .start-level-btn, .back-btn {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .workspace-container.horizontal {
-        flex-direction: column;
-    }
-    
-    .workspace-container.horizontal .editor-panel {
-        width: 100%;
-        height: 50%;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-    
-    .workspace-container.horizontal .output-panel {
-        width: 100%;
-        height: 50%;
-    }
-    
-    .workspace-container.horizontal .resize-handle {
-        width: 100%;
-        height: 4px;
-        cursor: ns-resize;
-    }
-    
-    .workspace-container.horizontal .resize-line {
-        width: 20px;
-        height: 2px;
-    }
-    
-    .example-nav {
-        flex-direction: column;
-        gap: 0.75rem;
-        align-items: flex-start;
-    }
-    
-    .overview-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .panel-controls {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-start;
-    }
-    
-    .editor-actions {
-        border-right: none;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        padding-bottom: 0.5rem;
-        margin-right: 0;
-        padding-right: 0;
-    }
-}
-/* Custom Scrollbar */
-.console-output::-webkit-scrollbar,
-.panel-content::-webkit-scrollbar {
-    width: 6px;
-}
-.console-output::-webkit-scrollbar-track {
-    background: #374151;
-}
-.panel-content::-webkit-scrollbar-track {
-    background: var(--light-gray);
-}
-.console-output::-webkit-scrollbar-thumb {
-    background: #6b7280;
-    border-radius: 3px;
-}
-.panel-content::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
-}
-.console-output::-webkit-scrollbar-thumb:hover,
-.panel-content::-webkit-scrollbar-thumb:hover {
-    background: var(--gray);
-}
-/* Focus States */
-button:focus-visible,
-.nav-btn:focus-visible,
-.console-btn:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-}
-.code-editor:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: -2px;
-}
-/* Utility Classes */
-.hidden { display: none !important; }
+  :root{
+    /* Cosmic palette to match other blades */
+    --bg-start:#3B146B; --bg-end:#1A082D; --primary:#7A2EA5; --accent:#B967FF;
+    --card:#EDE6FF; --card-brd:rgba(122,46,165,.28); --tile:#F2EBFF;
+    --ink:#2B1F44; --muted:#5B556A; --success:#16A34A; --warn:#F59E0B; --error:#ef4444;
+    --border: rgba(122,46,165,.22);
+    --editor-width: 52%; --output-width: 48%; --editor-height: 52%; --output-height: 48%;
+    /* Font to match other blades */
+    --font-ui: 'Orbitron','Arial',sans-serif;
+  }
+  /* Use the same UI font everywhere on this page (except code areas) */
+  .game-viewport, .game-viewport *:not(textarea.code-editor):not(.console-output){
+    font-family: var(--font-ui);
+  }
+  .game-viewport{ min-height: calc(100vh - 0px); background:linear-gradient(45deg,var(--bg-start),var(--bg-end)); color:#fff; }
+  .game-container{ position:relative; }
+  .content-wrap{ width: min(1200px, 96vw); margin: 18px auto 28px; }
+
+  /* Header (borrowed style) */
+  .game-header-container{ background:linear-gradient(135deg,var(--bg-start),var(--primary)); border-bottom:1px solid var(--accent); box-shadow:0 10px 28px rgba(25,10,41,.35), inset 0 -1px 0 rgba(255,255,255,.06); position:relative; overflow:hidden; padding:14px 16px; }
+.game-header-container::before{ content:''; position:absolute; inset:0; left:-100%; background:linear-gradient(90deg,transparent,rgba(185,103,255,.35),transparent); animation:headerShine 4s ease-in-out infinite; }
+/* Force same font as stages */
+.game-header-container, .game-header-container * { font-family: var(--font-ui) !important; }
+/* New header flex layout to avoid wrapping and match stage header */
+.header-flex{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.header-left{ display:flex; align-items:center; gap:12px; min-width:0; flex:1 1 auto; }
+.header-right{ flex:0 0 auto; display:flex; align-items:center; gap:12px; }
+.game-header-container .btn.btn-game{ white-space:nowrap; }
+.stage-title{ font-size:clamp(1.4rem, 1.2rem + 1.6vw, 2.25rem); font-weight:900; letter-spacing:.5px; margin:0; background:linear-gradient(45deg,var(--primary),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 6px 18px rgba(185,103,255,.28); }
+.stage-subtitle{ color:rgba(255,255,255,.85); font-size:.95rem; } 
+$1@keyframes headerShine{0%{left:-100%}50%{left:100%}100%{left:100%}}
+  .stage-icon-wrapper{ width:64px;height:64px;border-radius:14px; background:linear-gradient(145deg,var(--bg-start),#321052); border:1px solid var(--accent); box-shadow:0 0 30px rgba(185,103,255,.18) inset, 0 0 22px rgba(185,103,255,.22); display:flex;align-items:center;justify-content:center; animation:pulse 2.4s ease-in-out infinite; }
+  .stage-icon{ color:var(--accent); font-size:26px; }
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  .stage-title{ font-size:2rem;font-weight:900;letter-spacing:.5px;margin:0; background:linear-gradient(45deg,var(--accent),#fff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 6px 18px rgba(185,103,255,.28); }
+  .stage-subtitle{ color:rgba(255,255,255,.85); font-size:.95rem; }
+
+  /* Cards */
+  .card-surface{ background:var(--card); color:var(--ink); border:1px solid var(--card-brd); border-radius:18px; box-shadow:0 12px 34px rgba(25,10,41,.18), 0 0 0 1px rgba(185,103,255,.06); padding:18px; }
+  .card-surface .muted{ color:var(--muted)!important; }
+
+  .cosmic-separator{ position:relative; height:28px; margin:14px 0 16px; width:100%; }
+  .cosmic-separator::after{ content:''; position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(90deg, transparent, rgba(185,103,255,.45), transparent); }
+  .cosmic-separator .label{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); background:linear-gradient(45deg,var(--primary),var(--accent)); color:#fff; font-weight:900; letter-spacing:.4px; text-transform:uppercase; font-size:.8rem; padding:6px 12px; border-radius:999px; box-shadow:0 10px 24px rgba(185,103,255,.25); }
+
+  /* Meta / overview */
+  .overview-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; }
+  .meta-card{ display:flex; align-items:center; gap:.75rem; padding:12px 14px; background:var(--tile); border:1px solid var(--border); border-radius:12px; }
+  .meta-icon{ font-size:1.25rem; }
+  .meta-label{ font-size:.8rem; }
+  .meta-value{ font-weight:800; }
+
+  /* Instructions */
+  .instructions-container{ background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .step-navigation{ display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#F5EEFF; border-bottom:1px solid var(--border); }
+  .nav-btn{ width:36px; height:36px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--ink); cursor:pointer; transition:.2s; }
+  .nav-btn:hover:not(:disabled){ background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; }
+  .nav-btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .step-info{ font-weight:900; color:var(--ink); }
+  .step-current{ color:var(--primary); font-size:1.1rem; }
+  .step-progress{ height:6px; background:#EFE8FF; }
+  .step-progress-fill{ height:100%; background:linear-gradient(90deg,var(--primary),var(--accent)); width:0%; transition:width .25s ease; }
+  .step-container{ padding:16px; min-height:110px; }
+  .step-content{ line-height:1.7; color:var(--ink); }
+
+  /* Example */
+  .example-nav{ padding:10px 16px; background:#F5EEFF; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .example-info{ display:flex; flex-direction:column; gap:2px; }
+  .example-badge{ font-size:.75rem; background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; padding:.25rem .6rem; border-radius:999px; width:fit-content; }
+  .example-title{ font-weight:800; color:var(--ink); font-size:.95rem; }
+  .btn-example{ padding:.4rem .75rem; border:1px solid var(--border); border-radius:8px; background:#fff; cursor:pointer; font-size:.8rem; color:#var(--ink); transition:.2s; display:flex; align-items:center; gap:.4rem; }
+  .btn-example:hover:not(:disabled){ background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; }
+  .btn-example:disabled{ opacity:.5; cursor:not-allowed; }
+  .example-preview{ padding:14px 16px; background:#faf7ff; border-bottom:1px solid var(--border); }
+  .example-code{ background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:13px; line-height:1.5; color:var(--ink); white-space:pre-wrap; overflow-x:auto; margin-bottom:.75rem; }
+  .example-explanation{ background:rgba(22,163,74,.08); border-left:3px solid var(--success); padding:.75rem; border-radius:6px; font-size:.9rem; color:var(--ink); }
+
+  /* Console */
+  .console-header{ padding:12px 16px; background:#1B1230; color:#fff; display:flex; justify-content:space-between; align-items:center; border-radius:14px 14px 0 0; }
+  .console-icon{ width:36px; height:36px; background:rgba(255,255,255,.1); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+  .console-title{ font-weight:800; }
+  .console-status{ font-size:.85rem; opacity:.9; }
+  .console-actions{ display:flex; gap:.5rem; align-items:center; }
+  .editor-actions{ display:flex; gap:.5rem; margin-right:.5rem; padding-right:.5rem; border-right:1px solid rgba(255,255,255,.18); }
+  .console-btn{ padding:.5rem .7rem; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#fff; cursor:pointer; font-size:.85rem; font-weight:700; transition:.2s; display:flex; align-items:center; gap:.45rem; }
+  .console-btn:hover{ background:rgba(255,255,255,.22); }
+  .btn-run:hover{ background:var(--success)!important; color:#fff!important; }
+  .btn-check:hover{ background:var(--accent)!important; color:#fff!important; }
+  .btn-clear:hover{ background:#DD3B3B!important; color:#fff!important; }
+  .layout-controls{ display:flex; gap:.5rem; }
+  .layout-btn{ padding:.5rem .75rem; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#fff; cursor:pointer; font-size:.85rem; font-weight:700; transition:.2s; display:flex; align-items:center; gap:.45rem; }
+  .layout-btn:hover, .layout-btn.active{ background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.3); }
+
+  /* Workspace sizing – prevents overfitting */
+  .workspace-container{ display:flex; background:#fff; border-radius:0 0 14px 14px; overflow:hidden; min-height:420px; height:clamp(420px,58vh,64vh); border:1px solid var(--border); border-top:none; }
+  .workspace-container.horizontal{ flex-direction:row; }
+  .workspace-container.vertical{ flex-direction:column; }
+  .workspace-container.code-only .output-panel{ display:none; }
+
+  .panel-header{ padding:10px 12px; background:#F5EEFF; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+  .panel-title{ font-weight:900; color:var(--ink); }
+  .panel-controls{ display:flex; gap:.5rem; align-items:center; }
+  .control-btn{ width:34px; height:34px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--ink); cursor:pointer; }
+  .control-btn:hover{ background:linear-gradient(135deg,var(--primary),var(--accent)); color:#fff; }
+
+  /* Editor */
+  .editor-panel{ flex:1; display:flex; flex-direction:column; border-right:1px solid var(--border); min-width:0; }
+  .workspace-container.horizontal .editor-panel{ width:var(--editor-width); }
+/* Add a visible inner border so the resizer never sits on top of the first character */
+.workspace-container.horizontal .output-panel{ width:var(--output-width); border-left: 1px solid rgba(122,46,165,.18); }
+  .workspace-container.vertical .editor-panel{ height:var(--editor-height); border-right:none; border-bottom:1px solid var(--border); }
+  .editor-content{ flex:1; position:relative; }
+  .code-editor{ width:100%; height:100%; min-height:220px; border:none; padding:12px; font-family:'Consolas','Monaco','Courier New',monospace; font-size:14px; line-height:1.6; resize:none; background:#FAFAFF; color:var(--ink); outline:none; }
+  .code-editor:focus{ background:#fff; }
+
+  /* Resizer */
+  .resize-handle{ background:#ECE3FF; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:background .2s; position:relative; z-index:3; }
+  .workspace-container.horizontal .resize-handle{ width:4px; cursor:ew-resize; }
+  .workspace-container.vertical .resize-handle{ height:4px; cursor:ns-resize; }
+  .resize-handle:hover{ background:var(--accent); }
+  .resize-line{ background:#fff; border-radius:2px; }
+  .workspace-container.horizontal .resize-line{ width:2px; height:20px; }
+  .workspace-container.vertical .resize-line{ width:20px; height:2px; }
+
+  /* Output */
+  .output-panel{ flex:1; display:flex; flex-direction:column; min-width:0; position:relative; z-index:1; }
+  .workspace-container.horizontal .output-panel{ width:var(--output-width); }
+  .workspace-container.vertical .output-panel{ height:var(--output-height); }
+  .output-content{ flex:1; background:#120A22; }
+  /* Ensure first characters are not hidden by the resizer: add safe left padding */
+  .console-output{ width:100%; height:100%; padding:12px 12px 12px 18px; color:#E7E3FF; font-family:'Consolas','Monaco','Courier New',monospace; font-size:14px; line-height:1.6; overflow-y:auto; white-space:pre-wrap; background:#120A22; }
+  .console-output .ok{ color:#86efac; }
+  .console-output .err{ color:#fca5a5; }
+  .welcome-message{ display:flex; align-items:center; gap:.6rem; padding:10px; background:rgba(255,255,255,.05); border-radius:8px; border-left:3px solid var(--success); color:#86efac; }
+
+  /* Challenge */
+  .challenge-header{ display:flex; align-items:center; gap:.6rem; margin-bottom:.6rem; }
+  .expected-output{ background:#F5EEFF; border-radius:12px; padding:12px; border:1px solid var(--border); }
+  .output-label{ font-size:.9rem; font-weight:800; color:var(--muted); margin-bottom:.4rem; }
+  .output-preview{ background:#fff; border:2px solid var(--success); border-radius:8px; padding:.75rem; font-family:'Consolas','Monaco','Courier New',monospace; font-size:14px; color:var(--ink); font-weight:700; }
+
+  /* Floating bits */
+  .floating-elements{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+  .floating-coin,.floating-gem,.floating-star{ position:absolute; font-size:20px; opacity:.35; animation:float 8s ease-in-out infinite }
+  .floating-gem{ animation-delay:1.4s } .floating-star{ animation-delay:2.8s }
+  @keyframes float{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-14px) rotate(90deg)}50%{transform:translateY(0) rotate(180deg)}75%{transform:translateY(-10px) rotate(270deg)}}
+
+  /* Buttons (imported look) */
+  .btn-game, .btn-level{ background:linear-gradient(45deg,var(--primary),var(--accent)); color:#fff; border:none; font-weight:800; letter-spacing:.4px; border-radius:12px; padding:10px 18px; text-transform:uppercase; box-shadow:0 12px 26px rgba(185,103,255,.25); position:relative; overflow:hidden; transition:.22s ease; }
+  .btn-game:hover, .btn-level:hover{ transform:translateY(-2px); color:#fff; box-shadow:0 14px 32px rgba(185,103,255,.38); }
+
+  /* Responsive */
+  @media (max-width: 1024px){ .content-wrap{ width:min(1100px,94vw); } .console-header{ flex-direction:column; gap:10px; align-items:flex-start; } }
+  @media (max-width: 768px){
+    .stage-title{ font-size:1.6rem; }
+    .content-wrap{ width:min(1000px,94vw); margin:12px auto 22px; }
+    .workspace-container.horizontal{ flex-direction:column; height:clamp(520px,65vh,72vh); }
+    .workspace-container.horizontal .editor-panel{ width:100%; height:52%; border-right:none; border-bottom:1px solid var(--border); }
+    .workspace-container.horizontal .output-panel{ width:100%; height:48%; }
+    .workspace-container.horizontal .resize-handle{ width:100%; height:4px; cursor:ns-resize; }
+    .workspace-container.horizontal .resize-line{ width:20px; height:2px; }
+  }
+html, body { height:100%; }
+body{
+  margin:0;
+  background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
+  color:#fff;
+}
+
+/* Use Orbitron only inside this page’s content, not the global header/footer */
+.game-viewport{
+  font-family:'Orbitron','Arial',sans-serif;
+}
+  /* Scrollbars (only local elements) */
+  .console-output::-webkit-scrollbar{ width:8px; } .console-output::-webkit-scrollbar-thumb{ background:#3B2D5F; border-radius:6px; }
 </style>
+
 </x-app-layout>

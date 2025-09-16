@@ -115,6 +115,7 @@ class ProgressUpdater
                 ->count();
             return $prevAttempts === 0 ? 3 : 2;
         }
+        
         if ($attempt->score >= 80) return 2;
         if ($attempt->score >= 50) return 1;
         return 0;

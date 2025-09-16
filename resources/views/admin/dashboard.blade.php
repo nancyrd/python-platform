@@ -94,6 +94,20 @@
                         </div>
                     </div>
                 </a>
+                     <a href="{{ route('admin.users.index') }}" class="tool-card primary">
+                    <div class="tool-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <div class="tool-content">
+                        <h3 class="tool-title">User Management</h3>
+                        <p class="tool-description">Monitor and manage user accounts</p>
+                        <div class="tool-action">
+                            <span>Manage Users</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </a>
+                
 
                 <div class="tool-card secondary">
                     <div class="tool-icon">
@@ -109,20 +123,7 @@
                     </div>
                 </div>
 
-                <div class="tool-card tertiary">
-                    <div class="tool-icon">
-                        <i class="fas fa-users-cog"></i>
-                    </div>
-                    <div class="tool-content">
-                        <h3 class="tool-title">User Management</h3>
-                        <p class="tool-description">Monitor and manage user accounts</p>
-                        <div class="tool-action">
-                            <span>Coming Soon</span>
-                            <i class="fas fa-clock"></i>
-                        </div>
-                    </div>
-                </div>
-
+             
                 <div class="tool-card quaternary">
                     <div class="tool-icon">
                         <i class="fas fa-chart-bar"></i>
@@ -167,37 +168,7 @@
         </div>
     </div>
       <!-- 🔥 Users Overview Section -->
-    <div class="users-overview-section">
-        <div class="section-header">
-            <h2 class="section-title">Users Overview</h2>
-            <p class="section-description">Overview of user progress and activity</p>
-        </div>
 
-        <div class="overflow-x-auto">
-            <table class="min-w-full border rounded-lg shadow-md bg-white">
-                <thead class="bg-gray-100 text-left">
-                    <tr>
-                        <th class="p-3">Name</th>
-                        <th class="p-3">Email</th>
-                        <th class="p-3">Quiz Attempts</th>
-                        <th class="p-3">Level Progress</th>
-                        <th class="p-3">Stage Progress</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach(\App\Models\User::withCount('quizAttempts','levelProgress','stageProgress')->get() as $user)
-                    <tr class="border-t">
-                        <td class="p-3">{{ $user->name }}</td>
-                        <td class="p-3">{{ $user->email }}</td>
-                        <td class="p-3">{{ $user->quiz_attempts_count }}</td>
-                        <td class="p-3">{{ $user->level_progress_count }}</td>
-                        <td class="p-3">{{ $user->stage_progress_count }}</td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');

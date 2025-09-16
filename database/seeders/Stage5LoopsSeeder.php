@@ -280,13 +280,13 @@ Drag the sequences to the correct range().",
                         [
                             'title' => 'Simple range',
                             'code' => "for i in range(3):\n    print(i)",
-                            'explain' => 'Prints 0,1,2.',
+                            'explain' => 'Prints 0,1,2.', 
                             'expected_output' => "0\n1\n2"
                         ],
-                        [ 'title' => 'Basic range(stop)', 'code' => "for i in range(4):\n print(i)", 'explain' => 'Counts 0, 1, 2, 3 (stops before 4).', 'expected_output' => "0\n1\n2\n3" ],
-                         [ 'title' => 'Range with start and stop', 'code' => "for i in range(2, 6):\n print(i)", 'explain' => 'Starts at 2, ends before 6 → prints 2,3,4,5.', 'expected_output' => "2\n3\n4\n5" ],
-                          [ 'title' => 'Range with step', 'code' => "for i in range(1, 10, 3):\n print(i)", 'explain' => 'Starts at 1, adds step of 3 → prints 1,4,7.', 'expected_output' => "1\n4\n7" ], 
-                          [ 'title' => 'Counting down', 'code' => "for x in range(5, 0, -2):\n print(x)", 'explain' => 'Negative step → prints 5,3,1.', 'expected_output' => "5\n3\n1" ],
+                        [ 'title' => 'Basic range(stop)', 'code' => "for i in range(4):\n    print(i)", 'explain' => 'Counts 0, 1, 2, 3 (stops before 4).', 'expected_output' => "0\n1\n2\n3" ],
+                         [ 'title' => 'Range with start and stop', 'code' => "for i in range(2, 6):\n    print(i)", 'explain' => 'Starts at 2, ends before 6 → prints 2,3,4,5.', 'expected_output' => "2\n3\n4\n5" ],
+                          [ 'title' => 'Range with step', 'code' => "for i in range(1, 10, 3):\n    print(i)", 'explain' => 'Starts at 1, adds step of 3 → prints 1,4,7.', 'expected_output' => "1\n4\n7" ], 
+                          [ 'title' => 'Counting down', 'code' => "for x in range(5, 0, -2):\n    print(x)", 'explain' => 'Negative step → prints 5,3,1.', 'expected_output' => "5\n3\n1" ],
                     ]
                 ]
             ]

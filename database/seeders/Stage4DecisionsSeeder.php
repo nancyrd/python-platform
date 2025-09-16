@@ -29,18 +29,32 @@ class Stage4DecisionsSeeder extends Seeder
                 'type'         => 'multiple_choice',
                 'title'        => 'Yes/No logic basics',
                 'pass_score'   => 50,
-                'instructions' => 'In this lesson you’ll learn how to compare values and build simple if-blocks.  
-Compare two values with operators:  
-  • == checks equality (e.g. x == 5)  
-  • != checks inequality (e.g. y != 0)  
-  • > / < / >= / <= compare magnitude.  
-  
-Combine comparisons with logical operators:  
-  • and → both must be True  
-  • or  → at least one True  
-  • not → flips a True/False value  
-  
-A one-branch if runs its block only when the condition is True. Practice predicting whether tiny if-statements will run.',
+              'instructions' => 'In this lesson you\'ll learn how to compare values and build simple if-blocks.
+
+Compare two values with operators:
+    • == checks equality (e.g. x == 5)
+    • != checks inequality (e.g. y != 0)
+    • > / < / >= / <= compare magnitude.
+
+Combine comparisons with logical operators:
+    • and → both must be True
+    • or  → at least one True
+    • not → flips a True/False value
+
+PYTHON INDENTATION - The Magic Spacing Rule!
+Think of Python code like organizing your toys in boxes:
+    • Main code sits against the left wall (no spaces)
+    • When you use "if", the code inside gets moved right by 4 spaces
+    • This tells Python "these lines belong to the if"
+
+Example - Notice the spacing:
+if age > 10:
+xxxx print("You are old enough!")    ← 4 spaces from left
+xxxx print("Welcome to the game!")   ← 4 spaces from left
+print("This is back at the wall")  ← 0 spaces (outside the if)
+
+Remember: Python is picky about spaces! Always use exactly 4 spaces when you go "inside" an if-block. Think of it like stepping into a room - you move 4 steps to the right!
+',
                 'content'      => [
                     'intro'        => 'True/False logic decides which path runs. Use comparisons then link them with and/or/not.',
                     'instructions' => 'Choose the correct answer for each question.',

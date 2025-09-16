@@ -20,7 +20,7 @@
         // Admin links only
         $items[] = ['label' => 'Admin Dashboard', 'href' => route('admin.dashboard'), 'route' => 'admin.dashboard'];
         $items[] = ['label' => 'Manage Stages', 'href' => route('admin.stages.index'), 'route' => 'admin.stages.index'];
-        $items[] = ['label' => 'Manage Levels', 'href' => route('admin.levels.index'), 'route' => 'admin.levels.index'];
+       
     }
 @endphp
 

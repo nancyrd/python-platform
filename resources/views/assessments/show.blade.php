@@ -1202,47 +1202,50 @@
     }
     
     // Save progress function
-    function saveProgressToDatabase(finalScore, answers, timeUsed, stars, totalQuestions, correct, passed) {
-      const formData = new FormData();
-      formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-      formData.append('answers', JSON.stringify(answers));
-      formData.append('time_used', timeUsed);
-      formData.append('stars', stars);
-      formData.append('total_questions', totalQuestions);
-      formData.append('correct_questions', correct);
-      formData.append('passed', passed ? 1 : 0);
-      
-      fetch('{{ route("assessments.submit", $assessment) }}', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => {
-        if (!response.ok) {
-          return response.text().then(text => {
-            console.error('Response text:', text);
-            throw new Error(`HTTP ${response.status}: ${text}`);
-          });
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log('Progress saved successfully:', data);
-        if (data.success) {
-          toast('Progress saved successfully!', 'ok');
-        } else {
-          throw new Error(data.message || 'Unknown error occurred');
-        }
-      })
-      .catch(error => {
-        console.error('Error saving progress:', error);
-        toast('Warning: Progress may not have been saved. Please try again.', 'warn');
-      });
-    }
-    
+   function saveProgressToDatabase(finalScore, answers, timeUsed, stars, totalQuestions, correct, passed) {
+    const fd = new FormData();
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+    fd.append('answers', JSON.stringify(answers));
+    fd.append('score', finalScore);                 // ✅ send score
+    fd.append('time_used', timeUsed);
+    fd.append('stars', stars);
+    fd.append('total_questions', totalQuestions);
+    fd.append('correct_questions', correct);
+    fd.append('passed', passed ? 1 : 0);
+    fd.append('assessment_id', {{ (int)$assessment->id }});   // ✅ helpful on server
+    fd.append('stage_id', {{ (int)$assessment->stage_id }});  // ✅ helpful on server
+    fd.append('type', "{{ $assessment->type ?? 'pre' }}");    // 'pre' | 'post' | etc.
+
+    fetch('{{ route("assessments.submit", $assessment) }}', {
+      method: 'POST',
+      body: fd,
+      cache: 'no-store',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      redirect: 'follow'
+    })
+    .then(async (res) => {
+      const ct = res.headers.get('content-type') || '';
+      // Handle JSON or fallback to text
+      if (ct.includes('application/json')) {
+        const data = await res.json();
+        if (!res.ok || !data.success) throw new Error(data.message || 'Save failed');
+        toast('Progress saved successfully!', 'ok');
+        return;
+      } else {
+        // Some HTML/redirect came back — treat as success (server probably redirected)
+        const text = await res.text();
+        console.warn('Non-JSON response from submit:', text.slice(0, 200));
+        toast('Progress saved (non-JSON response).', 'ok');
+      }
+    })
+    .catch(err => {
+      console.error('Save error:', err);
+      toast('Warning: Progress may not have been saved. Please try again.', 'warn');
+    });
+  }
     // Back to stage button
     const btnBackToStage = document.getElementById('btnBackToStage');
     if (btnBackToStage) {

@@ -443,53 +443,105 @@ PYTHON,
         );
 
         // Mini-projects do not include separate pre/post assessments here by design.
-       Assessment::updateOrCreate(
-            ['stage_id' => $stage8->id, 'type' => 'post'],
+      Assessment::updateOrCreate(
+    ['stage_id' => $stage8->id, 'type' => 'post'],
+    [
+        'title'     => 'Post: Mini Projects',
+        'questions' => [
             [
-                'title'     => 'Post: Mini Projects',
-                'questions' => [
-                    [
-                        'prompt'  => "In the calculator project, why do we write int(input(...)) instead of just input(...) ?",
-                        'options' => [
-                            'Because input gives a string, we need a number',
-                            'Because int(...) always makes the program faster',
-                            'Because input only accepts numbers',
-                            'Because print needs int'
-                        ],
-                        'correct' => 'Because input gives a string, we need a number',
-                    ],
-                    [
-                        'prompt'  => "In the guessing game, what does break do?",
-                        'options' => [
-                            'Skips one loop round',
-                            'Stops the loop immediately',
-                            'Repeats the loop',
-                            'Ignores wrong guesses'
-                        ],
-                        'correct' => 'Stops the loop immediately',
-                    ],
-                    [
-                        'prompt'  => "Which command shows all tasks in a list?",
-                        'options' => [
-                            "print(tasks)",
-                            "for t in tasks: print(t)",
-                            "tasks.show()",
-                            "len(tasks)"
-                        ],
-                        'correct' => "for t in tasks: print(t)",
-                    ],
-                    [
-                        'prompt'  => "If you do del grades['Ali'], what happens?",
-                        'options' => [
-                            "Ali's grade is removed from the dictionary",
-                            "It deletes all grades",
-                            "It throws an error always",
-                            "It clears the dictionary"
-                        ],
-                        'correct' => "Ali's grade is removed from the dictionary",
-                    ],
+                'prompt'  => "In the calculator project, why do we write int(input(...)) instead of just input(...) ?",
+                'options' => [
+                    'Because input gives a string, we need a number',
+                    'Because int(...) always makes the program faster',
+                    'Because input only accepts numbers',
+                    'Because print needs int'
                 ],
-            ]
-        );
+                'correct' => 'Because input gives a string, we need a number',
+            ],
+            [
+                'prompt'  => "In the guessing game, what does break do?",
+                'options' => [
+                    'Skips one loop round',
+                    'Stops the loop immediately',
+                    'Repeats the loop',
+                    'Ignores wrong guesses'
+                ],
+                'correct' => 'Stops the loop immediately',
+            ],
+            [
+                'prompt'  => "Which command shows all tasks in a list?",
+                'options' => [
+                    "print(tasks)",
+                    "for t in tasks: print(t)",
+                    "tasks.show()",
+                    "len(tasks)"
+                ],
+                'correct' => "for t in tasks: print(t)",
+            ],
+            [
+                'prompt'  => "If you do del grades['Ali'], what happens?",
+                'options' => [
+                    "Ali's grade is removed from the dictionary",
+                    "It deletes all grades",
+                    "It throws an error always",
+                    "It clears the dictionary"
+                ],
+                'correct' => "Ali's grade is removed from the dictionary",
+            ],
+            // New questions
+            [
+                'prompt'  => "What happens if you use append() on a string in Python?",
+                'options' => [
+                    "It adds an item to the list",
+                    "It throws an error because append() is for lists only",
+                    "It appends a string to the original string",
+                    "It adds a new element to the dictionary"
+                ],
+                'correct' => 'It throws an error because append() is for lists only',
+            ],
+            [
+                'prompt'  => "In the guessing game, if the secret number is 5 and the guess is 3, which of these should be printed?",
+                'options' => [
+                    "'You got it!'",
+                    "'Higher'",
+                    "'Lower'",
+                    "'Guess again'"
+                ],
+                'correct' => "'Higher'",
+            ],
+            [
+                'prompt'  => "Which of the following methods is used to safely remove a key from a dictionary and avoid an error if the key does not exist?",
+                'options' => [
+                    "del grades['Alex']",
+                    "grades.pop('Alex')",
+                    "grades.remove('Alex')",
+                    "grades.delete('Alex')"
+                ],
+                'correct' => "grades.pop('Alex')",
+            ],
+            [
+                'prompt'  => "Which Python method is used to find out the length of a list or dictionary?",
+                'options' => [
+                    "count()",
+                    "size()",
+                    "len()",
+                    "length()"
+                ],
+                'correct' => "len()",
+            ],
+            [
+                'prompt'  => "If the list is empty, what will len([]) return?",
+                'options' => [
+                    "0",
+                    "None",
+                    "Error",
+                    "False"
+                ],
+                'correct' => "0",
+            ],
+        ],
+    ]
+);
+
     }
 }

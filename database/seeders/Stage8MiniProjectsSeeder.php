@@ -46,11 +46,12 @@ class Stage8MiniProjectsSeeder extends Seeder
                         ],
                         'correct' => 'Repeats for every element in the list',
                     ],
-                    [
-                        'prompt'  => 'Which function safely removes a key from a dictionary with a default value?',
-                        'options' => ['dict.delete(key)', 'dict.remove(key)', 'dict.pop(key, default)', 'dict.clear(key)'],
-                        'correct' => 'dict.pop(key, default)',
-                    ],
+                   [
+    'prompt'  => 'Which function gives the number of items in a list or dictionary?',
+    'options' => ['len()', 'count()', 'size()', 'total()'],
+    'correct' => 'len()',
+],
+
                     [
                         'prompt'  => 'You want to write a function that returns the sum of two numbers. Which keyword do you use?',
                         'options' => ['print', 'return', 'sum', 'output'],
@@ -85,8 +86,11 @@ class Stage8MiniProjectsSeeder extends Seeder
         'title'      => 'Simple Calculator: put steps in order',
         'pass_score' => 60,
         'instructions' => 'We are building a tiny calculator that adds two numbers the user types. 
-Think like a recipe: (1) ask the user for inputs, (2) turn those inputs from text into numbers, 
-(3) do the math, (4) show the answer.
+Think like a recipe: 
+(1) ask the user for inputs,
+ (2) turn those inputs from text into numbers, 
+(3) do the math,
+ (4) show the answer.
 
 Important ideas for beginners:
 • input("...") always returns text (a string). Even if the user types 5, you still get "5".
@@ -96,19 +100,83 @@ Important ideas for beginners:
             'intro'        => 'A real program is just a few careful steps in the right order. We will read numbers from the user, add them, and print the result.',
             'instructions' => 'Drag the blocks to form a valid program. When you think it is correct, check your answer.',
             'tasks' => [
-                [
-                    'id'    => 'calc1',
-                    'title' => 'Add two numbers',
-                    'lines' => [
-                        'num1 = int(input("First number: "))',
-                        'num2 = int(input("Second number: "))',
-                        'total = num1 + num2',
-                        'print("Total:", total)',
-                    ],
-                    'solution'       => [0,1,2,3],
-                    'correct_output' => 'Total: 7', // optional, just an example
-                ],
-            ],
+    [
+        'id'    => 'calc1',
+        'title' => 'Add two numbers',
+        'lines' => [
+            'num1 = int(input("First number: "))',
+            'num2 = int(input("Second number: "))',
+            'total = num1 + num2',
+            'print("Total:", total)',
+        ],
+        'solution'       => [0,1,2,3],
+        'correct_output' => 'Total: 7',
+    ],
+    [
+        'id'    => 'calc2',
+        'title' => 'Subtract two numbers',
+        'lines' => [
+            'num1 = int(input("First number: "))',
+            'num2 = int(input("Second number: "))',
+            'difference = num1 - num2',
+            'print("Difference:", difference)',
+        ],
+        'solution'       => [0,1,2,3],
+        'correct_output' => 'Difference: 2',
+    ],
+    [
+        'id'    => 'calc3',
+        'title' => 'Multiply two numbers',
+        'lines' => [
+            'num1 = int(input("First number: "))',
+            'num2 = int(input("Second number: "))',
+            'product = num1 * num2',
+            'print("Product:", product)',
+        ],
+        'solution'       => [0,1,2,3],
+        'correct_output' => 'Product: 12',
+    ],
+    [
+        'id'    => 'calc4',
+        'title' => 'Average of two numbers',
+        'lines' => [
+            'num1 = float(input("First number: "))',
+            'num2 = float(input("Second number: "))',
+            'average = (num1 + num2) / 2',
+            'print("Average:", average)',
+        ],
+        'solution'       => [0,1,2,3],
+        'correct_output' => 'Average: 5.0',
+    ],
+],
+
+            'examples' => [
+    [
+        'title'   => 'Example Run',
+        'code'    => <<<PYTHON
+num1 = int(input("First number: "))
+num2 = int(input("Second number: "))
+total = num1 + num2
+print("Total:", total)
+PYTHON,
+        'output'  => 'Total: 7',
+        'explain' => 'The program reads two numbers, converts them to integers, adds them, and prints the result.'
+    ],
+    [
+        'title'   => 'Compute average of two numbers',
+        'code'    => <<<PYTHON
+num1 = float(input("Enter first number: "))
+num2 = float(input("Enter second number: "))
+average = (num1 + num2) / 2
+print("Average:", average)
+# User enters: 3.5 and 4.5
+PYTHON,
+        'output'  => 'Average: 4.0',
+        'explanation' => 'This example introduces float conversion and shows a slightly different computation.'
+    ]
+],
+
+
             'hints' => [
                 'input() gives you text. Use int(...) (or float(...)) to make numbers.',
                 'You can only compute after you have both numbers.',
@@ -191,6 +259,59 @@ Beginner tips:
                         'Use a counter (tries += 1) to track how many attempts happened.',
                         'continue jumps to the next loop round; break exits the loop completely.',
                     ],
+                    'examples' => [
+    [
+        'title' => 'Guess a number between 1 and 3',
+        'code'  => <<<PYTHON
+secret = 2
+guess = int(input("Guess a number (1-3): "))
+if guess < secret:
+    print("Higher!")
+elif guess > secret:
+    print("Lower!")
+else:
+    print("You got it!")
+# User types: 1
+PYTHON,
+        'output' => "Higher!",
+        'explanation' => 'Shows simple if/elif/else logic without a loop. Beginner-friendly example of comparing guesses.'
+    ],
+    [
+        'title' => 'While loop with attempts',
+        'code'  => <<<PYTHON
+secret = 4
+attempts = 0
+while True:
+    guess = int(input("Guess: "))
+    attempts += 1
+    if guess == secret:
+        print("Correct in", attempts, "tries!")
+        break
+    elif guess < secret:
+        print("Higher")
+    else:
+        print("Lower")
+# User types: 2, 5, 4
+PYTHON,
+        'output' => "Higher\nLower\nCorrect in 3 tries!",
+        'explanation' => 'Illustrates while loop with counter and multiple hints. Shows how loop continues until correct guess.'
+    ],
+    [
+        'title' => 'Immediate correct guess',
+        'code'  => <<<PYTHON
+secret = 3
+guess = int(input("Guess a number: "))
+if guess == secret:
+    print("You got it!")
+else:
+    print("Try again!")
+# User types: 3
+PYTHON,
+        'output' => "You got it!",
+        'explanation' => 'Shows that the loop or repeated attempts are not always necessary; immediate correct input can be handled.'
+    ]
+],
+
                     'time_limit' => 360,
                     'max_hints'  => 4,
                 ],
@@ -238,31 +359,83 @@ Tip for beginners:
 • Showing data often means looping and printing.
 • Removing either uses pop/remove (lists) or del/pop (dicts).',
                 'content' => [
-                    'categories' => [
-                        '➕ Add' => [
-                            "tasks.append('buy milk')",           // list add
-                            "grades['Alex'] = 95",                 // dict add
-                            "items.append(new_item)",             // list add
-                            "phonebook['Mina'] = '0123-456-789'", // dict add
-                        ],
-                        '👀 Show' => [
-                            "for t in tasks:\n    print(t)",               // list show
-                            "for name,score in grades.items():\n    print(name, score)", // dict show
-                            "print('Total tasks:', len(tasks))",          // show meta
-                            "print(grades.get('Sara', 'N/A'))",           // dict safe lookup to show
-                        ],
-                        '🗑 Remove' => [
-                            "tasks.pop()",                  // list remove last
-                            "tasks.remove('buy milk')",     // list remove by value
-                            "del grades['Alex']",            // dict remove by key
-                            "grade = grades.pop('Mina', 0)" // dict pop with default
-                        ],
-                    ],
+                   'categories' => [
+    '➕ Add' => [
+        "tasks.append('call mom')",          // list add
+        "grades['Lina'] = 88",               // dict add single
+        "shopping_list.extend(['bread', 'eggs'])", // list extend (multiple adds)
+        "phonebook['John'] = '987-654-321'", // dict add single
+    ],
+    '👀 Show' => [
+        "print(', '.join(tasks))",                      // show all tasks in one line
+        "for name, score in grades.items(): print(f'{name}: {score}')", // dict show with formatting
+        "print(f'Total tasks: {len(tasks)}')",         // show meta with f-string
+        "print(shopping_list)",                         // simple list display
+    ],
+    '🗑 Remove' => [
+        "tasks.pop(1)",                                // list remove by index
+        "tasks.remove('call mom')",                    // list remove by value
+        "del grades['Lina']",                           // dict remove by key
+        "grade = grades.pop('Omar', 'N/A')",           // dict pop with default
+        "shopping_list.clear()",                        // remove all items from list
+    ],
+],
+
+
                     'hints' => [
                         'Add means inserting a new thing (append for lists, assignment for dicts).',
                         'Show usually means a loop that prints items or pairs.',
                         'Remove means taking something out (pop/remove for lists, del/pop for dicts).',
                     ],
+                    'examples' => [
+    [
+        'title' => 'Simple To-Do List',
+        'code'  => <<<PYTHON
+tasks = []
+# Add tasks
+tasks.append("Buy milk")
+tasks.append("Walk dog")
+# Show tasks
+for t in tasks:
+    print(t)
+# Remove a task
+tasks.remove("Buy milk")
+print("After removal:", tasks)
+PYTHON,
+        'explain' => 'Shows append to add, for-loop to show, and remove by value. Beginner-friendly sequence.'
+    ],
+    [
+        'title' => 'Simple Gradebook',
+        'code'  => <<<PYTHON
+grades = {}
+# Add students
+grades["Alex"] = 95
+grades["Sara"] = 88
+# Show grades
+for name, score in grades.items():
+    print(name, score)
+# Remove a student
+del grades["Alex"]
+print("After removal:", grades)
+PYTHON,
+        'explain' => 'Shows dict assignment to add, items() to show key/value pairs, and del to remove.'
+    ],
+    [
+        'title' => 'Using pop for safe removal',
+        'code'  => <<<PYTHON
+grades = {"Mina": 72, "John": 85}
+# Remove with default
+score = grades.pop("Mina", 0)
+print("Removed score:", score)
+print("Remaining:", grades)
+# Output:
+# Removed score: 72
+# Remaining: {'John': 85}
+PYTHON,
+        'explain' => 'Demonstrates pop with a default value, preventing errors if key is missing.'
+    ],
+],
+
                     'time_limit' => 360,
                     'max_hints'  => 4,
                 ],

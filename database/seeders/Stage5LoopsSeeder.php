@@ -81,44 +81,52 @@ Drag each description to the correct loop type.",
         // ─────────────────────────────────────────────
         // Level 3 — For Loops: The Counting Loop (multiple_choice)
         // ─────────────────────────────────────────────
-        Level::updateOrCreate(
-            ['stage_id' => $stage5->id, 'index' => 3],
-            [
-                'type'         => 'multiple_choice',
-                'title'        => 'For Loops: The Counting Loop',
-                'pass_score'   => 70,
-                'instructions' => "For loops are perfect when you know exactly how many times you want to repeat something!
-                How For Loops Work:
-                • Use the for keyword
-                • Need a variable name (like 'i' or 'cookie')
-                • Use range() to specify how many times to repeat
-                      Real World Examples:
-                🧦 Putting on each sock from your drawer (you know how many socks)
-                🎂 Putting candles on each cupcake (you know how many cupcakes)
-                📝 Grading each paper in a stack (you know how many papers)
-                Test your knowledge with these questions!",
-                'content'      => [
-                    'questions' => [
-                        [
-                            'question' => 'What does this code do?<br>for i in range(3):<br>&nbsp;&nbsp;print("Hello!")',
-                            'options' => ['Prints "Hello!" 3 times', 'Prints "Hello!" 4 times', 'Prints "i" 3 times', 'Causes an error'],
-                            'correct_answer' => 0,
-                            'explanation' => 'Correct! range(3) creates numbers 0,1,2, so the loop runs 3 times, printing "Hello!" each time.'
-                        ],
-                        [
-                            'question' => 'Which situation is best for a for loop?',
-                            'options' => ['Eating until you\'re full', 'Reading each chapter in a 10-chapter book', 'Playing while you have energy', 'Sleeping until morning'],
-                            'correct_answer' => 1,
-                            'explanation' => 'Right! Reading each chapter in a 10-chapter book is perfect for a for loop because you know exactly how many times to repeat (10 times).'
-                        ],
-                        [
-                            'question' => 'What is the range of numbers created by range(5)?',
-                            'options' => ['0,1,2,3,4', '1,2,3,4,5', '0,1,2,3,4,5', '5,6,7,8,9'],
-                            'correct_answer' => 0,
-                            'explanation' => 'Exactly! range(5) creates numbers starting at 0 and ending at 4 (5 numbers total: 0,1,2,3,4).'
-                        ]
-                        ],
-                        'examples'    => [
+       Level::updateOrCreate(
+    ['stage_id' => $stage5->id, 'index' => 3],
+    [
+        'type'         => 'multiple_choice',
+        'title'        => 'For Loops: The Counting Loop',
+        'pass_score'   => 70,
+        'instructions' => "For loops are perfect when you know exactly how many times you want to repeat something!
+        How For Loops Work:
+        • Use the for keyword
+        • Need a variable name (like 'i' or 'cookie')
+        • Use range() to specify how many times to repeat
+              Real World Examples:
+        🧦 Putting on each sock from your drawer (you know how many socks)
+        🎂 Putting candles on each cupcake (you know how many cupcakes)
+        📝 Grading each paper in a stack (you know how many papers)
+        Test your knowledge with these questions!",
+        'content'      => [
+            'questions' => [
+                [
+                    'question' => "What does this code do?\n\nfor i in range(3):\n    print(\"Hello!\")",
+                    'options' => ['Prints "Hello!" 3 times', 'Prints "Hello!" 4 times', 'Prints "i" 3 times', 'Causes an error'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Correct! range(3) creates numbers 0,1,2, so the loop runs 3 times, printing "Hello!" each time.'
+                ],
+                [
+                    'question' => 'Which situation is best for a for loop?',
+                    'options' => ['Eating until you\'re full', 'Reading each chapter in a 10-chapter book', 'Playing while you have energy', 'Sleeping until morning'],
+                    'correct_answer' => 1,
+                    'explanation' => 'Right! Reading each chapter in a 10-chapter book is perfect for a for loop because you know exactly how many times to repeat (10 times).'
+                ],
+                [
+                    'question' => 'What is the range of numbers created by range(5)?',
+                    'options' => ['0,1,2,3,4', '1,2,3,4,5', '0,1,2,3,4,5', '5,6,7,8,9'],
+                    'correct_answer' => 0,
+                    'explanation' => 'Exactly! range(5) creates numbers starting at 0 and ending at 4 (5 numbers total: 0,1,2,3,4).'
+                ],
+                [
+                    'type' => 'code',
+                    'question' => "Write a for loop that prints numbers from 1 to 5, each on a new line.",
+                    'expected_output' => "1\n2\n3\n4\n5",
+                    'starter_code' => "# Write your for loop here\n",
+                    'solution' => "for i in range(1, 6):\n    print(i)",
+                    'explanation' => 'Use range(1, 6) to generate numbers from 1 to 5. The loop will print each number on a new line.'
+                ]
+            ],
+            'examples'    => [
                 [
                     'title'   => 'Simple range example',
                     'code'    => "for i in range(3):\n    print('Hello!')",
@@ -144,9 +152,9 @@ Drag each description to the correct loop type.",
                     'expected_output' => "5\n4\n3\n2\n1"
                 ]
             ]
-                ]
-            ]
-        );
+        ]
+    ]
+);
 
         // ─────────────────────────────────────────────
         // Level 5 — While Loops: The Conditional Loop (tf1 - true/false)

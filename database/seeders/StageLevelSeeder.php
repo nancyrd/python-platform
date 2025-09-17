@@ -211,24 +211,49 @@ Don't just read do! Think of one small, annoying task you do on your computer an
                             'correct_answer' => 1,
                             'explanation' => 'Text must go in quotes inside print()'
                         ],
+                           [
+                    'type' => 'code',
+                    'question' => 'Print the text: Good Morning',
+                    'expected_output' => "Good Morning",
+                    'starter_code' => "# Write one line to print Good Morning\n",
+                    'solution' => "print(\"Good Morning\")",
+                    'explanation' => 'Use print() with quotes around the text.'
+                ],
                         [
                             'question' => 'How do you print the number 10?',
                             'options' => ['print("10")', 'print(10)', 'print(ten)', 'show 10'],
                             'correct_answer' => 1,
                             'explanation' => 'Numbers don\'t need quotes'
                         ],
+                          [
+                    'type' => 'code',
+                    'question' => 'Print the number 7',
+                    'expected_output' => "7",
+                    'starter_code' => "# Print the number 7 (no quotes needed)\n",
+                    'solution' => "print(7)",
+                    'explanation' => 'Numbers don’t need quotes in print().'
+                ],
                         [
                             'question' => 'What will print("Hello", "World") show?',
                             'options' => ['HelloWorld', 'Hello World', 'Hello, World', '"Hello" "World"'],
                             'correct_answer' => 1,
                             'explanation' => 'Commas in print() add spaces between items'
                         ],
+        
                         [
                             'question' => 'Which is the correct way to print your age?',
                             'options' => ['print("I am 20")', 'print("I am", 20)', 'Both are correct', 'Neither is correct'],
                             'correct_answer' => 2,
                             'explanation' => 'Both work! You can put the whole message in quotes, or separate text and numbers with commas.'
-                        ]
+                        ],
+                         [
+                    'type' => 'code',
+                    'question' => 'Print: I am 12 years old (using text and a number)',
+                    'expected_output' => "I am 12 years old",
+                    'starter_code' => "# Mix text and a number with commas\n",
+                    'solution' => "print(\"I am\", 12, \"years old\")",
+                    'explanation' => 'Separate pieces with commas; print() inserts spaces.'
+                ]
                         ],
                         'hints'      => [
                 "You can mix words and numbers.Just separate each with a comma.",
@@ -393,12 +418,21 @@ You can use these operations in print() to see the results!,',
                             'correct_answer' => 1,
                             'explanation' => 'Python calculates 7 + 3 = 10'
                         ],
+
                         [
                             'question' => 'What does print(12 - 5) show?',
                             'options' => ['7', '12 - 5', '17', '125'],
                             'correct_answer' => 0,
                             'explanation' => 'Python calculates 12 - 5 = 7'
                         ],
+                          [
+                    'type' => 'code',
+                    'question' => 'Print the result of 15 - 4',
+                    'expected_output' => "11",
+                    'starter_code' => "# Print the result of 15 - 4\n",
+                    'solution' => "print(15 - 4)",
+                    'explanation' => 'Use - for subtraction.',
+                ],
                         [
                             'question' => 'What does print(6 * 4) show?',
                             'options' => ['10', '24', '64', '6 * 4'],
@@ -417,17 +451,49 @@ You can use these operations in print() to see the results!,',
                     'correct_answer'  => 0,
                     'explanation'     => 'Use % for remainder: print(10 % 3) gives 1 (because 10 ÷ 3 = 3 with remainder 1)'
                 ],
+                 [
+                    'type' => 'code',
+                    'question' => 'Print the result of (10 - 2) * 3',
+                    'expected_output' => "24",
+                    'starter_code' => "# Use parentheses to change the order\n",
+                    'solution' => "print((10 - 2) * 3)",
+                    'explanation' => '(10 - 2) = 8, then 8 * 3 = 24.',
+                ],
                 [
                     'question'        => 'What is 2 to the power of 4 in Python?<br><code>print(2 ___ 4)</code>',
                     'options'         => ['**', '*', '%'],
                     'correct_answer'  => 0,
                     'explanation'     => 'Use ** for powers: print(2 ** 4) gives 16 (2 × 2 × 2 × 2)'
                 ],
+                   [
+                    'type' => 'code',
+                    'question' => 'Print the result of 9 / 2 (note the decimal)',
+                    'expected_output' => "4.5",
+                    'starter_code' => "# Print the result of 9 / 2\n",
+                    'solution' => "print(9 / 2)",
+                    'explanation' => 'Division / returns a float like 4.5.',
+                ],
+                   [
+                    'type' => 'code',
+                    'question' => 'Print the remainder when 14 is divided by 4',
+                    'expected_output' => "2",
+                    'starter_code' => "# Print the remainder of 14 divided by 4\n",
+                    'solution' => "print(14 % 4)",
+                    'explanation' => 'Use % to get the remainder.',
+                ],
                 [
                     'question'        => 'What does print(7 / 2) show in Python?',
                     'options'         => ['3.5', '3', '3.0'],
                     'correct_answer'  => 0,
                     'explanation'     => 'Division in Python gives a decimal (float) result: 7 / 2 = 3.5'
+                ],
+                         [
+                    'type' => 'code',
+                    'question' => 'Print the result of 8 + 2',
+                    'expected_output' => "10",
+                    'starter_code' => "# Print the result of 8 + 2\n",
+                    'solution' => "print(8 + 2)",
+                    'explanation' => 'Use + to add the numbers.',
                 ],
                 [
                     'question'        => 'Which operation would you use to find the remainder of 17 divided by 5?',

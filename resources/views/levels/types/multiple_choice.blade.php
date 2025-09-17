@@ -24,16 +24,16 @@
     ];
     $hintsForJs = !empty($hints) ? $hints : $defaultHints;
 
-    // Build answer key & explanations arrays for JS
-    $answerKeyJs = array_map(fn($q) => $q['correct_answer'] ?? null, $questions);
+    // Build answer key & explanations arrays for JS (MC questions only)
+    $answerKeyJs    = array_map(fn($q) => $q['correct_answer'] ?? null, $questions);
     $explanationsJs = array_map(fn($q) => $q['explanation'] ?? '', $questions);
 
     $payload = [
-        'questions'  => $questions,
-        'hints'      => $hintsForJs,
-        'time_limit' => $timeLimit,
-        'max_hints'  => $maxHints,
-        'answer_key' => $answerKeyJs,
+        'questions'    => $questions,
+        'hints'        => $hintsForJs,
+        'time_limit'   => $timeLimit,
+        'max_hints'    => $maxHints,
+        'answer_key'   => $answerKeyJs,
         'explanations' => $explanationsJs,
     ];
 @endphp
@@ -123,7 +123,14 @@
     --shadow:    0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
     --shadow-lg: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+
+    /* Code editor colors */
+    --code-bg: #0f172a;
+    --code-text: #cfeaff;
+    --code-border: rgba(255,255,255,.08);
 }
+
+* { box-sizing: border-box; }
 
 body {
     background: linear-gradient(135deg,
@@ -186,7 +193,7 @@ body {
 .progress-row{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
 .progress-title{font-size:1.05rem;font-weight:800;}
 .progress-indicator{display:flex;align-items:center;gap:1rem;}
-.progress-container{flex:1;max-width:280px;}
+.progress-container{flex:1;max-width:280px;min-width:150px;}
 .progress-bar{height:.55rem;background:var(--gray-200);border-radius:.35rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);}
 .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary-purple),var(--secondary-purple));border-radius:.35rem;transition:width .3s ease;}
 .question-counter{font-size:.9rem;color:var(--text-muted);font-weight:600;}
@@ -199,10 +206,10 @@ body {
 .question-header{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem;}
 .question-number{width:3rem;height:3rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));font-size:1.25rem;}
 .question-text{flex:1;font-size:1.125rem;font-weight:700;color:var(--text-primary);line-height:1.4;}
-.question-code{background:#0f172a;color:#cfeaff;border:1px solid rgba(255,255,255,.08);border-radius:.75rem;padding:1rem 1.25rem;margin:1rem 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;overflow-x:auto;line-height:1.4;}
+.question-code{background:var(--code-bg);color:var(--code-text);border:1px solid var(--code-border);border-radius:.75rem;padding:1rem 1.25rem;margin:1rem 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;overflow-x:auto;line-height:1.4;}
 
 /* ==============================
-   OPTIONS
+   OPTIONS (MC)
    ============================== */
 .question-options{display:flex;flex-direction:column;gap:.75rem;margin-top:1.5rem;}
 .option-item{position:relative;}
@@ -215,24 +222,92 @@ body {
 .option-item:hover label{border-color:var(--primary-purple);background:#fff;transform:translateY(-1px);box-shadow:var(--shadow);}
 .option-item input:checked + label{border-color:var(--primary-purple);box-shadow:0 0 0 3px rgba(124,58,237,.18) inset;background:#fff;}
 
-/* Navigation buttons */
-.nav-controls{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;}
+/* ==============================
+   CODE EDITOR
+   ============================== */
+.code-editor-container {
+    margin-top: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: var(--gray-50);
+}
+.code-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--border);
+}
+.code-editor-title {
+    font-weight: 700;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.code-editor-actions { display: flex; gap: 0.5rem; }
+.code-editor-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    background: var(--gray-900);
+    color: var(--gray-100);
+    border: none;
+    resize: vertical;
+    outline: none;
+}
+
+/* CODE OUTPUT */
+.code-output-container {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+.code-output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--gray-100);
+    border-bottom: 1px solid var(--border);
+}
+.code-output-title { font-weight: 700; color: var(--text-secondary); font-size: 0.9rem; }
+.code-output-content {
+    padding: 1rem;
+    min-height: 100px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    background: var(--gray-900);
+    color: var(--gray-100);
+    white-space: pre-wrap;
+    overflow-x: auto;
+}
+.code-status { display:inline-block;padding:.25rem .5rem;border-radius:.35rem;font-size:.75rem;font-weight:700;margin-left:.5rem; }
+.code-status.success { background: var(--success-light); color: var(--success); }
+.code-status.error   { background: var(--danger-light);  color: var(--danger); }
+
+/* NAVIGATION */
+.nav-controls{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;flex-wrap:wrap;}
 .btn-nav{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);min-width:100px;}
 
-/* ==============================
-   BUTTONS
-   ============================== */
+/* BUTTONS */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.25rem;border:none;border-radius:.8rem;font-weight:700;font-size:1rem;cursor:pointer;transition:transform .12s ease, box-shadow .2s ease, filter .12s ease;min-width:120px;}
 .btn:disabled{opacity:.55;cursor:not-allowed;}
 .btn-primary{background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));color:#fff;box-shadow:var(--shadow);}
 .btn-secondary{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);}
+.btn-success{background:linear-gradient(135deg,var(--success),#34d399);color:#fff;}
 .btn-warning{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#fff;}
 .btn-danger{background:linear-gradient(135deg,#ef4444,#f43f5e);color:#fff;}
 .btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:var(--shadow-lg);}
 .btn.selected{outline:3px solid rgba(124,58,237,.35);transform:translateY(-2px);}
 
 /* ==============================
-   RESULTS SECTION
+   RESULTS
    ============================== */
 .results-container{max-width:1000px;margin:0 auto;}
 .results-header{background:#fff;border:1px solid var(--border);border-radius:1rem;padding:2rem;box-shadow:var(--shadow-sm);margin-bottom:2rem;text-align:center;}
@@ -262,10 +337,12 @@ body {
 .result-status.incorrect{color:var(--danger);}
 .result-explanation{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border);color:var(--text-secondary);line-height:1.6;}
 
-/* ==============================
-   CONTROLS ROW
-   ============================== */
-.controls-container{display:flex;justify-content:center;gap:.8rem;margin:1.5rem 0;flex-wrap:wrap;}
+/* Code results block */
+.code-result-container { margin-top: 1rem; border: 1px solid var(--border); border-radius: .75rem; overflow: hidden; }
+.code-result-header { display:flex; justify-content:space-between; align-items:center; padding:.75rem 1rem; background:var(--gray-100); border-bottom:1px solid var(--border); }
+.code-result-title { font-weight:700; color:var(--text-secondary); font-size:.9rem; }
+.code-result-content { padding:1rem; font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; font-size:.9rem; line-height:1.5; background:var(--gray-900); color:var(--gray-100); white-space:pre-wrap; overflow-x:auto; }
+.code-output-result { margin-top:0; padding:.75rem 1rem; background:var(--gray-800); border-top:1px solid var(--border); font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace; font-size:.9rem; line-height:1.5; color:var(--gray-100); white-space:pre-wrap; overflow-x:auto; }
 
 /* ==============================
    META BAR
@@ -278,7 +355,7 @@ body {
    TOASTS
    ============================== */
 .toast-container{position:fixed;top:1rem;right:1rem;display:flex;flex-direction:column;gap:.5rem;z-index:1000;}
-.toast{background:#fff;border:1px solid var(--border);color:var(--text-primary);padding:1rem 1.1rem;border-radius:.8rem;font-weight:600;min-width:280px;box-shadow:var(--shadow-lg);animation:slideIn .25s ease;}
+.toast{background:#fff;border:1px solid var(--border);color:var(--text-primary);padding:1rem 1.1rem;border-radius:.8rem;font-weight:600;min-width:280px;max-width:calc(100vw - 2rem);box-shadow:var(--shadow-lg);animation:slideIn .25s ease;}
 .toast.ok{border-left:5px solid var(--success);background:linear-gradient(135deg, rgba(16,185,129,.08), #fff);}
 .toast.warn{border-left:5px solid var(--warning);background:linear-gradient(135deg, rgba(245,158,11,.08), #fff);}
 .toast.err{border-left:5px solid var(--danger);background:linear-gradient(135deg, rgba(239,68,68,.08), #fff);}
@@ -287,9 +364,7 @@ body {
 /* ==============================
    RESPONSIVE
    ============================== */
-@media (max-width: 992px){
-  .header-container{padding:1.25rem;}
-}
+@media (max-width: 992px){ .header-container{padding:1.25rem;} }
 @media (max-width: 768px){
   .header-container{flex-direction:column;align-items:stretch;gap:1rem;}
   .stats-grid{width:100%;}
@@ -416,6 +491,10 @@ body {
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<!-- Python Interpreter (Skulpt) -->
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
+
 <script>
 (function(){
   // -----------------------------
@@ -433,11 +512,12 @@ body {
   // State
   // -----------------------------
   let currentQuestion = 0;
-  let answers = {};          // { [id]: selectedIndex }
+  let answers = {};         // { idx: selectedIndex | {code, output} }
+  let codeOutputs = {};     // { idx: output string }
   let hintsUsed = 0;
   let submitted = false;
   let timeRemaining = timeLimit;
-  let startTime = Date.now();
+  let timeUp = false;       // <- no auto-submit when true
 
   // -----------------------------
   // DOM
@@ -469,17 +549,50 @@ body {
   }
   function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
   function fmtTime(sec){ const m = String(Math.floor(sec/60)).padStart(2,'0'); const s = String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
-  
   function updateProgress(){
     const pct = questions.length ? Math.round(100 * (currentQuestion + 1) / questions.length) : 0;
     $progress.style.width = pct + '%';
     $questionCounter.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
   }
-
   function updateStats(){
     const answeredCount = Object.keys(answers).length;
     const pct = questions.length ? Math.round(100 * answeredCount / questions.length) : 0;
     $statScore.textContent = pct + '%';
+  }
+
+  // Normalize console output: unify newlines, trim trailing spaces per line, trim ends
+  function normalizeOutput(s){
+    if(typeof s !== 'string') return '';
+    return s.replace(/\r\n?/g,'\n')
+            .split('\n')
+            .map(line => line.replace(/[ \t]+$/,''))
+            .join('\n')
+            .trim();
+  }
+
+  // Robust detector for code-style question
+  function isCodeQ(q){
+    const t = String((q?.type ?? q?.kind ?? q?.question_type ?? '')).toLowerCase();
+    if (t.includes('code')) return true;
+    const hasOptions = Array.isArray(q?.options) && q.options.length > 0;
+    const hasExpected = !!(q?.expected_output || q?.expectedOutput);
+    const hasStarter = !!(q?.starter_code || q?.template);
+    return !hasOptions && (hasExpected || hasStarter);
+  }
+
+  // Python Execution (Skulpt)
+  function runPython(code, outEl){
+    outEl.textContent = '';
+    Sk.execLimit = 1e7; // step budget safety
+    Sk.configure({
+      output: t => { outEl.textContent += t; },
+      read: name => {
+        if (!Sk.builtinFiles || !Sk.builtinFiles["files"][name]) throw "File not found: '"+name+"'";
+        return Sk.builtinFiles["files"][name];
+      }
+    });
+    try { Sk.importMainWithBody("<stdin>", false, code, true); return true; }
+    catch(e){ outEl.textContent = e.toString(); return false; }
   }
 
   // -----------------------------
@@ -490,68 +603,188 @@ body {
     
     const q = questions[currentQuestion];
     const isAnswered = answers.hasOwnProperty(currentQuestion);
-    const userAnswer = answers[currentQuestion];
+    const isCodeQuestion = isCodeQ(q);
 
-    $quizSection.innerHTML = `
-      <div class="question-card">
-        <div class="question-header">
-          <div class="question-number">${currentQuestion + 1}</div>
-          <div class="question-text">${escapeHtml(q.question || '')}</div>
-        </div>
-        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-        <div class="question-options">
-          ${(q.options || []).map((option, index) => `
-            <div class="option-item">
-              <input type="radio" id="q${currentQuestion}_${index}" name="q${currentQuestion}" value="${index}" ${userAnswer === index ? 'checked' : ''}>
-              <label for="q${currentQuestion}_${index}">${escapeHtml(option)}</label>
-            </div>
-          `).join('')}
-        </div>
-        <div class="nav-controls">
-          <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-left"></i> Previous
-          </button>
-          <div style="display:flex;gap:0.5rem;">
-            <button type="button" class="btn btn-warning" id="btnHint">
-              <i class="fas fa-lightbulb"></i> Hint
-            </button>
-            ${isAnswered ? 
-              (currentQuestion === questions.length - 1 ? 
-                '<button type="button" class="btn btn-primary" id="btnFinish"><i class="fas fa-flag-checkered"></i> Finish level</button>' :
-                '<button type="button" class="btn btn-primary" id="btnNext"><i class="fas fa-chevron-right"></i> Next</button>'
-              ) : 
-              '<button type="button" class="btn btn-secondary" disabled>Choose an answer</button>'
-            }
-          </div>
+    if (isCodeQuestion) {
+      const prevOutput = codeOutputs[currentQuestion] || '';
+     $quizSection.innerHTML = `
+  <div class="question-card">
+    <div class="question-header">
+      <div class="question-number">${currentQuestion + 1}</div>
+      <div class="question-text">${escapeHtml(q.question || '')}</div>
+    </div>
+
+    <div class="code-editor-container">
+      <div class="code-editor-header">
+        <div class="code-editor-title">Write your Python code:</div>
+        <div class="code-editor-actions">
+          <button type="button" class="btn btn-success" id="btnRunCode"><i class="fas fa-play"></i> Run Code</button>
+          <button type="button" class="btn btn-secondary" id="btnResetCode"><i class="fas fa-undo"></i> Reset</button>
         </div>
       </div>
-    `;
+      <textarea class="code-editor-textarea" id="codeEditor" placeholder="Write your Python code here...">${escapeHtml(q.starter_code || (answers[currentQuestion]?.code ?? ''))}</textarea>
+    </div>
 
-    // Add event listeners
-    const radioButtons = $quizSection.querySelectorAll('input[type="radio"]');
-    radioButtons.forEach(radio => {
-      radio.addEventListener('change', () => selectAnswer(+radio.value));
-    });
+    <div class="code-output-container">
+      <div class="code-output-header">
+        <div class="code-output-title">Output:</div>
+        <div id="outputStatus"></div>
+      </div>
+      <div class="code-output-content" id="codeOutput">${escapeHtml(codeOutputs[currentQuestion] || '')}</div>
+    </div>
 
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const btnFinish = document.getElementById('btnFinish');
-    const btnHint = document.getElementById('btnHint');
+    <div class="nav-controls">
+      <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <div style="display:flex;gap:.5rem;">
+        <button type="button" class="btn btn-warning" id="btnHint">
+          <i class="fas fa-lightbulb"></i> Hint
+        </button>
+        ${
+          answers.hasOwnProperty(currentQuestion)
+            ? `<button type="button" class="btn btn-primary" id="btnNext">
+                 ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+               </button>`
+            : `<button type="button" class="btn btn-secondary" id="btnSubmitCode">
+                 <i class="fas fa-check"></i> Submit Code
+               </button>
+               <button type="button" class="btn btn-primary" id="btnNext" disabled>
+                 ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+               </button>`
+        }
+      </div>
+    </div>
+  </div>
+`;
 
-    if(btnPrev) btnPrev.addEventListener('click', () => navigateToQuestion(currentQuestion - 1));
-    if(btnNext) btnNext.addEventListener('click', () => navigateToQuestion(currentQuestion + 1));
-    if(btnFinish) btnFinish.addEventListener('click', showResults);
-    if(btnHint) btnHint.addEventListener('click', showHint);
+// wiring
+const btnRunCode   = document.getElementById('btnRunCode');
+const btnResetCode = document.getElementById('btnResetCode');
+const codeEditor   = document.getElementById('codeEditor');
+const codeOutput   = document.getElementById('codeOutput');
+const outputStatus = document.getElementById('outputStatus');
+const btnSubmitCode= document.getElementById('btnSubmitCode');
+const btnPrev      = document.getElementById('btnPrev');
+const btnNext      = document.getElementById('btnNext');
+const btnHint      = document.getElementById('btnHint');
+
+function checkMatchAndBadge(){
+  const expected = String(q.expected_output ?? q.expectedOutput ?? '');
+  if(!expected){ outputStatus.innerHTML=''; return false; }
+  const ok = normalizeOutput(codeOutput.textContent) === normalizeOutput(expected);
+  outputStatus.innerHTML = ok
+    ? '<span class="code-status success">Matches expected ✓</span>'
+    : '<span class="code-status error">Does not match ✗</span>';
+  return ok;
+}
+
+btnRunCode?.addEventListener('click', ()=>{
+  runPython(codeEditor.value, codeOutput);
+  codeOutputs[currentQuestion] = codeOutput.textContent;
+  checkMatchAndBadge();
+});
+
+btnResetCode?.addEventListener('click', ()=>{
+  codeEditor.value = q.starter_code || '';
+  codeOutput.textContent = '';
+  outputStatus.innerHTML = '';
+});
+
+btnSubmitCode?.addEventListener('click', ()=>{
+  answers[currentQuestion] = { code: codeEditor.value, output: codeOutput.textContent };
+  updateStats();
+  // enable Next after submit
+  if (btnNext) btnNext.disabled = false;
+  btnSubmitCode.style.display = 'none';
+  toast('Code submitted. You can proceed.', 'ok');
+});
+
+btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
+
+btnNext?.addEventListener('click', ()=>{
+  if (currentQuestion === questions.length - 1) {
+    showResults();
+  } else {
+    navigateToQuestion(currentQuestion + 1);
+  }
+});
+
+btnHint?.addEventListener('click', showHint);
+
+      // If already answered, ensure next/finish are enabled
+      if (isAnswered) {
+        if (btnNext) btnNext.disabled = false;
+        if (btnFinish) btnFinish.disabled = false;
+      }
+
+    } else {
+      // Multiple-choice question
+      const userAnswer = answers[currentQuestion];
+     // ...inside renderCurrentQuestion(), in the else (MC) branch:
+$quizSection.innerHTML = `
+  <div class="question-card">
+    <div class="question-header">
+      <div class="question-number">${currentQuestion + 1}</div>
+      <div class="question-text">${escapeHtml(q.question || '')}</div>
+    </div>
+    ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+    <div class="question-options">
+      ${(q.options || []).map((option, index) => `
+        <div class="option-item">
+          <input type="radio" id="q${currentQuestion}_${index}" name="q${currentQuestion}" value="${index}" ${answers[currentQuestion] === index ? 'checked' : ''}>
+          <label for="q${currentQuestion}_${index}">${escapeHtml(option)}</label>
+        </div>
+      `).join('')}
+    </div>
+    <div class="nav-controls">
+      <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <div style="display:flex;gap:.5rem;">
+        <button type="button" class="btn btn-warning" id="btnHint">
+          <i class="fas fa-lightbulb"></i> Hint
+        </button>
+        <button type="button" class="btn btn-primary" id="btnNext" ${answers.hasOwnProperty(currentQuestion) ? '' : 'disabled'}>
+          ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+`;
+
+const radioButtons = $quizSection.querySelectorAll('input[type="radio"]');
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const btnHint = document.getElementById('btnHint');
+
+radioButtons.forEach(r => {
+  r.addEventListener('change', () => {
+    selectAnswer(+r.value);
+    // enable Next after select
+    if (btnNext) btnNext.disabled = false;
+  });
+});
+
+btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
+btnNext?.addEventListener('click', ()=>{
+  if (currentQuestion === questions.length - 1) {
+    showResults();
+  } else {
+    navigateToQuestion(currentQuestion + 1);
+  }
+});
+btnHint?.addEventListener('click', showHint);
+
+    }
   }
 
   function selectAnswer(val){
     if(submitted) return;
-    
     answers[currentQuestion] = val;
     updateStats();
-    
-    // Re-render to show next/finish button
-    setTimeout(renderCurrentQuestion, 100);
+    // Re-render to reveal Next/Finish
+    setTimeout(renderCurrentQuestion, 60);
   }
 
   function navigateToQuestion(index){
@@ -563,8 +796,7 @@ body {
 
   function showHint(){
     if(submitted) return;
-   // if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
-    
+    if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
     hintsUsed++;
     $hintCount.textContent = hintsUsed;
     const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Think about the question carefully and consider all options.';
@@ -572,45 +804,50 @@ body {
   }
 
   // -----------------------------
-  // Results display
+  // Results display (no auto-submit anywhere)
   // -----------------------------
   function showResults(){
-    if(Object.keys(answers).length !== questions.length){
-      return toast('Please answer all questions first.', 'warn');
+    // Require all answered
+    const missingIdx = questions.findIndex((_,i)=>!answers.hasOwnProperty(i));
+    if(missingIdx !== -1){
+      toast(`Please answer question ${missingIdx+1} before finishing.`, 'warn');
+      navigateToQuestion(missingIdx);
+      return;
     }
 
     submitted = true;
-    clearInterval(timerInterval);
-    
+
     // Calculate score
     let correct = 0;
     questions.forEach((q, i) => {
-      const chosen = answers[i];              // User's selected option index
-      const correctAnswer = answerKey[i];     // Correct option index
-      if(chosen === correctAnswer) correct++;
+      if (isCodeQ(q)) {
+        const ua = answers[i];
+        const userOut = normalizeOutput(ua?.output ?? '');
+        const expOut  = normalizeOutput(String(q.expected_output ?? q.expectedOutput ?? ''));
+        if (userOut === expOut) correct++;
+      } else {
+        const chosen = answers[i];
+        const correctAnswer = answerKey[i];
+        if(chosen === correctAnswer) correct++;
+      }
     });
 
     const rawPct = Math.round(100 * correct / questions.length);
     const hintPenalty = hintsUsed * 5;
     let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-    finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+    // Optional small time bonus only if time not expired
+    if (!timeUp) finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
 
-    const timeUsed = timeLimit - timeRemaining;
-    const stars = starsFor(finalScore);
+    const timeUsed = timeLimit - Math.max(0, timeRemaining);
+    const stars = (finalScore >= 90) ? 3 : (finalScore >= 70 ? 2 : (finalScore >= 50 ? 1 : 0));
     const starIcons = stars ? '★'.repeat(stars) : '0';
     const passReq = {{ (int)$level->pass_score }};
     const passed = finalScore >= passReq;
 
-    // Update header stats
-    $statScore.textContent = finalScore + '%';
-    $statStars.textContent = starIcons;
-    if($metaStars) $metaStars.textContent = starIcons;
-
-    // Show results section
+    // Show results view
     $quizSection.classList.add('d-none');
     $resultsSection.classList.remove('d-none');
 
-    // Update results header
     document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
     document.getElementById('finalStarsDisplay').textContent = starIcons;
     document.getElementById('correctCount').textContent = correct;
@@ -618,106 +855,101 @@ body {
     document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
     document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
 
-    // Render individual results
+    // Header stats
+    $statScore.textContent = finalScore + '%';
+    $statStars.textContent = starIcons;
+    if($metaStars) $metaStars.textContent = starIcons;
+
     const resultsGrid = document.getElementById('resultsGrid');
     resultsGrid.innerHTML = '';
 
-    questions.forEach((q, i) => {
-      const chosen = answers[i];
-      const correctAnswer = answerKey[i];
-      const isCorrect = chosen === correctAnswer;
-
-      const resultCard = document.createElement('div');
-      resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
-      
-      // Build options display
-      const optionsHtml = (q.options || []).map((option, optIndex) => {
-        let className = 'result-option neutral';
-        if(optIndex === chosen && optIndex === correctAnswer) {
-          className = 'result-option correct';
-        } else if(optIndex === chosen) {
-          className = 'result-option incorrect';
-        } else if(optIndex === correctAnswer) {
-          className = 'result-option correct';
-        }
-        
-        let prefix = '';
-        if(optIndex === chosen) prefix = 'Your answer: ';
-        if(optIndex === correctAnswer && optIndex !== chosen) prefix = 'Correct answer: ';
-        
-        return `<div class="${className}">${prefix}${escapeHtml(option)}</div>`;
-      }).join('');
-      
-      resultCard.innerHTML = `
-        <div class="result-header">
-          <div class="result-number">${i + 1}</div>
-          <div class="result-text">${escapeHtml(q.question || '')}</div>
-        </div>
-        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
-          <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
-          ${isCorrect ? 'Correct' : 'Incorrect'}
-        </div>
-        <div class="result-options">
-          ${optionsHtml}
-        </div>
-        <div class="result-explanation">
-          <strong>Explanation:</strong> ${escapeHtml(explanations[i] || (isCorrect ? 'Well done!' : 'Review the question and options carefully.'))}
-        </div>
-      `;
-      
-      resultsGrid.appendChild(resultCard);
+    questions.forEach((q,i)=>{
+      const isCode = isCodeQ(q);
+      let ok=false, html='';
+      if (isCode) {
+        const ua = answers[i] || {};
+        const userOut = normalizeOutput(ua.output ?? '');
+        const expOut  = normalizeOutput(String(q.expected_output ?? q.expectedOutput ?? ''));
+        ok = userOut === expOut;
+        html = `
+          <div class="result-card ${ok?'correct':'incorrect'}">
+            <div class="result-header">
+              <div class="result-number">${i + 1}</div>
+              <div class="result-text">${escapeHtml(q.question || '')}</div>
+            </div>
+            <div class="result-status ${ok?'correct':'incorrect'}">
+              <i class="fas fa-${ok ? 'check-circle' : 'times-circle'}"></i>
+              ${ok ? 'Correct' : 'Incorrect'}
+            </div>
+            <div class="code-result-container">
+              <div class="code-result-header">
+                <div class="code-result-title">Your Code:</div>
+              </div>
+              <div class="code-result-content">${escapeHtml(ua.code || '')}</div>
+              <div class="code-output-result">Output:\n${escapeHtml(ua.output || '')}</div>
+            </div>
+            <div class="result-explanation">
+              <strong>Explanation:</strong> ${escapeHtml(explanations[i] || (ok ? 'Well done!' : 'Ensure your output exactly matches the required format.'))}
+            </div>
+          </div>`;
+      } else {
+        ok = (answers[i] === (answerKey[i] ?? null));
+        const optionsHtml = (q.options || []).map((option, optIndex) => {
+          let className = 'result-option neutral';
+          let prefix = '';
+          if (optIndex === answers[i] && optIndex === (answerKey[i] ?? null)) {
+            className = 'result-option correct'; prefix = 'Your answer: ';
+          } else if (optIndex === answers[i]) {
+            className = 'result-option incorrect'; prefix = 'Your answer: ';
+          } else if (optIndex === (answerKey[i] ?? null)) {
+            className = 'result-option correct'; prefix = 'Correct answer: ';
+          }
+          return `<div class="${className}">${prefix}${escapeHtml(option)}</div>`;
+        }).join('');
+        html = `
+          <div class="result-card ${ok?'correct':'incorrect'}">
+            <div class="result-header">
+              <div class="result-number">${i + 1}</div>
+              <div class="result-text">${escapeHtml(q.question || '')}</div>
+            </div>
+            ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+            <div class="result-status ${ok?'correct':'incorrect'}">
+              <i class="fas fa-${ok ? 'check-circle' : 'times-circle'}"></i>
+              ${ok ? 'Correct' : 'Incorrect'}
+            </div>
+            <div class="result-options">${optionsHtml}</div>
+            <div class="result-explanation">
+              <strong>Explanation:</strong> ${escapeHtml(explanations[i] || (ok ? 'Well done!' : 'Review the question and options carefully.'))}
+            </div>
+          </div>`;
+      }
+      const el = document.createElement('div');
+      el.innerHTML = html;
+      resultsGrid.appendChild(el.firstElementChild);
     });
 
-    // Show feedback message
     toast(passed ? `Excellent! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, passed ? 'ok' : 'err');
 
-    // Save progress to database using AJAX (no redirect)
-    saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, questions.length, correct, passed);
-  }
-
-  // New function to save progress via AJAX
-  function saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, totalQuestions, correct, passed) {
-    const formData = new FormData();
-    formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
-    formData.append('score', finalScore);
-    formData.append('answers', JSON.stringify(answers));
-    formData.append('hints_used', hintsUsed);
-    formData.append('time_used', timeUsed);
-    formData.append('stars', stars);
-    formData.append('total_questions', totalQuestions);
-    formData.append('correct_questions', correct);
-    formData.append('passed', passed ? 1 : 0);
+    // Save progress via AJAX (no redirect)
+    const fd = new FormData();
+    fd.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+    fd.append('score', finalScore);
+    fd.append('answers', JSON.stringify(answers));
+    fd.append('hints_used', hintsUsed);
+    fd.append('time_used', timeUsed);
+    fd.append('stars', stars);
+    fd.append('total_questions', questions.length);
+    fd.append('correct_questions', correct);
+    fd.append('passed', passed ? 1 : 0);
 
     fetch('{{ route("levels.submit", $level) }}', {
       method: 'POST',
-      body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json'
-      }
+      body: fd,
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
     })
-    .then(response => {
-      if (!response.ok) {
-        return response.text().then(text => {
-          console.error('Response text:', text);
-          throw new Error(`HTTP ${response.status}: ${text}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Progress saved successfully:', data);
-      if (data.success) {
-        toast('Progress saved successfully!', 'ok');
-      } else {
-        throw new Error(data.message || 'Unknown error occurred');
-      }
-    })
-    .catch(error => {
-      console.error('Error saving progress:', error);
-     // toast('Warning: Progress may not have been saved. Please try again.', 'warn');
-    });
+    .then(r => r.ok ? r.json() : r.text().then(t=>{throw new Error(`HTTP ${r.status}: ${t}`)}))
+    .then(d => { if(d.success) toast('Progress saved successfully!', 'ok'); })
+    .catch(e => { console.error(e); /* silent to avoid double-messaging */ });
   }
 
   // -----------------------------
@@ -730,19 +962,18 @@ body {
   });
 
   // -----------------------------
-  // Timer
+  // Timer (NO auto submit)
   // -----------------------------
   $timer.textContent = fmtTime(timeRemaining);
   const timerInterval = setInterval(() => {
     timeRemaining--;
+    if (timeRemaining < 0) timeRemaining = 0;
     $timer.textContent = fmtTime(timeRemaining);
-    if([60, 30, 10].includes(timeRemaining)) toast(`${timeRemaining}s remaining`, 'warn');
-    if(timeRemaining <= 0){
+    if ([60, 30, 10].includes(timeRemaining)) toast(`${timeRemaining}s remaining`, 'warn');
+    if (timeRemaining === 0 && !timeUp) {
+      timeUp = true;
+      toast("Time's up. You can still click Finish to see your results.", 'warn');
       clearInterval(timerInterval);
-      if(!submitted){ 
-        toast('Time up! Submitting your current answers...', 'warn'); 
-        showResults(); 
-      }
     }
   }, 1000);
 
@@ -751,50 +982,32 @@ body {
   // -----------------------------
   document.addEventListener('keydown', (e) => {
     if(submitted) return;
-    
-    if(e.key.toLowerCase() === 'h'){ 
-      e.preventDefault(); 
-      showHint(); 
-    }
-    if(e.key === 'Enter'){ 
-      e.preventDefault(); 
+    if(e.key.toLowerCase() === 'h'){ e.preventDefault(); showHint(); }
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); if(currentQuestion > 0) navigateToQuestion(currentQuestion - 1); }
+    if(e.key === 'ArrowRight'){
+      e.preventDefault();
       const isAnswered = answers.hasOwnProperty(currentQuestion);
-      if(isAnswered){
-        if(currentQuestion === questions.length - 1){
-          showResults();
-        } else {
-          navigateToQuestion(currentQuestion + 1);
-        }
+      if(isAnswered && currentQuestion < questions.length - 1) navigateToQuestion(currentQuestion + 1);
+    }
+    // Number keys for quick option selection (only for multiple-choice)
+    if(e.key >= '1' && e.key <= '9'){ 
+      const q = questions[currentQuestion];
+      if(q && !isCodeQ(q) && q.options && (parseInt(e.key) - 1) < q.options.length) {
+        e.preventDefault(); selectAnswer(parseInt(e.key) - 1);
       }
     }
-    if(e.key === 'ArrowLeft'){ 
-      e.preventDefault(); 
-      if(currentQuestion > 0) navigateToQuestion(currentQuestion - 1); 
-    }
-    if(e.key === 'ArrowRight'){ 
-      e.preventDefault(); 
+    if(e.key === 'Enter'){
       const isAnswered = answers.hasOwnProperty(currentQuestion);
-      if(isAnswered && currentQuestion < questions.length - 1) navigateToQuestion(currentQuestion + 1); 
-    }
-    // Number keys for quick option selection
-    if(e.key >= '1' && e.key <= '9'){ 
-      e.preventDefault(); 
-      const optionIndex = parseInt(e.key) - 1;
-      const q = questions[currentQuestion];
-      if(q && q.options && optionIndex < q.options.length) {
-        selectAnswer(optionIndex);
+      if(isAnswered && currentQuestion === questions.length - 1){
+        e.preventDefault(); showResults();
       }
     }
   });
 
-  // Back to stage button event listener - Updated for manual redirect only
-  const btnBackToStage = document.getElementById('btnBackToStage');
-  if(btnBackToStage){
-    btnBackToStage.addEventListener('click', () => {
-      // Simply redirect to stage dashboard
-      window.location.href = "{{ route('stages.show', $level->stage_id) }}";
-    });
-  }
+  // Back to stage button
+  document.getElementById('btnBackToStage')?.addEventListener('click', () => {
+    window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+  });
 
   // -----------------------------
   // Initialize
@@ -804,12 +1017,10 @@ body {
       toast('No questions available.', 'err');
       return;
     }
-    
     renderCurrentQuestion();
     updateProgress();
     updateStats();
   }
-
   init();
 })();
 </script>

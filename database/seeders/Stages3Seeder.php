@@ -161,7 +161,7 @@ class Stages3Seeder extends Seeder
                 'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes.",
                 'content'      => [
                     'intro'       => "True if it’s safe/correct; False if it errors or is unsafe.",
-                    'time_limit'  => 220,
+                    'time_limit'  => 400,
                     'max_hints'   => 3,
                     'hints'       => [
                         "Cast strings before math: int('7'), float('3.5').",
@@ -191,11 +191,35 @@ class Stages3Seeder extends Seeder
                     'answer'      => true,
                     'explanation' => "float('3.5') produces 3.5, so the comparison is True.",
                 ],
+                  [
+                    'type'            => 'code',
+                    'question'        => "Clean the spaces and print the number.",
+                    'starter_code'    => "s = '  12  '\n# your code here\n",
+                    'expected_output' => "12",
+                    'solution'        => "print(int(s.strip()))",
+                    'explanation'     => "strip() removes spaces; int() turns the clean text into a number."
+                ],
                 [
                     'code'        => "print(int('7.0'))",
                     'statement'   => "This works and prints 7.",
                     'answer'      => false,
                     'explanation' => "int('7.0') raises ValueError. Use float('7.0') or int(float('7.0')).",
+                ],
+                     [
+                    'type'            => 'code',
+                    'question'        => "Convert to a float and print.",
+                    'starter_code'    => "price_text = '7.5'\n# your code here\n",
+                    'expected_output' => "7.5",
+                    'solution'        => "print(float(price_text))",
+                    'explanation'     => "float('7.5') keeps the decimal part."
+                ],
+                  [
+                    'type'            => 'code',
+                    'question'        => "Convert the text to a number, then print it safely with a label Age.",
+                    'starter_code'    => "age_txt = '10'\n# print: Age: 10\n",
+                    'expected_output' => "Age: 10",
+                    'solution'        => "print('Age:', int(age_txt))",
+                    'explanation'     => "Use commas in print() to avoid TypeError, and cast the text to int."
                 ],
                 [
                     'code'        => "age = ' 9 '\nprint('Age:', int(age.strip()))",
@@ -238,6 +262,14 @@ class Stages3Seeder extends Seeder
                     'statement'   => "This safely prints whatever the user typed.",
                     'answer'      => true,
                     'explanation' => "input() returns text; printing text is safe.",
+                ],
+                     [
+                    'type'            => 'code',
+                    'question'        => "Add the numbers in the texts and print the total.",
+                    'starter_code'    => "a = '3'\nb = '5'\n# print: 8\n",
+                    'expected_output' => "8",
+                    'solution'        => "print(int(a) + int(b))",
+                    'explanation'     => "Strings would concatenate ('35'); cast to ints to add."
                 ],
                 [
                     'code'        => "w = input()\nprint(int(w) + 1)",

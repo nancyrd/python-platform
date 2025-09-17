@@ -14,16 +14,29 @@
     $timeLimit    = (int)($content['time_limit'] ?? 300);
     $maxHints     = (int)($content['max_hints']  ?? 3);
 
-    // True/False format expected by JS
+    // Mixed True/False and Code items -> normalize for JS
     $questions = [];
     foreach ($questionsRaw as $i => $q) {
-        $questions[] = [
-            'id'          => $i + 1,
-            'text'        => $q['statement']   ?? '',
-            'code'        => $q['code']        ?? null,
-            'correct'     => (bool)($q['answer'] ?? false),
-            'explanation' => $q['explanation'] ?? '',
-        ];
+        $type = $q['type'] ?? 'tf'; // default to true/false if not specified
+        if ($type === 'code') {
+            $questions[] = [
+                'id'              => $i + 1,
+                'type'            => 'code',
+                'question'        => $q['question'] ?? '',
+                'starter_code'    => $q['starter_code'] ?? '',
+                'expected_output' => $q['expected_output'] ?? '',
+                'explanation'     => $q['explanation'] ?? '',
+            ];
+        } else {
+            $questions[] = [
+                'id'          => $i + 1,
+                'type'        => 'tf',
+                'text'        => $q['statement']   ?? '',
+                'code'        => $q['code']        ?? null,
+                'correct'     => (bool)($q['answer'] ?? false),
+                'explanation' => $q['explanation'] ?? '',
+            ];
+        }
     }
 
     $payload = [
@@ -31,7 +44,7 @@
         'hints'      => $hints,
         'time_limit' => $timeLimit,
         'max_hints'  => $maxHints,
-    ];
+];
 @endphp
 
 <script>
@@ -111,6 +124,13 @@
   --shadow:0 1px 3px rgba(0,0,0,.1), 0 1px 2px -1px rgba(0,0,0,.1);
   --shadow-md:0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -2px rgba(0,0,0,.1);
   --shadow-lg:0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -4px rgba(0,0,0,.1);
+
+  /* Code editor */
+  --code-bg: #0f172a;
+  --code-fg: #cfeaff;
+  --code-border: rgba(255,255,255,.08);
+  --code-out-bg: #0b1222;
+  --code-out-fg: #e5f0ff;
 }
 
 /* Base page background */
@@ -185,7 +205,7 @@ body{
 .question-header{display:flex;gap:1rem;align-items:flex-start;margin-bottom:1.5rem;}
 .question-number{width:3rem;height:3rem;border-radius:.75rem;display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff;background:linear-gradient(135deg,var(--primary-purple),var(--secondary-purple));font-size:1.25rem;}
 .question-text{flex:1;font-size:1.125rem;font-weight:700;color:var(--text-primary);line-height:1.4;}
-.question-code{background:#0f172a;color:#cfeaff;border:1px solid rgba(255,255,255,.08);border-radius:.75rem;padding:1rem 1.25rem;margin:1rem 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;overflow-x:auto;line-height:1.4;}
+.question-code{background:var(--code-bg);color:var(--code-fg);border:1px solid var(--code-border);border-radius:.75rem;padding:1rem 1.25rem;margin:1rem 0;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;overflow-x:auto;line-height:1.4;}
 .question-actions{display:flex;gap:1rem;justify-content:center;margin-top:2rem;flex-wrap:wrap;}
 
 /* ==============================
@@ -205,6 +225,24 @@ body{
 /* Navigation buttons */
 .nav-controls{display:flex;justify-content:space-between;gap:1rem;margin-top:2rem;}
 .btn-nav{background:var(--gray-100);color:var(--text-primary);border:1px solid var(--border);min-width:100px;}
+
+/* ==============================
+   CODE EDITOR (for code questions)
+   ============================== */
+.code-editor-container{margin-top:1rem;border:1px solid var(--border);border-radius:.75rem;overflow:hidden;background:var(--gray-50);}
+.code-editor-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--gray-100);border-bottom:1px solid var(--border);}
+.code-editor-title{font-weight:700;color:var(--text-secondary);font-size:.9rem;}
+.code-editor-actions{display:flex;gap:.5rem;}
+.code-editor-textarea{width:100%;min-height:160px;padding:1rem;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.95rem;line-height:1.5;background:var(--code-bg);color:var(--code-fg);border:none;resize:vertical;outline:none;}
+
+.code-output-container{margin-top:1rem;border:1px solid var(--border);border-radius:.75rem;overflow:hidden;}
+.code-output-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--gray-100);border-bottom:1px solid var(--border);}
+.code-output-title{font-weight:700;color:var(--text-secondary);font-size:.9rem;}
+.code-output-content{padding:1rem;min-height:110px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:.9rem;line-height:1.5;background:var(--code-out-bg);color:var(--code-out-fg);white-space:pre-wrap;overflow-x:auto;}
+
+.code-status{display:inline-block;padding:.25rem .5rem;border-radius:.35rem;font-size:.75rem;font-weight:700;margin-left:.5rem;}
+.code-status.success{background:#dcfce7;color:#065f46;}
+.code-status.error{background:#fee2e2;color:#991b1b;}
 
 /* ==============================
    RESULTS SECTION
@@ -230,6 +268,11 @@ body{
 .result-status.correct{color:var(--success);}
 .result-status.incorrect{color:var(--danger);}
 .result-explanation{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--border);color:var(--text-secondary);line-height:1.6;}
+
+.code-result-container{margin-top:1rem;border:1px solid var(--border);border-radius:.75rem;overflow:hidden;}
+.code-result-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;background:var(--gray-100);border-bottom:1px solid var(--border);}
+.code-result-content{padding:1rem;background:var(--code-bg);color:var(--code-fg);white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;}
+.code-output-result{padding:1rem;background:#0d1528;border-top:1px solid var(--border);color:#eaf2ff;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;}
 
 /* ==============================
    TOASTS
@@ -290,7 +333,7 @@ body{
         </button>
       </div>
       <div id="instruxBody" class="instructions-text">
-        {!! nl2br(e($instructions ?? 'Read each statement (and code if any), then choose TRUE or FALSE.')) !!}
+        {!! nl2br(e($instructions ?? 'Read each statement (and code if any), choose TRUE or FALSE. Some questions will ask you to type Python code and run it.')) !!}
         @if($intro)
           <div class="mt-2">{!! nl2br(e($intro)) !!}</div>
         @endif
@@ -314,7 +357,7 @@ body{
 
     <!-- QUIZ SECTION -->
     <div id="quizSection" class="question-container">
-      <!-- Questions will be rendered here by JS -->
+      <!-- Questions render here by JS -->
     </div>
 
     <!-- RESULTS SECTION -->
@@ -343,9 +386,7 @@ body{
         </div>
       </div>
       
-      <div class="results-grid" id="resultsGrid">
-        <!-- Results will be rendered here by JS -->
-      </div>
+      <div class="results-grid" id="resultsGrid"></div>
 
       <div style="text-align:center;margin-top:2rem;">
         <button type="button" class="btn btn-primary" id="btnBackToStage">
@@ -370,7 +411,7 @@ body{
     <span class="meta-pill">Tips used: <span id="hintCount">0</span></span>
   </div>
   <div class="meta-right">
-    <span class="meta-pill">Press H for hint, Enter to submit answer</span>
+    <span class="meta-pill">Press H for hint, Enter to proceed</span>
   </div>
 </div>
 
@@ -379,6 +420,10 @@ body{
 
 <!-- Icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- Python Interpreter (Skulpt) -->
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
 <script>
 (function(){
@@ -395,28 +440,32 @@ body{
   // State
   // -----------------------------
   let currentQuestion = 0;
-  let answers = {};          // { [id]: 0|1 }
+  // answers:
+  //  - for TF: { [id]: 0|1 }
+  //  - for CODE: { [id]: { code:string, output:string } }
+  let answers = {};
+  // Cache per-question last output text for code items
+  let codeOutputs = {};
   let hintsUsed = 0;
   let submitted = false;
   let timeRemaining = timeLimit;
-  let startTime = Date.now();
 
   // -----------------------------
   // DOM
   // -----------------------------
-  const $quizSection    = document.getElementById('quizSection');
-  const $resultsSection = document.getElementById('resultsSection');
-  const $progress       = document.getElementById('progressBar');
+  const $quizSection     = document.getElementById('quizSection');
+  const $resultsSection  = document.getElementById('resultsSection');
+  const $progress        = document.getElementById('progressBar');
   const $questionCounter = document.getElementById('questionCounter');
-  const $timer          = document.getElementById('timeRemaining');
-  const $statScore      = document.getElementById('statScore');
-  const $statStars      = document.getElementById('statStars');
-  const $metaStars      = document.getElementById('metaStars');
-  const $hintCount      = document.getElementById('hintCount');
-  const $toastWrap      = document.getElementById('toastWrap');
+  const $timer           = document.getElementById('timeRemaining');
+  const $statScore       = document.getElementById('statScore');
+  const $statStars       = document.getElementById('statStars');
+  const $metaStars       = document.getElementById('metaStars');
+  const $hintCount       = document.getElementById('hintCount');
+  const $toastWrap       = document.getElementById('toastWrap');
 
-  const $toggleInstrux = document.getElementById('toggleInstrux');
-  const $instruxBody   = document.getElementById('instruxBody');
+  const $toggleInstrux   = document.getElementById('toggleInstrux');
+  const $instruxBody     = document.getElementById('instruxBody');
 
   // -----------------------------
   // Helpers
@@ -431,100 +480,196 @@ body{
   }
   function starsFor(score){ if(score>=90) return 3; if(score>=70) return 2; if(score>=50) return 1; return 0; }
   function fmtTime(sec){ const m = String(Math.floor(sec/60)).padStart(2,'0'); const s = String(sec%60).padStart(2,'0'); return `${m}:${s}`; }
-  
   function updateProgress(){
     const pct = questions.length ? Math.round(100 * (currentQuestion + 1) / questions.length) : 0;
     $progress.style.width = pct + '%';
     $questionCounter.textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
   }
-
   function updateStats(){
     const answeredCount = Object.keys(answers).length;
     const pct = questions.length ? Math.round(100 * answeredCount / questions.length) : 0;
     $statScore.textContent = pct + '%';
   }
+  function normalizeOutput(s){ return String(s ?? '').replace(/\r\n/g,'\n').trim(); }
+
+  // Skulpt runner
+  function runPython(code, outputEl){
+    outputEl.textContent = '';
+    Sk.configure({
+      output: txt => { outputEl.textContent += txt; },
+      read: function(name){
+        if (Sk.builtinFiles === undefined || Sk.builtinFiles["files"][name] === undefined) {
+          throw "File not found: '" + name + "'";
+        }
+        return Sk.builtinFiles["files"][name];
+      }
+    });
+    try{
+      Sk.importMainWithBody("<stdin>", false, code, true);
+      return true;
+    }catch(e){
+      outputEl.textContent = e.toString();
+      return false;
+    }
+  }
 
   // -----------------------------
-  // Build question UI
+  // Render current question
   // -----------------------------
   function renderCurrentQuestion(){
     if(currentQuestion >= questions.length) return;
-    
-    const q = questions[currentQuestion];
-    const isAnswered = answers.hasOwnProperty(q.id);
-    const userAnswer = answers[q.id];
 
-    $quizSection.innerHTML = `
-      <div class="question-card">
-        <div class="question-header">
-          <div class="question-number">${currentQuestion + 1}</div>
-          <div class="question-text">${escapeHtml(q.text || '')}</div>
-        </div>
-        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-        <div class="question-actions">
-          <button type="button" class="btn btn-true ${userAnswer === 1 ? 'selected' : ''}" data-val="1">
-            <i class="fas fa-check"></i> TRUE
-          </button>
-          <button type="button" class="btn btn-false ${userAnswer === 0 ? 'selected' : ''}" data-val="0">
-            <i class="fas fa-times"></i> FALSE
-          </button>
-        </div>
-        <div class="nav-controls">
-          <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
-            <i class="fas fa-chevron-left"></i> Previous
-          </button>
-          <div style="display:flex;gap:0.5rem;">
-            <button type="button" class="btn btn-warning" id="btnHint">
-              <i class="fas fa-lightbulb"></i> Hint
+    const q = questions[currentQuestion];
+    const isTF   = q.type !== 'code';
+    const isAns  = answers.hasOwnProperty(q.id);
+    const lastOut = codeOutputs[q.id] || '';
+
+    if (isTF){
+      // TRUE/FALSE
+      const userVal = answers[q.id];
+      $quizSection.innerHTML = `
+        <div class="question-card">
+          <div class="question-header">
+            <div class="question-number">${currentQuestion + 1}</div>
+            <div class="question-text">${escapeHtml(q.text || '')}</div>
+          </div>
+          ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+          <div class="question-actions">
+            <button type="button" class="btn btn-true ${userVal === 1 ? 'selected' : ''}" data-val="1">
+              <i class="fas fa-check"></i> TRUE
             </button>
-            ${isAnswered ? 
-              (currentQuestion === questions.length - 1 ? 
-                '<button type="button" class="btn btn-primary" id="btnFinish"><i class="fas fa-flag-checkered"></i> Finish Quiz</button>' :
-                '<button type="button" class="btn btn-primary" id="btnNext"><i class="fas fa-chevron-right"></i> Next</button>'
-              ) : 
-              '<button type="button" class="btn btn-secondary" disabled>Choose an answer</button>'
-            }
+            <button type="button" class="btn btn-false ${userVal === 0 ? 'selected' : ''}" data-val="0">
+              <i class="fas fa-times"></i> FALSE
+            </button>
+          </div>
+          <div class="nav-controls">
+            <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div style="display:flex;gap:.5rem;">
+              <button type="button" class="btn btn-warning" id="btnHint"><i class="fas fa-lightbulb"></i> Hint</button>
+              <button type="button" class="btn btn-primary" id="btnNext" ${isAns ? '' : 'disabled'}>
+                ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
 
-    // Add event listeners
-    const answerButtons = $quizSection.querySelectorAll('.btn-true, .btn-false');
-    answerButtons.forEach(btn => {
-      btn.addEventListener('click', () => selectAnswer(+btn.dataset.val));
-    });
+      const btns = $quizSection.querySelectorAll('.btn-true, .btn-false');
+      btns.forEach(b => b.addEventListener('click', () => selectTF(+b.dataset.val)));
 
-    const btnPrev = document.getElementById('btnPrev');
-    const btnNext = document.getElementById('btnNext');
-    const btnFinish = document.getElementById('btnFinish');
-    const btnHint = document.getElementById('btnHint');
+      document.getElementById('btnPrev')?.addEventListener('click', ()=> navigateTo(currentQuestion - 1));
+      document.getElementById('btnNext')?.addEventListener('click', ()=>{
+        if (currentQuestion === questions.length - 1) showResults();
+        else navigateTo(currentQuestion + 1);
+      });
+      document.getElementById('btnHint')?.addEventListener('click', showHint);
 
-    if(btnPrev) btnPrev.addEventListener('click', () => navigateToQuestion(currentQuestion - 1));
-    if(btnNext) btnNext.addEventListener('click', () => navigateToQuestion(currentQuestion + 1));
-    if(btnFinish) btnFinish.addEventListener('click', showResults);
-    if(btnHint) btnHint.addEventListener('click', showHint);
+    } else {
+      // CODE
+      const userObj = answers[q.id]; // { code, output } or undefined
+      $quizSection.innerHTML = `
+        <div class="question-card">
+          <div class="question-header">
+            <div class="question-number">${currentQuestion + 1}</div>
+            <div class="question-text">${escapeHtml(q.question || '')}</div>
+          </div>
+
+          <div class="code-editor-container">
+            <div class="code-editor-header">
+              <div class="code-editor-title">Write your Python code:</div>
+              <div class="code-editor-actions">
+                <button type="button" class="btn btn-success" id="btnRun"><i class="fas fa-play"></i> Run Code</button>
+                <button type="button" class="btn btn-secondary" id="btnReset"><i class="fas fa-undo"></i> Reset</button>
+              </div>
+            </div>
+            <textarea class="code-editor-textarea" id="codeEditor" placeholder="Write your Python code here...">${escapeHtml(userObj?.code ?? q.starter_code ?? '')}</textarea>
+          </div>
+
+          <div class="code-output-container">
+            <div class="code-output-header">
+              <div class="code-output-title">Output:</div>
+              <div id="outputStatus"></div>
+            </div>
+            <div class="code-output-content" id="codeOut">${escapeHtml(lastOut)}</div>
+          </div>
+
+          <div class="nav-controls">
+            <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+              <i class="fas fa-chevron-left"></i> Previous
+            </button>
+            <div style="display:flex;gap:.5rem;">
+              <button type="button" class="btn btn-warning" id="btnHint"><i class="fas fa-lightbulb"></i> Hint</button>
+              ${
+                isAns
+                  ? `<button type="button" class="btn btn-primary" id="btnNext">
+                       ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+                     </button>`
+                  : `<button type="button" class="btn btn-secondary" id="btnSubmitCode"><i class="fas fa-check"></i> Submit Code</button>
+                     <button type="button" class="btn btn-primary" id="btnNext" disabled>
+                       ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+                     </button>`
+              }
+            </div>
+          </div>
+        </div>
+      `;
+
+      const btnRun   = document.getElementById('btnRun');
+      const btnReset = document.getElementById('btnReset');
+      const editor   = document.getElementById('codeEditor');
+      const outEl    = document.getElementById('codeOut');
+      const statusEl = document.getElementById('outputStatus');
+      const btnSubmit= document.getElementById('btnSubmitCode');
+      const btnNext  = document.getElementById('btnNext');
+
+      function checkBadge(){
+        const exp = String(q.expected_output ?? '');
+        if (!exp){ statusEl.innerHTML = ''; return; }
+        const ok = normalizeOutput(outEl.textContent) === normalizeOutput(exp);
+        statusEl.innerHTML = ok
+          ? '<span class="code-status success">Matches expected ✓</span>'
+          : '<span class="code-status error">Does not match ✗</span>';
+        return ok;
+      }
+
+      btnRun?.addEventListener('click', ()=>{
+        runPython(editor.value, outEl);
+        codeOutputs[q.id] = outEl.textContent;
+        checkBadge();
+      });
+      btnReset?.addEventListener('click', ()=>{
+        editor.value = q.starter_code ?? '';
+        outEl.textContent = '';
+        statusEl.innerHTML = '';
+      });
+      btnSubmit?.addEventListener('click', ()=>{
+        answers[q.id] = { code: editor.value, output: outEl.textContent };
+        updateStats();
+        if (btnNext) btnNext.disabled = false;
+        btnSubmit.style.display = 'none';
+        toast('Code submitted. You can proceed.', 'ok');
+      });
+
+      document.getElementById('btnPrev')?.addEventListener('click', ()=> navigateTo(currentQuestion - 1));
+      btnNext?.addEventListener('click', ()=>{
+        if (currentQuestion === questions.length - 1) showResults();
+        else navigateTo(currentQuestion + 1);
+      });
+      document.getElementById('btnHint')?.addEventListener('click', showHint);
+    }
   }
 
-  function selectAnswer(val){
+  function selectTF(val){
     if(submitted) return;
-    
     const q = questions[currentQuestion];
     answers[q.id] = val;
-    
-    // Update button states
-    const buttons = $quizSection.querySelectorAll('.btn-true, .btn-false');
-    buttons.forEach(b => b.classList.remove('selected'));
-    const selectedBtn = $quizSection.querySelector(`.btn[data-val="${val}"]`);
-    if(selectedBtn) selectedBtn.classList.add('selected');
-    
     updateStats();
-    
-    // Re-render to show next/finish button
     setTimeout(renderCurrentQuestion, 100);
   }
 
-  function navigateToQuestion(index){
+  function navigateTo(index){
     if(index < 0 || index >= questions.length) return;
     currentQuestion = index;
     renderCurrentQuestion();
@@ -534,15 +679,14 @@ body{
   function showHint(){
     if(submitted) return;
     if(hintsUsed >= maxHints) return toast('No more hints available.', 'warn');
-    
     hintsUsed++;
     $hintCount.textContent = hintsUsed;
-    const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Think about the statement carefully and consider the code logic.';
+    const hint = hints.length ? hints[(hintsUsed-1) % hints.length] : 'Think carefully about the statement/code.';
     toast('Hint: ' + hint, 'ok');
   }
 
   // -----------------------------
-  // Results display - UPDATED FOR AJAX
+  // Results (no auto-submit anywhere)
   // -----------------------------
   function showResults(){
     if(Object.keys(answers).length !== questions.length){
@@ -551,23 +695,28 @@ body{
 
     submitted = true;
     clearInterval(timerInterval);
-    
-    // Calculate score
+
+    // Marking
     let correct = 0;
     questions.forEach(q => {
-      const chosen = answers[q.id];          // 0|1
-      const truth  = q.correct ? 1 : 0;      // 0|1
-      const ok = chosen === truth;
-      if(ok) correct++;
+      if (q.type === 'code'){
+        const u = answers[q.id];
+        if (u && typeof u.output === 'string'){
+          if (normalizeOutput(u.output) === normalizeOutput(q.expected_output || '')) correct++;
+        }
+      } else {
+        const chosen = answers[q.id];          // 0|1
+        const truth  = q.correct ? 1 : 0;      // 0|1
+        if(chosen === truth) correct++;
+      }
     });
 
     const rawPct = Math.round(100 * correct / questions.length);
-    const hintPenalty = hintsUsed * 5;                 // -5% per hint
+    const hintPenalty = hintsUsed * 5;
     let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-    // Small time bonus
+    // small time bonus for remaining seconds (when time > 0)
     finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
 
-    const timeUsed = timeLimit - timeRemaining;
     const stars = starsFor(finalScore);
     const starIcons = stars ? '★'.repeat(stars) : '0';
     const passReq = {{ (int)$level->pass_score }};
@@ -582,56 +731,76 @@ body{
     $quizSection.classList.add('d-none');
     $resultsSection.classList.remove('d-none');
 
-    // Update results header
+    // Header summary
     document.getElementById('finalScoreDisplay').textContent = finalScore + '%';
     document.getElementById('finalStarsDisplay').textContent = starIcons;
     document.getElementById('correctCount').textContent = correct;
     document.getElementById('incorrectCount').textContent = questions.length - correct;
+    const timeUsed = (Number.isFinite(timeLimit) ? timeLimit : 0) - timeRemaining;
     document.getElementById('hintsUsedDisplay').textContent = hintsUsed;
-    document.getElementById('timeUsedDisplay').textContent = fmtTime(timeUsed);
+    document.getElementById('timeUsedDisplay').textContent = fmtTime(Math.max(0, timeUsed));
 
-    // Render individual results
+    // Per-question results
     const resultsGrid = document.getElementById('resultsGrid');
     resultsGrid.innerHTML = '';
-
     questions.forEach((q, i) => {
-      const chosen = answers[q.id];
-      const truth = q.correct ? 1 : 0;
-      const isCorrect = chosen === truth;
-      const chosenText = chosen === 1 ? 'TRUE' : 'FALSE';
-      const correctText = truth === 1 ? 'TRUE' : 'FALSE';
-
-      const resultCard = document.createElement('div');
-      resultCard.className = `result-card ${isCorrect ? 'correct' : 'incorrect'}`;
-      
-      resultCard.innerHTML = `
-        <div class="result-header">
-          <div class="result-number">${i + 1}</div>
-          <div class="result-text">${escapeHtml(q.text || '')}</div>
-        </div>
-        ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-        <div class="result-status ${isCorrect ? 'correct' : 'incorrect'}">
-          <i class="fas fa-${isCorrect ? 'check-circle' : 'times-circle'}"></i>
-          ${isCorrect ? 'Correct' : 'Incorrect'} - You answered: ${chosenText}
-          ${!isCorrect ? ` (Correct answer: ${correctText})` : ''}
-        </div>
-        <div class="result-explanation">
-          <strong>Explanation:</strong> ${escapeHtml(q.explanation || (isCorrect ? 'Well done!' : 'Review the statement and code carefully.'))}
-        </div>
-      `;
-      
-      resultsGrid.appendChild(resultCard);
+      let card;
+      if (q.type === 'code'){
+        const u = answers[q.id] || {};
+        const ok = normalizeOutput(u.output || '') === normalizeOutput(q.expected_output || '');
+        card = document.createElement('div');
+        card.className = `result-card ${ok ? 'correct' : 'incorrect'}`;
+        card.innerHTML = `
+          <div class="result-header">
+            <div class="result-number">${i + 1}</div>
+            <div class="result-text">${escapeHtml(q.question || '')}</div>
+          </div>
+          <div class="result-status ${ok ? 'correct' : 'incorrect'}">
+            <i class="fas fa-${ok ? 'check-circle' : 'times-circle'}"></i>
+            ${ok ? 'Correct' : 'Incorrect'}
+          </div>
+          <div class="code-result-container">
+            <div class="code-result-header"><strong>Your Code</strong></div>
+            <div class="code-result-content">${escapeHtml(u.code || '')}</div>
+            <div class="code-output-result">Output:\n${escapeHtml(u.output || '')}</div>
+          </div>
+          <div class="result-explanation">
+            <strong>Explanation:</strong> ${escapeHtml(q.explanation || (ok ? 'Well done!' : 'Review the prompt and expected output.'))}
+          </div>
+        `;
+      } else {
+        const chosen = answers[q.id];
+        const truth  = q.correct ? 1 : 0;
+        const ok     = chosen === truth;
+        const chosenText = chosen === 1 ? 'TRUE' : 'FALSE';
+        const correctText = truth === 1 ? 'TRUE' : 'FALSE';
+        card = document.createElement('div');
+        card.className = `result-card ${ok ? 'correct' : 'incorrect'}`;
+        card.innerHTML = `
+          <div class="result-header">
+            <div class="result-number">${i + 1}</div>
+            <div class="result-text">${escapeHtml(q.text || '')}</div>
+          </div>
+          ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+          <div class="result-status ${ok ? 'correct' : 'incorrect'}">
+            <i class="fas fa-${ok ? 'check-circle' : 'times-circle'}"></i>
+            ${ok ? 'Correct' : 'Incorrect'} — You answered: ${chosenText}${ok ? '' : ` (Correct: ${correctText})`}
+          </div>
+          <div class="result-explanation">
+            <strong>Explanation:</strong> ${escapeHtml(q.explanation || (ok ? 'Nice!' : 'Re-check the code and statement.'))}
+          </div>
+        `;
+      }
+      resultsGrid.appendChild(card);
     });
 
-    // Show feedback message
     toast(passed ? `Excellent! Score ${finalScore}%` : `Score ${finalScore}%. Keep practicing!`, passed ? 'ok' : 'err');
 
-    // Save progress to database using AJAX (no redirect)
-    saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, questions.length, correct, passed);
+    // Persist via AJAX
+    saveProgress(finalScore, answers, hintsUsed, timeUsed, stars, questions.length, correct, passed);
   }
 
-  // New function to save progress via AJAX
-  function saveProgressToDatabase(finalScore, answers, hintsUsed, timeUsed, stars, totalQuestions, correct, passed) {
+  function saveProgress(finalScore, answers, hintsUsed, timeUsed, stars, totalQuestions, correct, passed){
     const formData = new FormData();
     formData.append('_token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
     formData.append('score', finalScore);
@@ -646,30 +815,15 @@ body{
     fetch('{{ route("levels.submit", $level) }}', {
       method: 'POST',
       body: formData,
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json'
-      }
+      headers: {'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}
     })
-    .then(response => {
-      if (!response.ok) {
-        return response.text().then(text => {
-          console.error('Response text:', text);
-          throw new Error(`HTTP ${response.status}: ${text}`);
-        });
-      }
-      return response.json();
+    .then(r => r.ok ? r.json() : r.text().then(t => { throw new Error(`HTTP ${r.status}: ${t}`); }))
+    .then(json => {
+      if (json?.success) toast('Progress saved successfully!', 'ok');
+      else throw new Error(json?.message || 'Unknown error');
     })
-    .then(data => {
-      console.log('Progress saved successfully:', data);
-      if (data.success) {
-        toast('Progress saved successfully!', 'ok');
-      } else {
-        throw new Error(data.message || 'Unknown error occurred');
-      }
-    })
-    .catch(error => {
-      console.error('Error saving progress:', error);
+    .catch(err => {
+      console.error(err);
       toast('Warning: Progress may not have been saved. Please try again.', 'warn');
     });
   }
@@ -684,19 +838,17 @@ body{
   });
 
   // -----------------------------
-  // Timer
+  // Timer (NO auto-submit)
   // -----------------------------
   $timer.textContent = fmtTime(timeRemaining);
   const timerInterval = setInterval(() => {
     timeRemaining--;
-    $timer.textContent = fmtTime(timeRemaining);
+    $timer.textContent = fmtTime(Math.max(0, timeRemaining));
     if([60, 30, 10].includes(timeRemaining)) toast(`${timeRemaining}s remaining`, 'warn');
     if(timeRemaining <= 0){
       clearInterval(timerInterval);
-      if(!submitted){ 
-        toast('Time up! Submitting your current answers...', 'warn'); 
-        showResults(); 
-      }
+      toast('⏰ Time is up. You can still finish, but time bonus is gone.', 'warn');
+      // No auto-submit, no forced lock — user may still complete and submit manually.
     }
   }, 1000);
 
@@ -705,64 +857,55 @@ body{
   // -----------------------------
   document.addEventListener('keydown', (e) => {
     if(submitted) return;
-    
-    if(e.key.toLowerCase() === 'h'){ 
-      e.preventDefault(); 
-      showHint(); 
+
+    // H for hint
+    if(e.key.toLowerCase() === 'h'){ e.preventDefault(); showHint(); return; }
+
+    const q = questions[currentQuestion];
+    if (!q) return;
+
+    // For TF: Enter -> advance / results
+    if(e.key === 'Enter' && q.type !== 'code'){
+      e.preventDefault();
+      const answered = answers.hasOwnProperty(q.id);
+      if(!answered) return;
+      if(currentQuestion === questions.length - 1) showResults();
+      else navigateTo(currentQuestion + 1);
+      return;
     }
-    if(e.key === 'Enter'){ 
-      e.preventDefault(); 
-      const isAnswered = answers.hasOwnProperty(questions[currentQuestion].id);
-      if(isAnswered){
-        if(currentQuestion === questions.length - 1){
-          showResults();
-        } else {
-          navigateToQuestion(currentQuestion + 1);
-        }
-      }
+
+    // Arrows
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); if(currentQuestion > 0) navigateTo(currentQuestion - 1); }
+    if(e.key === 'ArrowRight'){
+      e.preventDefault();
+      const answered = answers.hasOwnProperty(q.id);
+      if(answered && currentQuestion < questions.length - 1) navigateTo(currentQuestion + 1);
     }
-    if(e.key === 'ArrowLeft'){ 
-      e.preventDefault(); 
-      if(currentQuestion > 0) navigateToQuestion(currentQuestion - 1); 
-    }
-    if(e.key === 'ArrowRight'){ 
-      e.preventDefault(); 
-      const isAnswered = answers.hasOwnProperty(questions[currentQuestion].id);
-      if(isAnswered && currentQuestion < questions.length - 1) navigateToQuestion(currentQuestion + 1); 
-    }
-    if(e.key === '1' || e.key === 't'){ 
-      e.preventDefault(); 
-      selectAnswer(1); 
-    }
-    if(e.key === '0' || e.key === 'f'){ 
-      e.preventDefault(); 
-      selectAnswer(0); 
+
+    // Quick TF keys
+    if(q.type !== 'code'){
+      if(e.key === '1' || e.key.toLowerCase() === 't'){ e.preventDefault(); selectTF(1); }
+      if(e.key === '0' || e.key.toLowerCase() === 'f'){ e.preventDefault(); selectTF(0); }
     }
   });
 
-  // Back to stage button event listener - Updated for manual redirect only
-  const btnBackToStage = document.getElementById('btnBackToStage');
-  if(btnBackToStage){
-    btnBackToStage.addEventListener('click', () => {
-      // Simply redirect to stage dashboard
-      window.location.href = "{{ route('stages.show', $level->stage_id) }}";
-    });
-  }
+  // Back to stage
+  document.getElementById('btnBackToStage')?.addEventListener('click', ()=>{
+    window.location.href = "{{ route('stages.show', $level->stage_id) }}";
+  });
 
   // -----------------------------
-  // Initialize
+  // Init
   // -----------------------------
   function init(){
     if(questions.length === 0){
       toast('No questions available.', 'err');
       return;
     }
-    
     renderCurrentQuestion();
     updateProgress();
     updateStats();
   }
-
   init();
 })();
 </script>

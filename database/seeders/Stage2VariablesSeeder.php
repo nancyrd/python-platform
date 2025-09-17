@@ -196,11 +196,7 @@ Level::updateOrCreate(
         'title'        => 'Variable Truths & Myths',
         'pass_score'   => 70,
         'instructions' => 'Look at each code snippet and the statement about it. ' .
-                         'Decide if the statement is True or False: ' .
-                         '- Can variables change their values? ' .
-                         '- Do variable names have rules? ' .
-                         '- Can you use variables before creating them? ' .
-                         '- What happens when you combine different types?',
+                          'Decide if the statement is True or False, and answer coding tasks by writing Python and matching the expected output.',
         'content'      => [
             'examples' => [
                 [
@@ -223,53 +219,92 @@ Level::updateOrCreate(
                 ],
             ],
             'questions' => [
+                // --- T/F items (unchanged) ---
                 [
+                    'type'        => 'tf',
                     'code'        => "age = 25\nage = 30\nprint(age)",
                     'statement'   => 'This will print 30 because you can change variable values.',
                     'answer'      => true,
-                    'explanation' => '✅ Like replacing what\'s in a labeled jar - first you put "25" in the "age" jar, then you replace it with "30". When you look, you see the new value!'
+                    'explanation' => '✅ You replaced the value in age; printing shows the latest value (30).'
                 ],
+                    [
+        'type' => 'code',
+        'question' => 'Create a variable word=\"OK\" and print it twice using the variable (output: OKOK).',
+        'expected_output' => "OKOK",
+        'starter_code' => "# Your code here\n",
+        'solution' => "word = 'OK'\nprint(word * 2)",
+        'explanation' => 'String repetition uses the * operator.'
+    ],
                 [
+                    'type'        => 'tf',
                     'code'        => "first name = \"Sam\"",
                     'statement'   => 'This will cause an error because of the space in the variable name.',
                     'answer'      => true,
-                    'explanation' => '✅ Variable names are like text messages - no spaces allowed! You need to use underscores instead: first_name = "Sam"'
+                    'explanation' => '✅ Variable names cannot contain spaces. Use first_name instead.'
                 ],
                 [
+                    'type'        => 'tf',
                     'code'        => "print(score)\nscore = 100",
                     'statement'   => 'This will print 100 because the variable is used after being created.',
                     'answer'      => false,
-                    'explanation' => '❌ This is like trying to read a recipe before you\'ve written it down! You must create the variable (put something in the box) before you can use it.'
+                    'explanation' => '❌ You must define score before using it.'
                 ],
+
+                // --- NEW: CODE question ---
+            [
+        'type' => 'code',
+        'question' => 'Make a boolean variable is_ready set to True and print it.',
+        'expected_output' => "True",
+        'starter_code' => "# Your code here\n",
+        'solution' => "is_ready = True\nprint(is_ready)",
+        'explanation' => 'Booleans in Python are True or False (capitalized).'
+    ],
+
+
+                // --- more T/F items ---
                 [
+                    'type'        => 'tf',
                     'code'        => "apples = \"5\"\noranges = 3\ntotal = apples + oranges",
                     'statement'   => 'This will combine them to make "53".',
                     'answer'      => false,
-                    'explanation' => '❌ Actually, this causes an error! It\'s like trying to add "5 apples" + 3 oranges - they\'re different types. You need to convert first: total = int(apples) + oranges'
+                    'explanation' => '❌ It raises a TypeError; convert apples with int(apples) first.'
                 ],
                 [
+                    'type'        => 'tf',
                     'code'        => "TAX_RATE = 0.08\nTAX_RATE = 0.09",
                     'statement'   => 'You can change constant values even though they use ALL_CAPS.',
                     'answer'      => true,
-                    'explanation' => '✅ ALL_CAPS is just a convention (like a red STOP sign), not an actual rule. Python will let you change it, but it\'s not recommended - like changing the rules mid-game!'
+                    'explanation' => '✅ ALL_CAPS is a convention; Python won’t prevent reassignment.'
                 ],
+                 [
+        'type' => 'code',
+        'question' => 'Create a variable x with value 7, then change it to 12 and print it.',
+        'expected_output' => "12",
+        'starter_code' => "# Your code here\n# 1) create x with 7\n# 2) change it to 12\n# 3) print it\n",
+        'solution' => "x = 7\nx = 12\nprint(x)",
+        'explanation' => 'Variables can be reassigned. After setting x = 7, set x = 12 and print it.'
+    ],
                 [
+                    'type'        => 'tf',
                     'code'        => "name = \"Lisa\"\nName = \"John\"\nprint(name)",
                     'statement'   => 'This will print "Lisa" because variable names are case-sensitive.',
                     'answer'      => true,
-                    'explanation' => '✅ name and Name are as different as "coffee" and "COFFEE" - the computer sees them as completely separate variables!'
+                    'explanation' => '✅ name and Name are different identifiers.'
                 ],
                 [
+                    'type'        => 'tf',
                     'code'        => "x = 10\ny = x\nx = 20\nprint(y)",
                     'statement'   => 'This will print 20 because y is connected to x.',
                     'answer'      => false,
-                    'explanation' => '❌ When you do y = x, it\'s like taking a photo of what\'s in the x box at that moment. Changing x later doesn\'t change the photo! y stays 10.'
+                    'explanation' => '❌ y took a copy of x’s value at assignment time; it stays 10.'
                 ],
+                
                 [
+                    'type'        => 'tf',
                     'code'        => "count = 5\ncount = count + 1\nprint(count)",
                     'statement'   => 'This is a valid way to increase a variable\'s value.',
                     'answer'      => true,
-                    'explanation' => '✅ This is like having a piggy bank: First you have $5, then you add $1 more. Now your total is $6!'
+                    'explanation' => '✅ This prints 6; you added 1 to count.'
                 ],
             ],
             'hints'      => [
@@ -279,11 +314,12 @@ Level::updateOrCreate(
                 'You can change variable values anytime',
                 'Text and numbers are different types'
             ],
-            'time_limit'  => 300,
+            'time_limit'  => 500,
             'max_hints'   => 3,
         ],
     ]
 );
+
         // ---------- POST ASSESSMENT ----------
         Assessment::updateOrCreate(
             ['stage_id' => $stage->id, 'type' => 'post'],
@@ -366,6 +402,14 @@ Level::updateOrCreate(
                 'correct_answer' => 1,
                 'explanation' => 'The + operator combines text: \"Hello\" + \" \" + \"World\" = \"Hello World\"',
             ],
+            [
+        'type' => 'code',
+        'question' => 'Start total=0, then add price1=3 and price2=4 to total. Print total.',
+        'expected_output' => "7",
+        'starter_code' => "total = 0\nprice1 = 3\nprice2 = 4\n# Your code here\n",
+        'solution' => "total = 0\nprice1 = 3\nprice2 = 4\ntotal = total + price1\ntotal = total + price2\nprint(total)",
+        'explanation' => 'An accumulator variable updates by using its current value.'
+    ],
             [
                 'question' => "count = 5\ncount = count + 2\nprint(count)\nWhat will this display?",
                 'options'  => ['5', '7', '52', 'Error'],

@@ -105,7 +105,13 @@ class Stage7CollectionsSeeder extends Seeder
                     "- **Making a list** (create it) - like writing a new to-do list\n".
                     "- **Adding to a list** (append) - like adding tasks to your to-do list\n".
                     "- **Looking inside** (index or len) - like checking what's on your list or counting tasks\n".
-                    "- **Not about lists** - code that does other things",
+                    "- **Not about lists** - code that does other things\n
+                    -Common Methods for Removing Elements:lets say we have this list:my_list = [1, 2, 3, 4, 2]
+1. remove() - Remove by value:my_list.remove(2)  # Removes the first occurrence of 2\n
+2. pop() - Remove by index (returns the removed element):removed = my_list.pop(1)\n
+3. del - Remove by index or slice:del my_list[2] \n
+4. clear() - Remove all elements:my_list.clear()\n
+",
                 'content' => [
                     'time_limit' => 300,
                     'max_hints'  => 3,
@@ -150,6 +156,7 @@ class Stage7CollectionsSeeder extends Seeder
                             'explain' => "We start with 3 scores, add a new score (88), then calculate the average by dividing the sum by the count.",
                             'expected_output' => "Average score: 85.75"
                         ],
+                       
                         [
                             'title' => 'List of lists',
                             'code'  => "classroom = [['Alice','Bob'], ['Charlie','Dana']]\nprint('First group:', classroom[0])",

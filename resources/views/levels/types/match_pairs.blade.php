@@ -3,7 +3,7 @@
     // ---------- Safe content extraction ----------
     $content      = is_array($level->content) ? $level->content : (json_decode($level->content ?? '[]', true) ?: []);
     $intro        = $content['intro'] ?? null;
-    $instructions = $level->instructions ?? ($content['instructions'] ?? null);
+  
     $pairs        = $content['pairs'] ?? [];
     $hints        = $content['hints'] ?? [];
     $timeLimit    = (int)($content['time_limit'] ?? 240);
@@ -199,9 +199,7 @@ body{
             </div>
             <div id="instruxBody" style="white-space:pre-wrap;">
                 {!! nl2br(e($instructions ?? 'Tap an item on the left, then its matching item on the right. Correct pairs lock. Finish when all pairs are matched.')) !!}
-                @if($intro)
-                    <div class="mt-2" style="white-space:pre-wrap;">{!! nl2br(e($intro)) !!}</div>
-                @endif
+             
             </div>
         </div>
 

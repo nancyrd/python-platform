@@ -39,7 +39,31 @@ Compare two values with operators:
 Combine comparisons with logical operators:
     • and → both must be True
     • or  → at least one True
-    • not → flips a True/False value
+    • not → flips a True/False value.
+
+
+
+
+
+Why We Use If Statements 
+Think of if statements like asking questions before doing something.
+Real Life Example:
+
+Question: "Is it raining?"
+Action: If YES → Take umbrella
+Action: If NO → Do not take umbrella 
+
+It is Like a Fork in the Road:
+
+Your program reaches a point where it needs to choose,
+if helps it decide what to do based on the situation
+Without if, programs would do the same thing every time (boring!)
+
+Lets programs make decisions like humans do
+In Python, we use if statements to check conditions and decide what to do next.
+if statements let your program think and choose what to do, just like you decide whether to wear a jacket based on the weather!
+
+
 
 PYTHON INDENTATION - The Magic Spacing Rule!
 Think of Python code like organizing your toys in boxes:
@@ -49,8 +73,8 @@ Think of Python code like organizing your toys in boxes:
 
 Example - Notice the spacing:
 if age > 10:
-xxxx print("You are old enough!")    ← 4 spaces from left
-xxxx print("Welcome to the game!")   ← 4 spaces from left
+xxxx print("You are old enough!")    ←xxxx represents 4 spaces from left (inside the if)
+xxxx print("Welcome to the game!")   ←xxxx represents 4 spaces from left (inside the if)
 print("This is back at the wall")  ← 0 spaces (outside the if)
 
 Remember: Python is picky about spaces! Always use exactly 4 spaces when you go "inside" an if-block. Think of it like stepping into a room - you move 4 steps to the right!
@@ -72,7 +96,10 @@ Remember: Python is picky about spaces! Always use exactly 4 spaces when you go 
                             'explanation'     => '7 equals 7.'
                         ],
                         [
-                            'question'        => 'For age = 10, will this print?if age >= 10  print("Ten or more")',
+                            'question'        => 'Will this print?
+                            age=10
+                            if age >= 10
+                                print("Ten or more")',
                             'options'         => ['Yes, prints "Ten or more"', 'No, it prints nothing', 'Error'],
                             'correct_answer'  => 0,
                             'explanation'     => '10 >= 10 → condition is True.'
@@ -100,8 +127,9 @@ Remember: Python is picky about spaces! Always use exactly 4 spaces when you go 
                             'correct_answer'  => 0,
                             'explanation'     => 'not False → True; True and True → True.'
                         ],
+                        
                         [
-                            'question'        => 'For score = 55, what prints?\n\nif score >= 60:\n    print("Pass")\nprint("Done")',
+                             'question' => "What prints here?\nscore = 50\nif score >= 60:\n    print(\"Pass\")\nprint(\"Done\")",
                             'options'         => ['Pass\nDone', 'Done', 'Pass', 'Nothing'],
                             'correct_answer'  => 1,
                             'explanation'     => 'score>=60 is False → no "Pass"; always prints "Done".'
@@ -254,6 +282,14 @@ In each question, you'll decide whether the print statement inside the code will
                             'explanation' => '12 > 10 is True.'
                         ],
                         [
+    'type'            => 'code',
+    'question'        => "Check if age is 18 or older, print 'Can vote'\n otherwise, print 'Too young'",
+    'starter_code'    => "age = 16\n# your code here\n",
+    'expected_output' => "Too young",
+    'solution'        => "if age >= 18:\n    print('Can vote')\nelse:\n    print('Too young')",
+    'explanation'     => "Use if/else to check the condition. Since 16 < 18, it prints 'Too young'."
+                        ],
+                        [
                             'code'        => "score = 70\nif score >= 90:\n    print('A')\nelif score >= 60:\n    print('Pass')\nelse:\n    print('Retake')",
                             'statement'   => 'This prints Pass',
                             'answer'      => true,
@@ -270,6 +306,14 @@ In each question, you'll decide whether the print statement inside the code will
                             'statement'   => 'This prints Both big',
                             'answer'      => false,
                             'explanation' => 'a>5 is False; and needs both True.'
+                        ],
+                        [
+    'type'            => 'code',
+    'question'        => "Convert the text to a number and check if it's positive or negative.",
+    'starter_code'    => "num_text = '-5'\n #if it's positive it will print Positive\n #if it's negative it will print Negative\n #(pay attention to the Capital P and N)\n",
+    'expected_output' => "Negative",
+    'solution'        => "num = int(num_text)\nif num >= 0:\n    print('Positive')\nelse:\n    print('Negative')",
+    'explanation'     => "Convert text to int first, then use if/else to check. Since -5 < 0, it prints 'Negative'."
                         ],
                         [
                             // small nested case
@@ -314,7 +358,7 @@ In each question, you'll decide whether the print statement inside the code will
                 'correct' => 'a > 5 or b > 5',
             ],
             [
-                'prompt'  => 'What does "!=" mean?',
+                'prompt'  => 'What do you think this "!=" mean?',
                 'options' => ['Equal to', 'Not equal to', 'Assign value', 'Greater or equal'],
                 'correct' => 'Not equal to',
             ],
@@ -344,7 +388,7 @@ In each question, you'll decide whether the print statement inside the code will
         'title'     => 'Post: Decisions',
         'questions' => [
             [
-                'prompt'  => "Exact output?\n\nx=10\nif x>10:\n    print('A')\nelif x==10:\n    print('B')\nelse:\n    print('C')",
+                'prompt'  => "Exact output?\nx=10\nif x>10:\n    print('A')\nelif x==10:\n    print('B')\nelse:\n    print('C')",
                 'options' => ['A', 'B', 'C', 'Nothing'],
                 'correct' => 'B',
             ],
@@ -359,7 +403,7 @@ In each question, you'll decide whether the print statement inside the code will
                 'correct' => 'else',
             ],
             [
-                'prompt'  => "Given temp=15:\n\nif temp<10:\n    print('Cold')\nelif temp<20:\n    print('Cool')\nelse:\n    print('Warm')",
+                'prompt'  => "Given temp=15:\nif temp<10:\n    print('Cold')\nelif temp<20:\n    print('Cool')\nelse:\n    print('Warm')",
                 'options' => ['Cold', 'Cool', 'Warm', 'Nothing'],
                 'correct' => 'Cool',
             ],

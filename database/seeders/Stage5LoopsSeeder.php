@@ -39,7 +39,42 @@ Two Main Types:
 - For Loops: When you know exactly how many times to repeat
 - While Loops: When you repeat until something happens
 
-Drag each description to the correct loop type.",
+Loops usually use Counters:
+What is a Counter in Loops?
+Think of a counter like a tally mark sheet when counting things.
+Real Life Example: Counting Apples
+Imagine you have a basket of apples and want to count them one by one:
+
+What the Counter Does:
+Starts at zero (no apples counted yet)
+Adds 1 each time we count an apple
+Remembers the total so far
+Tells us the final count when done
+
+Like Counting on Your Fingers:
+
+Start with 0 fingers up
+Count an apple - put up 1 finger
+Count another apple - put up 2 fingers
+Keep going until all apples are counted
+
+
+
+Why Use Counters:
+Instead of trying to remember 'Did I count 47 or 48 apples?', the computer remembers for you perfectly. It's like having a friend who never loses count no matter how many things you're counting.
+
+
+
+
+The counter is just a box that holds a number, and we keep putting bigger numbers in the box as we count more things.
+
+
+
+But sometimes we need to put smaller numbers in the box instead - like when we're counting down days until vacation, eating cookies from a jar, or watching our phone battery go from 100% to 0%. In these cases, we start with a big number and keep putting smaller numbers in the box until we reach what we're waiting for. Whether the numbers go up or down, the box always remembers exactly where we are in our counting..
+
+
+
+Look at the examples below , to understand the concept of loops, do not stress about the code yet, we will learn that in the next levels.",
                 'content' => [
                     'time_limit' => 300,
                     'max_hints' => 3,
@@ -61,17 +96,57 @@ Drag each description to the correct loop type.",
                     ],
                     'examples' => [
                         [
-                            'title' => 'For Loop Example',
-                            'code' => "for i in range(3):\n    print('Hello')",
-                            'explain' => 'Repeats 3 times because range(3) makes 0,1,2.',
-                            'expected_output' => "Hello\nHello\nHello"
+    'title' => 'Counter Usage',
+    'code' => "apples_counted = 0\napples_counted = apples_counted + 1\nprint('First apple counted:', apples_counted)\napples_counted = apples_counted + 1\nprint('Second apple counted:', apples_counted)\napples_counted = apples_counted + 1\nprint('Third apple counted:', apples_counted)\nprint('Total apples:', apples_counted)",
+    'explain' => 'Counter starts at 0, then adds 1 each time we count an apple. Shows how the counter keeps track of our total.',
+    'expected_output' => "First apple counted: 1\nSecond apple counted: 2\nThird apple counted: 3\nTotal apples: 3"
                         ],
-                        [
-                            'title' => 'While Loop Example',
-                            'code' => "count = 0\nwhile count < 3:\n    print('Hello')\n    count += 1",
-                            'explain' => 'Keeps looping while count is less than 3.',
-                            'expected_output' => "Hello\nHello\nHello"
-                        ]
+                     [
+    'title' => 'Saving Coins',
+    'code' => "coins = 0\ncoins = coins + 2\nprint('Found 2 coins! Total:', coins)\ncoins = coins + 3\nprint('Found 3 more! Total:', coins)\ncoins = coins + 1\nprint('Found 1 more! Total:', coins)",
+    'explain' => 'Counter increases by different amounts. Start with 0, keep adding coins found.',
+    'expected_output' => "Found 2 coins! Total: 2\nFound 3 more! Total: 5\nFound 1 more! Total: 6"
+],
+
+[
+    'title' => 'Growing Height',
+    'code' => "height = 120\nheight = height + 5\nprint('Grew 5cm! Now:', height, 'cm')\nheight = height + 3\nprint('Grew 3cm more! Now:', height, 'cm')",
+    'explain' => 'Counter tracks growth. Start at 120cm, add growth each year.',
+    'expected_output' => "Grew 5cm! Now: 125 cm\nGrew 3cm more! Now: 128 cm"
+],
+                     [
+    'title' => 'Eating Cookies',
+    'code' => "cookies = 10\nprint('Starting with', cookies, 'cookies')\ncookies = cookies - 1\nprint('Ate one! Left:', cookies)\ncookies = cookies - 2\nprint('Ate 2 more! Left:', cookies)",
+    'explain' => 'Counter decreases as we eat cookies. Start with 10, subtract what we eat.',
+    'expected_output' => "Starting with 10 cookies\nAte one! Left: 9\nAte 2 more! Left: 7"
+],
+
+
+[
+    'title' => 'Morning Exercise Routine',
+    'code' => "pushups_done = 0\nfor exercise in ['pushup', 'pushup', 'pushup', 'pushup', 'pushup']:\n    pushups_done = pushups_done + 1\n    print('Completed pushup number', pushups_done)\nprint('Workout complete! Total pushups:', pushups_done)",
+    'explain' => 'Loop does 5 pushups, counter tracks how many completed. Each loop adds 1 to counter.',
+    'expected_output' => "Completed pushup number 1\nCompleted pushup number 2\nCompleted pushup number 3\nCompleted pushup number 4\nCompleted pushup number 5\nWorkout complete! Total pushups: 5"
+],
+
+[
+    'title' => 'Washing Dishes',
+    'code' => "dishes_cleaned = 0\nfor dish in ['plate', 'cup', 'bowl', 'spoon']:\n    dishes_cleaned = dishes_cleaned + 1\n    print('Washed', dish + '. Total clean:', dishes_cleaned)\nprint('Kitchen is clean! Washed', dishes_cleaned, 'dishes')",
+    'explain' => 'Loop goes through each dirty dish, counter tracks total cleaned dishes.',
+    'expected_output' => "Washed plate. Total clean: 1\nWashed cup. Total clean: 2\nWashed bowl. Total clean: 3\nWashed spoon. Total clean: 4\nKitchen is clean! Washed 4 dishes"
+],[
+    'title' => 'Waiting for Bus',
+    'code' => "minutes_waited = 0\nwhile minutes_waited < 5:\n    minutes_waited = minutes_waited + 1\n    print('Waited', minutes_waited, 'minutes for bus')\nprint('Bus arrived after', minutes_waited, 'minutes!')",
+    'explain' => 'Counter tracks how long we wait. While loop continues until we reach 5 minutes.',
+    'expected_output' => "Waited 1 minutes for bus\nWaited 2 minutes for bus\nWaited 3 minutes for bus\nWaited 4 minutes for bus\nWaited 5 minutes for bus\nBus arrived after 5 minutes!"
+],
+
+[
+    'title' => 'Knocking on Door',
+    'code' => "knocks = 0\nwhile knocks < 3:\n    knocks = knocks + 1\n    print('Knock number', knocks, '- Hello?')\nprint('Gave up after', knocks, 'knocks')",
+    'explain' => 'Counter tracks knocks. While loop keeps knocking until we reach 3 knocks.',
+    'expected_output' => "Knock number 1 - Hello?\nKnock number 2 - Hello?\nKnock number 3 - Hello?\nGave up after 3 knocks"
+]
                     ]
                 ]
             ]
@@ -92,6 +167,7 @@ Drag each description to the correct loop type.",
         • Use the for keyword
         • Need a variable name (like 'i' or 'cookie')
         • Use range() to specify how many times to repeat
+       
               Real World Examples:
         🧦 Putting on each sock from your drawer (you know how many socks)
         🎂 Putting candles on each cupcake (you know how many cupcakes)
@@ -171,6 +247,10 @@ How While Loops Work:
 - Condition: The loop keeps running as long as the condition is True.
 - Stop Condition: The loop will stop when the condition becomes False.
   
+
+
+---
+
 Key Concepts:
 - Condition check: The condition is checked before each iteration. If it's false from the beginning, the loop will never run.
 - Infinite loop: If the condition never becomes false, the loop will run forever. Always make sure the condition will eventually be false to prevent this.
@@ -183,8 +263,18 @@ Real World Examples:
 - 🎮 Playing a game while you still have lives**: The loop keeps running until you run out of lives.
 - 🎵 Dancing while the music is playing**: The loop stops when the music stops.
 
-Practice: 
-Decide whether each statement about while loops is true or false!",
+While loops often need counters to control when they stop. Without counters, while loops could run forever!
+Why Counters Are Essential?
+Prevent infinite loops - Without a counter, the loop might never stop
+Track progress - Shows how many times we've done something
+Set limits - Stops when we reach our goal
+
+
+The Pattern:
+Initialize counter before the loop
+Check counter in the while condition
+Update counter inside the loop
+Use counter to show progress or make decisions",
                 'content'      => [
                     'questions' => [
                         [
@@ -193,12 +283,9 @@ Decide whether each statement about while loops is true or false!",
                             'explanation' => 'Actually, while loops are best when you don\'t know exactly how many times to repeat, but want to continue while a condition is true.'
                         ],
                         [
-    'statement' => 'This while loop will print "Running" 5 times: 
-count = 1
-while count <= 5:
-    print("Running")
-    count += 1',
-    'answer' => true,
+                            'code'=> "count = 1\n while count <= 5:\n    print(\"Running\")\n    count += 1",
+  'statement' => "This while loop will print 'Running 5 times",
+'answer' => true,
     'explanation' => 'Correct! The loop starts at 1, increases by 1 each time, and stops when count becomes 6, so it runs exactly 5 times.'
 ],
 
@@ -207,11 +294,20 @@ while count <= 5:
                             'answer' => false,
                             'explanation' => 'No! If the condition is false from the start, the while loop won\'t run at all. It checks the condition first.'
                         ],
+      
                         [
                             'statement' => 'While loops are good for situations like "keep eating while you\'re hungry".',
                             'answer' => true,
                             'explanation' => 'Exactly! "Keep eating while you\'re hungry" is a perfect while loop scenario - you don\'t know how many bites, just when to stop.'
                         ],
+[
+    'type'            => 'code',
+    'question'        => "Count down from 5 to 1 and print each number.",
+    'starter_code'    => "countdown = 5\n# Use while loop to count down\n# Print each number from 5 to 1\n# Decrease countdown by 1 each time\n",
+    'expected_output' => "5\n4\n3\n2\n1",
+    'solution'        => "countdown = 5\nwhile countdown >= 1:\n    print(countdown)\n    countdown -= 1",
+    'explanation'     => "Start at 5, print the number, then subtract 1. Continue while countdown is 1 or greater."
+],
                         [
                             'statement' => 'This loop will run forever: while True: print("Looping")',
                             'answer' => true,
@@ -231,6 +327,7 @@ while count <= 5:
                     'explain' => 'This simulates a game where you keep playing until you run out of lives. The loop runs while lives are greater than 0.',
                     'expected_output' => "You have 3 lives left\nYou have 2 lives left\nYou have 1 lives left"
                 ],
+                
                 [
                     'title'   => 'Counting down with a delay',
                     'code'    => "import time\ncount = 3\nwhile count > 0:\n    print(count)\n    time.sleep(1)\n    count -= 1",
@@ -269,7 +366,7 @@ Real World Examples:
 - range(2, 6): Running laps 2,3,4,5
 - range(0, 10, 2): A rabbit hopping by 2s: 0,2,4,6,8
 
-Drag the sequences to the correct range().",
+• Use Range Instead of Writing Each Number",
                 'content' => [
                     'time_limit' => 300,
                     'max_hints' => 3,
@@ -310,18 +407,32 @@ Drag the sequences to the correct range().",
                 'type'         => 'drag_drop',
                 'title'        => 'For Loop Practice',
                 'pass_score'   => 70,
-                'instructions' => "Practice building for loops. Remember: for [variable] in range(...):",
+                'instructions' => "For Loops is used with Lists also: 
+                    -With range() - You get numbers: 0, 1, 2, 3, 4...
+                    -With lists - You get actual things you care about: 
+
+
+
+
+Think of a for loop with a list like going through your shopping bag item by item.
+Real Life Example: Checking Your Groceries
+You have a shopping bag with specific items, and you want to check each one.
+Moreover you can use for loops with lists of words, names, or any items you want to process one by one.
+
+There is also something called nested loops - which is a loop inside another loop. This is useful for things like grids or tables where you have rows and columns.",
                 'content' => [
                     'time_limit' => 300,
                     'max_hints' => 3,
                     'categories' => [
                         'Print numbers 0 to 4' => ["for i in range(5):", "print(i)"],
                         'Count from 5 to 9' => ["for number in range(5,10):", "print(number)"],
-                        'Count even numbers 2 to 10' => ["for even in range(2,11,2):", "print(even)"]
+                        'Count even numbers 2 to 10' => ["for even in range(2,11,2):", "print(even)"],
+                        'Count to 2, twice' => ["for time in range(2):", "  for num in range(3):", "    print(num)"]
                     ],
                     'hints' => [
                         'Always write for [var] in range(...)',
-                        'Indent the code inside the loop'
+                        'Indent the code inside the loop',
+                        'Start with the outer loop first, then ask "what do I want to repeat inside each step?"'
                     ],
                      'examples' => [
                 [
@@ -378,31 +489,31 @@ Drag the sequences to the correct range().",
                 'content'      => [
                     'questions' => [
                 [
-                    'question' => 'How many times will this loop run? count = 3 while count > 0: print(count) count += 1',
+                   'question' => "How many times will this loop run?\ncount = 3\nwhile count > 0:\n    print(count)\n    count += 1",
                     'options' => ['3 times', '4 times', 'Forever (infinite)', '0 times'],
                     'correct_answer' => 2,  // Infinite loop since count is increasing
                     'explanation' => 'This loop will run infinitely because the count is increasing each time and never meets the condition to stop.'
                 ],
                 [
-                    'question' => 'What is missing from this loop? number = 5 while number < 10: print(number)',
+                    'question' => "What is missing from this loop?\nnumber = 5\nwhile number < 10:\n    print(number)",
                     'options' => ['The condition is wrong', 'Need to increase number', 'Need a for loop instead', 'Nothing is missing'],       
                     'correct_answer' => 1,
                     'explanation' => 'The number never changes, so the condition number < 10 will always be true, creating an infinite loop! You need to increment number inside the loop.'
                 ],
                 [
-                    'question' => 'What does this code do? cookies = 5 while cookies > 0: print("Yum!") cookies -= 1 print("No more cookies!")',
+                   'question' => "What does this code do?\ncookies = 5\nwhile cookies > 0:\n    print(\"Yum!\")\n    cookies -= 1\nprint(\"No more cookies!\")",
                     'options' => ['Prints "Yum!" 5 times', 'Prints "Yum!" 4 times', 'Prints "Yum!" forever', 'Prints "No more cookies!" 5 times'],
                     'correct_answer' => 0,
                     'explanation' => 'It starts with 5 cookies, prints "Yum!" and decreases cookies until it reaches 0, then prints "No more cookies!"'
                 ],
                 [
-                    'question' => 'What happens when the condition is always false? count = 5 while count < 0: print(count) count -= 1',
+                   'question' => "What happens when the condition is always false?\ncount = 5\nwhile count < 0:\n    print(count)\n    count -= 1",
                     'options' => ['The loop runs infinitely', 'The loop doesn’t run at all', 'The loop runs once', 'The loop runs 5 times'],
                     'correct_answer' => 1,
                     'explanation' => 'Since the condition is always false (count < 0), the loop will never run.'
                 ],
                 [
-                    'question' => 'What is the output of this loop with an infinite condition? count = 1 while True: print(count)',
+                   'question' => "What is the output of this loop with an infinite condition?\ncount = 1\nwhile True:\n    print(count)",
                     'options' => ['The loop will run forever', 'The loop will run once', 'It will cause an error', 'The loop will print 1'],
                     'correct_answer' => 0,
                     'explanation' => 'The condition is always true, so the loop will continue running indefinitely until manually stopped or broken.'
@@ -582,6 +693,30 @@ Level::updateOrCreate(
                     'correct_output' => "2\n4\n6"
                 ],
                 [
+    'title' => 'Count sheep to fall asleep',
+    'lines' => [
+        'sheep = 1',
+        'print("Sheep " + str(sheep))',
+        'sheep += 1',
+        'while sheep <= 3:'
+    ],
+    'solution' => [0, 3, 1, 2],
+    'correct_output' => "Sheep 1\nSheep 2\nSheep 3"
+],
+
+[
+    'title' => 'Simple for loop with friends',
+    'lines' => [
+        'friends = ["Ali", "Sara", "Tom"]',
+        'for friend in friends:',
+        'print("Hello " + friend)'
+    ],
+    'solution' => [0, 1, 2],
+    'correct_output' => "Hello Ali\nHello Sara\nHello Tom"
+],
+
+
+                [
                     'title' => 'Ask for password until correct',
                     'lines' => [
                         'while password != "secret123":',
@@ -643,27 +778,27 @@ Level::updateOrCreate(
                 'title' => 'Post: Loops',
                 'questions' => json_encode([
                     [
-                        'prompt' => "Exact output? for i in range(1,4): print(i*i)",
+                        'prompt' => "Exact output?\nfor i in range(1,4):\n    print(i*i)",
                         'options' => ['1 4 9', '1 2 3', '1 4', 'Error'],
                         'correct' => '1 4 9',
                     ],
                     [
-                        'prompt' => "Will this loop stop? j=5 while j>0: j+=1",
+                        'prompt' => "Will this loop stop?\nj=5\nwhile j>0:\n    j+=1",
                         'options' => ['Yes', 'No', 'Error', 'Only with break'],
                         'correct' => 'No',
                     ],
                     [
-                        'prompt' => "What prints? for x in range(0,5,2): print(x)",
+                        'prompt' => "What prints?\nfor x in range(0,5,2):\n    print(x)",
                         'options' => ['0 2 4', '1 3', '0 2 4 6', 'Error'],
                         'correct' => '0 2 4',
                     ],
                     [
-                        'prompt' => "Given: i=0 while i<3: print(i) if i==1: break i+=1",
+                        'prompt' => "Given:\ni = 0\nwhile i < 3:\n    print(i)\n    if i == 1:\n        break\n    i += 1",
                         'options' => ['0 1', '0 1 2', '0', 'Infinite'],
                         'correct' => '0 1',
                     ],
                     [
-                        'prompt' => "Which step is missing? i=0 while i<4: print(i) # ???",
+                        'prompt' => "Which step is missing?\ni=0\nwhile i<4:\n    print(i)\n    # ???",
                         'options' => ['i += 1', 'break', 'continue', 'pass'],
                         'correct' => 'i += 1',
                     ],

@@ -105,13 +105,13 @@
         @if(count($instructionSteps) > 0)
         <div class="instructions-container">
           <div class="step-navigation">
-            <button class="nav-btn" id="prevStepBtn" disabled><i class="fas fa-chevron-left"></i></button>
+            <button class="nav-btn" id="prevStepBtn" disabled><i class="fas fa-chevron-left"></i>🢀</button>
             <div class="step-info">
               <span class="step-current" id="currentStep">1</span>
               <span class="muted">/</span>
               <span id="totalSteps">{{ count($instructionSteps) }}</span>
             </div>
-            <button class="nav-btn" id="nextStepBtn"><i class="fas fa-chevron-right"></i></button>
+            <button class="nav-btn" id="nextStepBtn"><i class="fas fa-chevron-right"></i> 🢂</button>
           </div>
           <div class="step-progress">
             <div class="step-progress-fill" id="stepProgressFill" style="width: {{ max(1, (int)(100 / max(1,count($instructionSteps)))) }}%"></div>
@@ -180,9 +180,7 @@
           <div class="editor-panel" id="editorPanel">
             <div class="panel-header">
               <div class="panel-title"><i class="fab fa-python me-2"></i>Code Editor</div>
-              <div class="panel-controls">
-                <button class="control-btn" id="expandEditorBtn" title="Expand Editor"><i class="fas fa-expand-arrows-alt"></i></button>
-              </div>
+         
             </div>
             <div class="editor-content">
               <textarea class="code-editor" id="codeEditor" placeholder="# Write your Python code here\n# Press Ctrl+Enter to run quickly\nprint('Hello, Python!')"></textarea>
@@ -194,7 +192,7 @@
               <div class="panel-title"><i class="fas fa-terminal me-2"></i>Output</div>
               <div class="panel-controls">
                 <div class="output-status" id="outputStatus">Ready</div>
-                <button class="control-btn" id="expandOutputBtn" title="Expand Output"><i class="fas fa-expand-arrows-alt"></i></button>
+          
               </div>
             </div>
             <div class="output-content">

@@ -171,7 +171,7 @@ Don't just read do! Think of one small, annoying task you do on your computer an
 );
         // Level 2 - Making Python Talk (Multiple Choice)
         Level::updateOrCreate(
-            ['stage_id' => $stage1->id, 'index' => 2],
+            ['stage_id' => $stage1->id, 'index' => 3],
             [
                 'type' => 'multiple_choice',
                 'title' => 'Making Python Talk',
@@ -270,7 +270,7 @@ Don't just read do! Think of one small, annoying task you do on your computer an
 
         // Level 3 - Working with Different Types of Information (Drag & Drop)
         Level::updateOrCreate(
-            ['stage_id' => $stage1->id, 'index' => 3],
+            ['stage_id' => $stage1->id, 'index' => 2],
             [
                 'type' => 'drag_drop',
                 'title' => 'Types of Information',

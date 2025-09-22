@@ -197,7 +197,9 @@ body {
 .progress-bar{height:.55rem;background:var(--gray-200);border-radius:.35rem;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.02);}
 .progress-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary-purple),var(--secondary-purple));border-radius:.35rem;transition:width .3s ease;}
 .question-counter{font-size:.9rem;color:var(--text-muted);font-weight:600;}
-
+.question-text {
+    white-space: pre-wrap;
+}
 /* ==============================
    QUESTION CARD
    ============================== */
@@ -496,6 +498,12 @@ body {
 <script src="https://cdn.jsdelivr.net/npm/skulpt@1.2.0/dist/skulpt-stdlib.js"></script>
 
 <script>
+  function escapeAndNl2br(s){
+  if(!s) return '';
+  return String(s)
+    .replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))
+    .replace(/\\n/g, '<br>');  // Convert literal \n to <br>
+}
 (function(){
   // -----------------------------
   // Data
@@ -598,187 +606,174 @@ body {
   // -----------------------------
   // Build question UI
   // -----------------------------
-  function renderCurrentQuestion(){
-    if(currentQuestion >= questions.length) return;
-    
-    const q = questions[currentQuestion];
-    const isAnswered = answers.hasOwnProperty(currentQuestion);
-    const isCodeQuestion = isCodeQ(q);
+function renderCurrentQuestion(){
+  if(currentQuestion >= questions.length) return;
+  
+  const q = questions[currentQuestion];
+  const isAnswered = answers.hasOwnProperty(currentQuestion);
+  const isCodeQuestion = isCodeQ(q);
 
-    if (isCodeQuestion) {
-      const prevOutput = codeOutputs[currentQuestion] || '';
-     $quizSection.innerHTML = `
-  <div class="question-card">
-    <div class="question-header">
-      <div class="question-number">${currentQuestion + 1}</div>
-      <div class="question-text">${escapeHtml(q.question || '')}</div>
-    </div>
-
-    <div class="code-editor-container">
-      <div class="code-editor-header">
-        <div class="code-editor-title">Write your Python code:</div>
-        <div class="code-editor-actions">
-          <button type="button" class="btn btn-success" id="btnRunCode"><i class="fas fa-play"></i> Run Code</button>
-          <button type="button" class="btn btn-secondary" id="btnResetCode"><i class="fas fa-undo"></i> Reset</button>
-        </div>
-      </div>
-      <textarea class="code-editor-textarea" id="codeEditor" placeholder="Write your Python code here...">${escapeHtml(q.starter_code || (answers[currentQuestion]?.code ?? ''))}</textarea>
-    </div>
-
-    <div class="code-output-container">
-      <div class="code-output-header">
-        <div class="code-output-title">Output:</div>
-        <div id="outputStatus"></div>
-      </div>
-      <div class="code-output-content" id="codeOutput">${escapeHtml(codeOutputs[currentQuestion] || '')}</div>
-    </div>
-
-    <div class="nav-controls">
-      <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
-        <i class="fas fa-chevron-left"></i> Previous
-      </button>
-      <div style="display:flex;gap:.5rem;">
-        <button type="button" class="btn btn-warning" id="btnHint">
-          <i class="fas fa-lightbulb"></i> Hint
-        </button>
-        ${
-          answers.hasOwnProperty(currentQuestion)
-            ? `<button type="button" class="btn btn-primary" id="btnNext">
-                 ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
-               </button>`
-            : `<button type="button" class="btn btn-secondary" id="btnSubmitCode">
-                 <i class="fas fa-check"></i> Submit Code
-               </button>
-               <button type="button" class="btn btn-primary" id="btnNext" disabled>
-                 ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
-               </button>`
-        }
-      </div>
-    </div>
+  if (isCodeQuestion) {
+    // Code question
+    $quizSection.innerHTML = `
+<div class="question-card">
+  <div class="question-header">
+    <div class="question-number">${currentQuestion + 1}</div>
+    <div class="question-text">${escapeAndNl2br(q.question || '')}</div>
   </div>
-`;
 
-// wiring
-const btnRunCode   = document.getElementById('btnRunCode');
-const btnResetCode = document.getElementById('btnResetCode');
-const codeEditor   = document.getElementById('codeEditor');
-const codeOutput   = document.getElementById('codeOutput');
-const outputStatus = document.getElementById('outputStatus');
-const btnSubmitCode= document.getElementById('btnSubmitCode');
-const btnPrev      = document.getElementById('btnPrev');
-const btnNext      = document.getElementById('btnNext');
-const btnHint      = document.getElementById('btnHint');
+  <div class="code-editor-container">
+    <div class="code-editor-header">
+      <div class="code-editor-title">Write your Python code:</div>
+      <div class="code-editor-actions">
+        <button type="button" class="btn btn-success" id="btnRunCode"><i class="fas fa-play"></i> Run Code</button>
+        <button type="button" class="btn btn-secondary" id="btnResetCode"><i class="fas fa-undo"></i> Reset</button>
+      </div>
+    </div>
+    <textarea class="code-editor-textarea" id="codeEditor" placeholder="Write your Python code here...">${escapeHtml(q.starter_code || (answers[currentQuestion]?.code ?? ''))}</textarea>
+  </div>
 
-function checkMatchAndBadge(){
-  const expected = String(q.expected_output ?? q.expectedOutput ?? '');
-  if(!expected){ outputStatus.innerHTML=''; return false; }
-  const ok = normalizeOutput(codeOutput.textContent) === normalizeOutput(expected);
-  outputStatus.innerHTML = ok
-    ? '<span class="code-status success">Matches expected ✓</span>'
-    : '<span class="code-status error">Does not match ✗</span>';
-  return ok;
-}
+  <div class="code-output-container">
+    <div class="code-output-header">
+      <div class="code-output-title">Output:</div>
+      <div id="outputStatus"></div>
+    </div>
+    <div class="code-output-content" id="codeOutput">${escapeHtml(codeOutputs[currentQuestion] || '')}</div>
+  </div>
 
-btnRunCode?.addEventListener('click', ()=>{
-  runPython(codeEditor.value, codeOutput);
-  codeOutputs[currentQuestion] = codeOutput.textContent;
-  checkMatchAndBadge();
-});
-
-btnResetCode?.addEventListener('click', ()=>{
-  codeEditor.value = q.starter_code || '';
-  codeOutput.textContent = '';
-  outputStatus.innerHTML = '';
-});
-
-btnSubmitCode?.addEventListener('click', ()=>{
-  answers[currentQuestion] = { code: codeEditor.value, output: codeOutput.textContent };
-  updateStats();
-  // enable Next after submit
-  if (btnNext) btnNext.disabled = false;
-  btnSubmitCode.style.display = 'none';
-  toast('Code submitted. You can proceed.', 'ok');
-});
-
-btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
-
-btnNext?.addEventListener('click', ()=>{
-  if (currentQuestion === questions.length - 1) {
-    showResults();
-  } else {
-    navigateToQuestion(currentQuestion + 1);
-  }
-});
-
-btnHint?.addEventListener('click', showHint);
-
-      // If already answered, ensure next/finish are enabled
-      if (isAnswered) {
-        if (btnNext) btnNext.disabled = false;
-        if (btnFinish) btnFinish.disabled = false;
+  <div class="nav-controls">
+    <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+      <i class="fas fa-chevron-left"></i> Previous
+    </button>
+    <div style="display:flex;gap:.5rem;">
+      <button type="button" class="btn btn-warning" id="btnHint">
+        <i class="fas fa-lightbulb"></i> Hint
+      </button>
+      ${
+        answers.hasOwnProperty(currentQuestion)
+          ? `<button type="button" class="btn btn-primary" id="btnNext">
+               ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+             </button>`
+          : `<button type="button" class="btn btn-secondary" id="btnSubmitCode">
+               <i class="fas fa-check"></i> Submit Code
+             </button>
+             <button type="button" class="btn btn-primary" id="btnNext" disabled>
+               ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+             </button>`
       }
-
-    } else {
-      // Multiple-choice question
-      const userAnswer = answers[currentQuestion];
-     // ...inside renderCurrentQuestion(), in the else (MC) branch:
-$quizSection.innerHTML = `
-  <div class="question-card">
-    <div class="question-header">
-      <div class="question-number">${currentQuestion + 1}</div>
-      <div class="question-text">${escapeHtml(q.question || '')}</div>
-    </div>
-    ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
-    <div class="question-options">
-      ${(q.options || []).map((option, index) => `
-        <div class="option-item">
-          <input type="radio" id="q${currentQuestion}_${index}" name="q${currentQuestion}" value="${index}" ${answers[currentQuestion] === index ? 'checked' : ''}>
-          <label for="q${currentQuestion}_${index}">${escapeHtml(option)}</label>
-        </div>
-      `).join('')}
-    </div>
-    <div class="nav-controls">
-      <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
-        <i class="fas fa-chevron-left"></i> Previous
-      </button>
-      <div style="display:flex;gap:.5rem;">
-        <button type="button" class="btn btn-warning" id="btnHint">
-          <i class="fas fa-lightbulb"></i> Hint
-        </button>
-        <button type="button" class="btn btn-primary" id="btnNext" ${answers.hasOwnProperty(currentQuestion) ? '' : 'disabled'}>
-          ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
-        </button>
-      </div>
     </div>
   </div>
+</div>
 `;
 
-const radioButtons = $quizSection.querySelectorAll('input[type="radio"]');
-const btnPrev = document.getElementById('btnPrev');
-const btnNext = document.getElementById('btnNext');
-const btnHint = document.getElementById('btnHint');
+    // Code question event wiring
+    const btnRunCode   = document.getElementById('btnRunCode');
+    const btnResetCode = document.getElementById('btnResetCode');
+    const codeEditor   = document.getElementById('codeEditor');
+    const codeOutput   = document.getElementById('codeOutput');
+    const outputStatus = document.getElementById('outputStatus');
+    const btnSubmitCode= document.getElementById('btnSubmitCode');
+    const btnPrev      = document.getElementById('btnPrev');
+    const btnNext      = document.getElementById('btnNext');
+    const btnHint      = document.getElementById('btnHint');
 
-radioButtons.forEach(r => {
-  r.addEventListener('change', () => {
-    selectAnswer(+r.value);
-    // enable Next after select
-    if (btnNext) btnNext.disabled = false;
-  });
-});
-
-btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
-btnNext?.addEventListener('click', ()=>{
-  if (currentQuestion === questions.length - 1) {
-    showResults();
-  } else {
-    navigateToQuestion(currentQuestion + 1);
-  }
-});
-btnHint?.addEventListener('click', showHint);
-
+    function checkMatchAndBadge(){
+      const expected = String(q.expected_output ?? q.expectedOutput ?? '');
+      if(!expected){ outputStatus.innerHTML=''; return false; }
+     const ok = normalizeOutput(codeOutput.textContent).toLowerCase() === normalizeOutput(expected).toLowerCase();
+      outputStatus.innerHTML = ok
+        ? '<span class="code-status success">Matches expected ✓</span>'
+        : '<span class="code-status error">Does not match ✗</span>';
+      return ok;
     }
-  }
 
+    btnRunCode?.addEventListener('click', ()=>{
+      runPython(codeEditor.value, codeOutput);
+      codeOutputs[currentQuestion] = codeOutput.textContent;
+      checkMatchAndBadge();
+    });
+
+    btnResetCode?.addEventListener('click', ()=>{
+      codeEditor.value = q.starter_code || '';
+      codeOutput.textContent = '';
+      outputStatus.innerHTML = '';
+    });
+
+    btnSubmitCode?.addEventListener('click', ()=>{
+      answers[currentQuestion] = { code: codeEditor.value, output: codeOutput.textContent };
+      updateStats();
+      if (btnNext) btnNext.disabled = false;
+      btnSubmitCode.style.display = 'none';
+      toast('Code submitted. You can proceed.', 'ok');
+    });
+
+    btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
+    btnNext?.addEventListener('click', ()=>{
+      if (currentQuestion === questions.length - 1) {
+        showResults();
+      } else {
+        navigateToQuestion(currentQuestion + 1);
+      }
+    });
+    btnHint?.addEventListener('click', showHint);
+
+  } else {
+    // Multiple-choice question
+    $quizSection.innerHTML = `
+<div class="question-card">
+  <div class="question-header">
+    <div class="question-number">${currentQuestion + 1}</div>
+    <div class="question-text">${escapeAndNl2br(q.question || '')}</div>
+  </div>
+  ${q.code ? `<pre class="question-code">${escapeHtml(q.code)}</pre>` : ''}
+  <div class="question-options">
+    ${(q.options || []).map((option, index) => `
+      <div class="option-item">
+        <input type="radio" id="q${currentQuestion}_${index}" name="q${currentQuestion}" value="${index}" ${answers[currentQuestion] === index ? 'checked' : ''}>
+        <label for="q${currentQuestion}_${index}">${escapeHtml(option)}</label>
+      </div>
+    `).join('')}
+  </div>
+  <div class="nav-controls">
+    <button type="button" class="btn btn-nav" id="btnPrev" ${currentQuestion === 0 ? 'disabled' : ''}>
+      <i class="fas fa-chevron-left"></i> Previous
+    </button>
+    <div style="display:flex;gap:.5rem;">
+      <button type="button" class="btn btn-warning" id="btnHint">
+        <i class="fas fa-lightbulb"></i> Hint
+      </button>
+      <button type="button" class="btn btn-primary" id="btnNext" ${answers.hasOwnProperty(currentQuestion) ? '' : 'disabled'}>
+        ${currentQuestion === questions.length - 1 ? 'See results' : 'Next'} <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+`;
+
+    // Multiple-choice event wiring
+    const radioButtons = $quizSection.querySelectorAll('input[type="radio"]');
+    const btnPrev = document.getElementById('btnPrev');
+    const btnNext = document.getElementById('btnNext');
+    const btnHint = document.getElementById('btnHint');
+
+    radioButtons.forEach(r => {
+      r.addEventListener('change', () => {
+        selectAnswer(+r.value);
+        if (btnNext) btnNext.disabled = false;
+      });
+    });
+
+    btnPrev?.addEventListener('click', ()=> navigateToQuestion(currentQuestion - 1));
+    btnNext?.addEventListener('click', ()=>{
+      if (currentQuestion === questions.length - 1) {
+        showResults();
+      } else {
+        navigateToQuestion(currentQuestion + 1);
+      }
+    });
+    btnHint?.addEventListener('click', showHint);
+  }
+}
   function selectAnswer(val){
     if(submitted) return;
     answers[currentQuestion] = val;
@@ -875,7 +870,8 @@ btnHint?.addEventListener('click', showHint);
           <div class="result-card ${ok?'correct':'incorrect'}">
             <div class="result-header">
               <div class="result-number">${i + 1}</div>
-              <div class="result-text">${escapeHtml(q.question || '')}</div>
+              <div class="question-text">${escapeAndNl2br(q.question || '')}</div>
+
             </div>
             <div class="result-status ${ok?'correct':'incorrect'}">
               <i class="fas fa-${ok ? 'check-circle' : 'times-circle'}"></i>
@@ -1008,6 +1004,12 @@ btnHint?.addEventListener('click', showHint);
   document.getElementById('btnBackToStage')?.addEventListener('click', () => {
     window.location.href = "{{ route('stages.show', $level->stage_id) }}";
   });
+function escapeAndNl2br(s){
+  if(!s) return '';
+  return String(s)
+    .replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))
+    .replace(/\n/g, '<br>');  // Handle actual newlines
+}
 
   // -----------------------------
   // Initialize

@@ -345,13 +345,14 @@
       word-break: break-word;
       overflow-wrap: break-word;
     }
-    .q-text {
-      font-size: clamp(1.05rem, 1.8vw, 1.25rem);
-      line-height: 1.55;
-      color: var(--text-primary);
-      word-break: break-word;
-      overflow-wrap: break-word;
-    }
+.q-text {
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--text-primary);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap; /* Add this line */
+}
     .q-code {
       background:#0f172a; color:#e2e8f0;
       border:1px solid rgba(255,255,255,.08);

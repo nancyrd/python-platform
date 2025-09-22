@@ -27,7 +27,8 @@ class Stages3Seeder extends Seeder
         'type'         => 'flip_cards',
         'title'        => 'Input Essentials Made Easy!',
         'pass_score'   => 60,
-        'instructions' => "Flip the cards to learn how to handle user input like a pro!\n• The input() function is how Python listens to user. It pauses the program and waits for user to type something on the keyboard. Whatever he types is then given to the program to use. You can think of it as Python asking you a question. You can even put a prompt inside the parentheses,  to tell the user what to enter.\n• Clean it with .strip()\n• Convert with int() or float()\n• Print safely with commas",
+        'instructions' => "The input() function is how Python listens to users. It pauses and waits for someone to type something. Whatever they type becomes text (a string) that your program can use.\n\n• input() ALWAYS gives you text - even if someone types numbers\n• Use int() to convert text numbers to real numbers\n• Use .strip() to remove extra spaces\n• Print safely with commas to avoid errors\n
+        •In the Game Flip the cards to learn how to handle user input like a pro!",
         'content'      => [
             'intro'       => "Tap each card to learn with simple, real-life examples!",
             'time_limit'  => 500,
@@ -50,7 +51,7 @@ class Stages3Seeder extends Seeder
                 ],
                 [
                     'front' => 'Safe Printing',
-                    'back'  => "Easy labels with commas!\nprint(\"Age:\", 7) → Age: 7\nprint(\"Price:\", 2.99) → Price: 2.99\nNo crashes, automatic spaces!"
+                    'back'  => "Use commas in print()!\nprint(\"Age:\", 7) → Age: 7\nprint(\"Price:\", 2.99) → Price: 2.99\nNo crashes, automatic spaces!"
                 ],
                 [
                     'front' => 'Fixing Number Commas',
@@ -60,27 +61,42 @@ class Stages3Seeder extends Seeder
                     'front' => 'Text + Numbers',
                     'back'  => "Convert numbers to text first!\n\"Age: \" + str(7) → \"Age: 7\"\nOr use: print(\"Age:\", 7) (easier!)"
                 ],
+                    [
+                    'front' => 'Common input() mistake?',
+                    'back'  => "Forgetting to convert!\nage = input() # \"20\" (text)\nage + 5 # ERROR! Can't add number to text\nFix: int(age) + 5"
+                ],
             ],
-            // Console-ready examples (work without interactive input)
-            'examples'    => [
-                [
-                    'title'   => 'Cleaning Spaces First',
-                    'code'    => "age_str = ' 9 '\nclean_age = age_str.strip()\nage = int(clean_age)\nprint('Next year:', age + 1)",
-                    'explain' => 'Clean the spaces (like washing fruit) before using!',
-                    'expected_output' => "Next year: 10"
-                ],
-                [
-                    'title'   => 'Decimal Numbers',
-                    'code'    => "price_str = '7.50'\nprice = float(price_str)\nprint('Two items:', price * 2)",
-                    'explain' => 'Use float() for money and measurements!',
-                    'expected_output' => "Two items: 15.0"
-                ],
-                [
-                    'title'   => 'Easy Labels',
-                    'code'    => "name = 'Mia'\nage = 12\nprint('Student:', name, '| Age:', age)",
-                    'explain' => 'Commas add spaces automatically - no glue needed!',
-                    'expected_output' => "Student: Mia | Age: 12"
-                ],
+          'examples'    => [
+    [
+        'title'   => 'Basic Name Input',
+        'code'    => "name = input(\"What's your name? \")\nprint(\"Hello\", name)\nprint(\"Nice to meet you!\")",
+        'explain' => 'input() pauses and waits for the user to type something',
+        'expected_output' => "What's your name? [user types name]\nHello [name]\nNice to meet you!"
+    ],
+    [
+        'title'   => 'Getting Age as Text',
+        'code'    => "age = input(\"How old are you? \")\nprint(\"You entered:\", age)",
+        'explain' => 'input() always returns text, even for numbers!',
+        'expected_output' => "How old are you? [user types age]\nYou entered: [age]\nType: <class 'str'>"
+    ],
+    [
+        'title'   => 'Converting Input to Number',
+        'code'    => "age_text = input(\"Enter your age: \")\nage = int(age_text)\nprint(\"Next year:\", age + 1)",
+        'explain' => 'Convert the text input to a number before doing math',
+        'expected_output' => "Enter your age: [user types number]\nNext year: [number + 1]"
+    ],
+    [
+        'title'   => 'Safe Input with Strip',
+        'code'    => "number = input(\"Enter a number: \").strip()\nnum = int(number)\nprint(\"Double:\", num * 2)",
+        'explain' => 'Use .strip() to remove extra spaces before converting',
+        'expected_output' => "Enter a number: [user types number]\nDouble: [number * 2]"
+    ],
+    [
+        'title'   => 'Multiple Inputs',
+        'code'    => "name = input(\"Name: \")\nage = int(input(\"Age: \"))\nprint(name, \"is\", age, \"years old\")",
+        'explain' => 'Get multiple pieces of information from the user',
+        'expected_output' => "Name: [user types name]\nAge: [user types age]\n[name] is [age] years old"
+    ],
             ],
         ],
     ]
@@ -92,7 +108,7 @@ class Stages3Seeder extends Seeder
                 'type'         => 'match_pairs',
                 'title'        => 'Pick the Right Conversion',
                 'pass_score'   => 70,
-                'instructions' => "Match each value to the correct cast/result.\nBonus: includes typical mini-calculator steps.",
+                'instructions' => "->If it has a dot, use float().\n->If it’s whole-number text, use int().\n->Always .strip() before casting when spaces may exist.\n->Use str() to join numbers with text when joining with +.\n When using any of the functions you should store it in a new varibale and then use it.\n\n Or Use Directly , check examples to understand more ",
                 'content'      => [
                     'intro'       => "Match value → correct cast (or outcome).",
                     'time_limit'  => 240,
@@ -128,10 +144,16 @@ class Stages3Seeder extends Seeder
                         ]
                     ],
                     'examples'    => [
+                            [
+                            'title'   => 'Spaces + dot',
+                           'code'    => "txt = '  3.0  '\ntxt_clean = txt.strip()\nnum = float(txt_clean)\nprint('Doubled:', num * 2)",
+                            'explain' => 'Strip to clean spaces then float() for decimals. then print it as double ',
+                            'expected_output' => "Doubled: 6.0"
+                        ],
                         [
                             'title'   => 'Spaces + dot',
                             'code'    => "txt = '  3.0  '\nnum = float(txt.strip())\nprint('Doubled:', num*2)",
-                            'explain' => 'Strip then float() for decimals.',
+                            'explain' => 'Use strip() inside float() to clean and convert in one step. then print it as double ',
                             'expected_output' => "Doubled: 6.0"
                         ],
                         [
@@ -140,10 +162,17 @@ class Stages3Seeder extends Seeder
                             'explain' => 'int() handles leading zeros.',
                             'expected_output' => "7"
                         ],
+                          [
+                            'title'   => 'To text with str()',
+                           'code'    => "x = 10\nx_txt = str(x)\nprint('X = ' + x_txt)",
+                            'explain' => 'converting nb to string , note that if u want to use function str() or any other function u should create a new variable.',
+                            'expected_output' => "X = 10"
+                        ],
+                        
                         [
                             'title'   => 'To text with str()',
                             'code'    => "x = 10\nprint('X = ' + str(x))",
-                            'explain' => 'Use str() when joining with +.',
+                            'explain' => 'this is a more optimized way to directly use the function without creating a new variable ',
                             'expected_output' => "X = 10"
                         ],
                     ],
@@ -158,7 +187,7 @@ class Stages3Seeder extends Seeder
                 'type'         => 'tf1',
                 'title'        => 'Safe or Not?',
                 'pass_score'   => 75,
-                'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes.",
+                'instructions' => "Decide if the snippet is safely converted/printed. Cast first to avoid crashes, this level is just to test if you understood the lesson .",
                 'content'      => [
                     'intro'       => "True if it’s safe/correct; False if it errors or is unsafe.",
                     'time_limit'  => 400,
@@ -181,6 +210,12 @@ class Stages3Seeder extends Seeder
                             'code'    => "s = ' 5 '\nn = int(s.strip())\nprint(n + 1)",
                             'explain' => 'Clean → cast → compute.',
                             'expected_output' => "6"
+                        ],
+                            [
+                            'title'   => 'To text with str()',
+                           'code'    => "price = 10\nprice_txt = str(price)\nprint('The Price is (as text) = ' + price_txt)",
+                            'explain' => 'converting nb to string , note that if u want to use function str() or any other function u should create a new variable.',
+                            'expected_output' => "X = 10"
                         ],
                     ],
                     // Each question: code + options True/False + correct + explanation

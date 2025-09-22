@@ -334,9 +334,7 @@ body{
       </div>
       <div id="instruxBody" class="instructions-text">
         {!! nl2br(e($instructions ?? 'Read each statement (and code if any), choose TRUE or FALSE. Some questions will ask you to type Python code and run it.')) !!}
-        @if($intro)
-          <div class="mt-2">{!! nl2br(e($intro)) !!}</div>
-        @endif
+        
       </div>
     </div>
   </div>
@@ -627,7 +625,7 @@ body{
       function checkBadge(){
         const exp = String(q.expected_output ?? '');
         if (!exp){ statusEl.innerHTML = ''; return; }
-        const ok = normalizeOutput(outEl.textContent) === normalizeOutput(exp);
+        const ok = normalizeOutput(codeOutput.textContent).toLowerCase() === normalizeOutput(expected).toLowerCase();
         statusEl.innerHTML = ok
           ? '<span class="code-status success">Matches expected ✓</span>'
           : '<span class="code-status error">Does not match ✗</span>';
@@ -711,11 +709,12 @@ body{
       }
     });
 
-    const rawPct = Math.round(100 * correct / questions.length);
-    const hintPenalty = hintsUsed * 5;
-    let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
-    // small time bonus for remaining seconds (when time > 0)
-    finalScore = Math.min(100, finalScore + Math.max(0, Math.floor(timeRemaining / 10)));
+ const rawPct = Math.round(100 * correct / questions.length);
+const hintPenalty = hintsUsed * 5;
+let finalScore = Math.max(0, Math.min(100, rawPct - hintPenalty));
+// Time bonus is percentage of remaining time, max 3 points
+const timeBonus = Math.min(3, (timeRemaining / timeLimit) * 3);
+finalScore = Math.min(100, Math.floor(finalScore + timeBonus));
 
     const stars = starsFor(finalScore);
     const starIcons = stars ? '★'.repeat(stars) : '0';

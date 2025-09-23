@@ -12,7 +12,14 @@
     --ink:#222;
     --muted:#666;
   }
-  body{ background: var(--bg); }
+  body {
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 
   .hc-wrap{
     max-width: 960px;

@@ -517,6 +517,13 @@ body{
   margin:0;
   background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
   color:#fff;
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+
 }
 
 /* Use Orbitron only inside this page’s content, not the global header/footer */

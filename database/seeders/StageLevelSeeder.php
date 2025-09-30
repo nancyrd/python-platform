@@ -446,7 +446,7 @@ You can use these operations in print() to see the results!,',
                             'explanation' => 'Division always gives a decimal result: 10 / 2 = 5.0'
                         ],
                          [
-                    'question'        => 'What is the remainder of 10 divided by 3?<br><code>print(10 ___ 3)</code>',
+                    'question'        => 'What is the remainder of 10 divided by 3?print(10 ___ 3)',
                     'options'         => ['%', '/', '*'],
                     'correct_answer'  => 0,
                     'explanation'     => 'Use % for remainder: print(10 % 3) gives 1 (because 10 ÷ 3 = 3 with remainder 1)'
@@ -460,7 +460,7 @@ You can use these operations in print() to see the results!,',
                     'explanation' => '(10 - 2) = 8, then 8 * 3 = 24.',
                 ],
                 [
-                    'question'        => 'What is 2 to the power of 4 in Python?<br><code>print(2 ___ 4)</code>',
+                    'question'        => 'What is 2 to the power of 4 in Python?print(2 ___ 4)',
                     'options'         => ['**', '*', '%'],
                     'correct_answer'  => 0,
                     'explanation'     => 'Use ** for powers: print(2 ** 4) gives 16 (2 × 2 × 2 × 2)'

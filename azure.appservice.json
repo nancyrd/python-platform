@@ -1,7 +1,8 @@
 {
   "platform": {
-    "php": {
-      "documentRoot": "public"
-    }
+    "php_version": "8.2"
+  },
+  "web": {
+    "php_web_root": "public"
   }
 }

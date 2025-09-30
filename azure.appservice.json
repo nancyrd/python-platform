@@ -1,9 +1,7 @@
 {
-  "virtualApplications": [
-    {
-      "virtualPath": "/",
-      "physicalPath": "site\\wwwroot\\public",
-      "preloadEnabled": true
+  "platform": {
+    "php": {
+      "documentRoot": "public"
     }
-  ]
+  }
 }

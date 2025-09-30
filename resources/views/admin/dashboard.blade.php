@@ -140,35 +140,7 @@
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="quick-actions-section">
-            <div class="section-header">
-                <h2 class="section-title">Quick Actions</h2>
-                <p class="section-description">Frequently used administrative tasks</p>
-            </div>
-            
-            <div class="actions-grid">
-                <button class="action-btn create">
-                    <i class="fas fa-plus"></i>
-                    <span>Create New Stage</span>
-                </button>
-                <button class="action-btn edit">
-                    <i class="fas fa-edit"></i>
-                    <span>Edit Content</span>
-                </button>
-                <button class="action-btn view">
-                    <i class="fas fa-eye"></i>
-                    <span>View Reports</span>
-                </button>
-                <button class="action-btn settings">
-                    <i class="fas fa-cog"></i>
-                    <span>System Settings</span>
-                </button>
-            </div>
-        </div>
-    </div>
-      <!-- 🔥 Users Overview Section -->
-
+   
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');

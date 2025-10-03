@@ -1,8 +1,7 @@
 {
-  "platform": {
-    "php_version": "8.2"
-  },
-  "web": {
-    "php_web_root": "public"
+  "properties": {
+    "appCommandLine": "",
+    "linuxFxVersion": "PHP|8.2",
+    "websitesWebRoot": "/home/site/wwwroot/public"
   }
 }

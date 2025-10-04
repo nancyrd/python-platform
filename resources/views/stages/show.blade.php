@@ -90,14 +90,34 @@
         .floating-gem{animation-delay:1.8s}.floating-star{animation-delay:3.2s}
         @keyframes float{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-18px) rotate(90deg)}50%{transform:translateY(0) rotate(180deg)}75%{transform:translateY(-12px) rotate(270deg)}}
         .section-gap{margin:28px 0;}
-        .btn-game, .btn-level, .btn-instructions, .btn-final-boss{
+        .btn-game, .btn-instructions, .btn-final-boss{
           background:linear-gradient(45deg,var(--primary),var(--accent));
           color:#fff; border:none; font-weight:800; letter-spacing:.4px;
           border-radius:12px; padding:12px 22px; text-transform:uppercase;
           box-shadow:0 12px 26px rgba(185,103,255,.25); position:relative; overflow:hidden;
           transition:.22s ease;
         }
-        .btn-game:hover, .btn-level:hover:not(:disabled), .btn-instructions:hover:not(:disabled), .btn-final-boss:hover:not(:disabled){
+        .btn-level {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 26px;
+  border-radius: 50px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ff00cc, #3333ff);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 0 15px rgba(255,0,204,.6), 0 0 30px rgba(51,51,255,.5);
+  transition: all .25s ease;
+}
+.btn-level:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,0,204,.8), 0 0 40px rgba(51,51,255,.7);
+}
+        .btn-game:hover,  .btn-instructions:hover:not(:disabled), .btn-final-boss:hover:not(:disabled){
           transform:translateY(-2px); color:#fff; box-shadow:0 14px 32px rgba(185,103,255,.38);
         }
         .btn-level:disabled, .btn-final-boss:disabled{
@@ -337,7 +357,7 @@
                                                 <div class="level-actions">
                                                     <!-- Instructions button now comes first -->
                                                     <a class="btn btn-instructions" href="{{ route('levels.instructions', $level) }}">
-                                                        <i class="fas fa-book me-2"></i> Instructions
+                                                        <i class="fas fa-book me-2"></i> Learn Lesson
                                                     </a>
                                                     <!-- Battle/Retake button now comes second -->
                                                     <a class="btn btn-level" href="{{ route('levels.show', $level) }}">

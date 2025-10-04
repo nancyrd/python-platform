@@ -1,36 +1,43 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="d-flex align-items-center justify-content-between">
-            <div class="d-flex align-items-center">
-                <div class="learning-map-icon me-3">
-                    <i class="fas fa-map-marked-alt text-light fs-2"></i>
+       <div class="row align-items-center">
+    <!-- LEFT SIDE -->
+    <div class="col">
+        <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-map-marked-alt text-light fs-2 me-2"></i>
+            <h2 class="mb-1 fw-bold text-white">Python Quest Universe</h2>
+        </div>
+        <p class="mb-0 text-light small">
+            <i class="fas fa-info-circle me-1"></i>
+            For each Stage you will be redirected to a quiz to test your knowledge.<br>
+            Levels unlock based on your score.<br>
+            Start by learning the lesson first by clicking <b>"Learn Lesson"</b>, then proceed with the game.
+        </p>
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="col-auto d-flex align-items-center">
+        <a class="btn btn-game rounded-pill me-3" data-bs-toggle="modal" data-bs-target="#progressModal" role="button">
+            <i class="fas fa-chart-line me-2"></i> My Progress
+        </a>
+
+        <div class="achievement-summary d-none d-md-flex">
+            <div class="text-center me-4">
+                <div class="fw-bold text-warning fs-4">
+                    {{ collect($progressByStage)->sum(function($p) { return $p && $p->stars_per_level ? array_sum($p->stars_per_level) : 0; }) }}
                 </div>
-                <div>
-                    <h2 class="mb-1 fw-bold text-white">Python Quest Universe</h2>
-                    <p class="mb-0 text-light small">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Complete stages to unlock your coding journey
-                    </p>
-                    <a class="btn btn-game rounded-pill ms-3" data-bs-toggle="modal" data-bs-target="#progressModal" role="button">
-                        <i class="fas fa-chart-line me-2"></i> My Progress
-                    </a>
-                </div>
+                <small class="text-light">Total Stars</small>
             </div>
-            <div class="achievement-summary d-none d-md-flex">
-                <div class="text-center me-4">
-                    <div class="fw-bold text-warning fs-4">
-                        {{ collect($progressByStage)->sum(function($p) { return $p && $p->stars_per_level ? array_sum($p->stars_per_level) : 0; }) }}
-                    </div>
-                    <small class="text-light">Total Stars</small>
+            <div class="text-center">
+                <div class="fw-bold text-success fs-4">
+                    {{ collect($progressByStage)->filter(function($p) { return $p && $p->post_completed_at; })->count() }}/{{ count($stages) }}
                 </div>
-                <div class="text-center">
-                    <div class="fw-bold text-success fs-4">
-                        {{ collect($progressByStage)->filter(function($p) { return $p && $p->post_completed_at; })->count() }}/{{ count($stages) }}
-                    </div>
-                    <small class="text-light">Completed</small>
-                </div>
+                <small class="text-light">Completed</small>
             </div>
         </div>
+    </div>
+</div>
+
     </x-slot>
     
     @php

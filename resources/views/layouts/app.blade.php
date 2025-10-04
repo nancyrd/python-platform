@@ -97,7 +97,7 @@
     }
     .py-footer .ft-social a:hover{ background:rgba(255,255,255,.2); transform:translateY(-1px); }
   </style>
-
+<footer class="footer">
   <div class="container-app">
     <!-- Top -->
     <div class="ft-top">
@@ -106,25 +106,16 @@
         <span class="brand-text">{{ config('app.name', 'PyLearn') }}</span>
       </a>
       <p class="ft-mission">
-        Python learning that’s welcoming to <strong>non-CS students</strong> — clear explanations, hands-on practice, and projects you can show off.
+        An academic platform to support <strong>non-CS students</strong> in learning Python through lessons, quizzes, and practice exercises.
       </p>
     </div>
 
     <!-- Middle -->
     <div class="ft-grid">
       <div class="ft-card">
-        <h3 class="ft-title">Newsletter</h3>
-        <p style="color:var(--ft-muted); margin:.2rem 0 .6rem;">Get weekly Python tips for busy learners.</p>
-        <form action="#" class="flex gap-2">
-          <input class="ft-input" type="email" placeholder="you@example.com" required>
-          <button class="ft-btn">Subscribe</button>
-        </form>
-      </div>
-
-      <div class="ft-card">
         <h3 class="ft-title">Platform</h3>
         <ul class="ft-list">
-          <li><a href="{{ Route::has('dashboard') ? route('dashboard') : url('/dashboard') }}">Continue Learning</a></li>
+          <li><a href="{{ Route::has('dashboard') ? route('dashboard') : url('/dashboard') }}">Dashboard</a></li>
           <li><a href="{{ Route::has('paths.index') ? route('paths.index') : url('/paths') }}">Learning Paths</a></li>
           <li><a href="{{ Route::has('about') ? route('about') : url('/about-us') }}">About Us</a></li>
           <li><a href="{{ Route::has('support') ? route('support') : url('/support') }}">Support</a></li>
@@ -134,9 +125,7 @@
       <div class="ft-card">
         <h3 class="ft-title">Resources</h3>
         <ul class="ft-list">
-          <li><a href="{{ url('/blog') }}">Blog</a></li>
-          <li><a href="{{ url('/docs') }}">Docs</a></li>
-          <li><a href="{{ url('/status') }}">System Status</a></li>
+          <li><a href="{{ url('/docs') }}">Documentation</a></li>
           <li><a href="{{ url('/faq') }}">FAQs</a></li>
         </ul>
       </div>
@@ -144,24 +133,20 @@
       <div class="ft-card">
         <h3 class="ft-title">Legal</h3>
         <ul class="ft-list">
-          <li><a href="{{ url('/terms') }}">Terms</a></li>
-          <li><a href="{{ url('/privacy') }}">Privacy</a></li>
-          <li><a href="{{ url('/cookies') }}">Cookies</a></li>
-          <li><a href="{{ url('/license') }}">License</a></li>
+         <ul class="ft-list">
+  <li><span class="text-muted">Terms of Use</span></li>
+  <li><span class="text-muted">Privacy Policy</span></li>
+</ul>
+
         </ul>
       </div>
     </div>
 
     <!-- Bottom -->
     <div class="ft-bottom">
-      <div class="ft-meta">© {{ date('Y') }} {{ config('app.name', 'PyLearn') }}</div>
+      <div class="ft-meta">© {{ date('Y') }} {{ config('app.name', 'PyLearn') }}. All rights reserved.</div>
       <div class="ft-actions">
-        <span class="ft-meta">Made with ❤️ for learners</span>
-        <div class="ft-social">
-          <a href="#" aria-label="GitHub">GH</a>
-          <a href="#" aria-label="YouTube">YT</a>
-          <a href="#" aria-label="LinkedIn">In</a>
-        </div>
+        <span class="ft-meta">Final Year Project – Lebanese University</span>
       </div>
     </div>
   </div>

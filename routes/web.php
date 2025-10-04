@@ -61,6 +61,7 @@ Route::post('/support', [SupportController::class, 'submit'])
     // levels
     Route::get('/levels/{level}', [LevelController::class,'show'])->name('levels.show');
     Route::post('/levels/{level}', [LevelController::class,'submit'])->name('levels.submit');
+Route::view('/paths', 'static.learning-paths')->name('paths.index');
 
 
     Route::get('/stages/{stage}/enter', [StageController::class, 'enter'])->name('stages.enter');

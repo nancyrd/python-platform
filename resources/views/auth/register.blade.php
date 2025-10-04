@@ -8,6 +8,8 @@
         /* Page background */
         body{
             min-height:100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+
             background:
                 radial-gradient(1200px 800px at 10% -10%, rgba(185,114,255,.25), transparent 60%),
                 radial-gradient(900px 900px at 120% 20%, rgba(106,17,203,.25), transparent 60%),

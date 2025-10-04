@@ -71,8 +71,6 @@ A Bank might use it to detect unusual transactions that could be fraud.
 A Website Developer uses it to build the *behind-the-scenes* logic of sites like Instagram or Pinterest.
 A Teacher might use it to automatically grade quizzes.
 
-You could use it to automatically rename hundreds of photos or send yourself a daily text message with the weather forecast.
-
 3) What is Python used for?
 Websites & Apps: Building the *engine* that powers them (the part you don't see).
 
@@ -82,9 +80,7 @@ Artificial Intelligence (AI): Teaching a computer to recognize objects in photos
 
 4) How can people benefit from learning Python?
 Automate Your Life: Stop doing tedious computer tasks manually. Write a small script once and let the computer do the work forever.
-
 Solve Problems: It teaches you a powerful way to break down big problems into small, solvable steps.
-
 Boost Your Career: Even basic knowledge is valuable in many fields like marketing, finance, and science, not just tech.
 
 5) Why is Python so popular?
@@ -98,27 +94,13 @@ Strength: It's a quick and clear way to give instructions. It's perfect for gett
 7) Which industries use Python?
 Virtually all of them! Finance for analyzing markets, Healthcare for medical research, Filmmaking for creating special effects (Industrial Light & Magic uses it!), Retail for predicting what products will be popular, and Science for running experiments and calculations.
 
-8) Popular Python tools (frameworks and libraries)
-These are the *attachments* for the kitchen mixer:
-
-Django/Flask: Toolkits for building websites.
-
-Pandas: A tool for organizing and analyzing information in tables, like a super-powered Excel.
-
-NumPy: A tool for doing really complex math quickly.
-
-Requests: A tool that lets your program grab information from other websites.
-
 9) How do you get started?
 Download Python from its official website (it's free!). It's like installing any other program.
-
 You write your *recipe* (a script) in a simple text editor made for coding.
-
 You tell your computer to *run* the script, and it follows your instructions.
 
 10) How does Python compare to other languages?
 vs. C++: Writing in C++ is like building a car engine from scratch for maximum performance. Python is like getting a driver's license to use the car to get somewhere quickly.
-
 vs. JavaScript: JavaScript is primarily for making websites interactive (the parts you click on). Python is more often used for the logic and data processing happening on the server.
 
 11) Real-world things you can build with Python

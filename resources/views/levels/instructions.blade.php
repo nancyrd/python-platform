@@ -218,6 +218,11 @@
           <p class="muted">Complete the exercises and test your understanding using the console above.</p>
         @endif
       </div>
+      <div class="challenge-actions" style="text-align:center; margin-top:1rem;">
+          <a href="{{ route('levels.show', $level->id) }}" class="btn-level">
+              Go to Level <i class="fas fa-arrow-right ms-2"></i>
+          </a>
+      </div>
 
       @if(count($examples) > 0)
       <div id="examplesData" style="display:none">
@@ -498,8 +503,26 @@ $1@keyframes headerShine{0%{left:-100%}50%{left:100%}100%{left:100%}}
   @keyframes float{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-14px) rotate(90deg)}50%{transform:translateY(0) rotate(180deg)}75%{transform:translateY(-10px) rotate(270deg)}}
 
   /* Buttons (imported look) */
-  .btn-game, .btn-level{ background:linear-gradient(45deg,var(--primary),var(--accent)); color:#fff; border:none; font-weight:800; letter-spacing:.4px; border-radius:12px; padding:10px 18px; text-transform:uppercase; box-shadow:0 12px 26px rgba(185,103,255,.25); position:relative; overflow:hidden; transition:.22s ease; }
-  .btn-game:hover, .btn-level:hover{ transform:translateY(-2px); color:#fff; box-shadow:0 14px 32px rgba(185,103,255,.38); }
+  .btn-game, .btn-level {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 26px;
+  border-radius: 50px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ff00cc, #3333ff);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: 0 0 15px rgba(255,0,204,.6), 0 0 30px rgba(51,51,255,.5);
+  transition: all .25s ease;
+}
+  .btn-game:hover, .btn-level:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(255,0,204,.8), 0 0 40px rgba(51,51,255,.7);
+}
 
   /* Responsive */
   @media (max-width: 1024px){ .content-wrap{ width:min(1100px,94vw); } .console-header{ flex-direction:column; gap:10px; align-items:flex-start; } }

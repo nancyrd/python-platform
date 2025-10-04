@@ -1,4 +1,5 @@
 <x-guest-layout>
+  
     <style>
         :root{
             --p1:#6a11cb;      /* deep purple */
@@ -10,6 +11,8 @@
         /* Full-screen cosmic gradient */
         body{
             min-height:100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+
             background:
                 radial-gradient(1200px 800px at 10% -10%, rgba(185,114,255,.25), transparent 60%),
                 radial-gradient(900px 900px at 120% 20%, rgba(106,17,203,.25), transparent 60%),
@@ -134,6 +137,7 @@
                     </svg>
                 </div>
             </div>
+            
 
             <h1 class="title" style="text-align:center; font-size:clamp(1.4rem,2.6vw,1.9rem);">Welcome back</h1>
             <p class="subtitle" style="text-align:center; margin-top:.35rem;">Sign in to continue your cosmic journey</p>

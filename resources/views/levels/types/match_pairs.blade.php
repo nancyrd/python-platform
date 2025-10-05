@@ -118,7 +118,7 @@ body{
 .card.accent{ border-left:6px solid var(--primary-purple); background:linear-gradient(180deg, var(--purple-subtle), #fff); }
 .section-title{ font-size:1.125rem; font-weight:700; margin:0 0 1rem 0; color:var(--text-primary); }
 
-.items-container{ background:#fff; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
+.items-container{ background:#CBC3E3; border:1px solid var(--border); border-radius:1rem; padding:1rem 1.25rem; box-shadow:var(--shadow-sm); }
 .items-header{ display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
 .items-title{ font-size:1.05rem; font-weight:700; }
 
@@ -134,10 +134,10 @@ body{
 .column-title{ text-align:center; font-weight:800; color:var(--primary-purple); margin-bottom:.5rem; }
 
 .list{ display:flex; flex-direction:column; gap:.5rem; }
-.chip{ display:block; width:100%; text-align:left; user-select:none; background:var(--gray-50); border:1px solid var(--border); border-radius:.75rem; padding:.8rem 1rem; font-weight:700; color:var(--text-primary); cursor:pointer; transition:transform .12s ease, box-shadow .2s ease, border-color .12s ease; }
+.chip{ display:block; width:100%; text-align:left; user-select:none; background:#E6E6FA; border:1px solid var(--border); border-radius:.75rem; padding:.8rem 1rem; font-weight:700; color:var(--text-primary); cursor:pointer; transition:transform .12s ease, box-shadow .2s ease, border-color .12s ease; }
 .chip:hover{ transform:translateY(-1px); border-color:var(--primary-purple); box-shadow:var(--shadow); }
 .chip.selected{ box-shadow:0 0 0 3px rgba(124,58,237,.25) inset; border-color:var(--primary-purple); background:var(--purple-subtle); }
-.chip.correct{ box-shadow:0 0 0 3px rgba(16,185,129,.25) inset; border-color:var(--success); background:#fff; }
+.chip.correct{ box-shadow:0 0 0 3px rgba(16,185,129,.25) inset; border-color:var(--success); background:#CF9FFF; }
 .chip.locked{ opacity:.8; cursor:default; }
 
 .pair-stats{ display:flex; gap:.75rem; justify-content:center; align-items:center; margin-top:.75rem; flex-wrap:wrap; }

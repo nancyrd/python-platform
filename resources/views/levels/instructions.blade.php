@@ -352,6 +352,9 @@ OUT = _out.getvalue(); ERR = _err.getvalue()
     const codeEditor=document.getElementById('codeEditor'); if(codeEditor) codeEditor.focus();
     document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){ e.preventDefault(); runCode(); } if(e.key==='Escape' && currentLayout==='code-only'){ setLayout('horizontal'); } });
   });
+  document.addEventListener("DOMContentLoaded", function() {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  });
 </script>
 
 <style>
@@ -513,7 +516,7 @@ $1@keyframes headerShine{0%{left:-100%}50%{left:100%}100%{left:100%}}
   font-weight: 900;
   letter-spacing: 1px;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #ff00cc, #3333ff);
+   background:linear-gradient(45deg,var(--primary),var(--accent));
   color: #fff;
   text-decoration: none;
   box-shadow: 0 0 15px rgba(255,0,204,.6), 0 0 30px rgba(51,51,255,.5);

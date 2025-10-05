@@ -107,7 +107,7 @@
   font-weight: 900;
   letter-spacing: 1px;
   text-transform: uppercase;
-  background: linear-gradient(135deg, #ff00cc, #3333ff);
+  background:linear-gradient(45deg,var(--primary),var(--accent));
   color: #fff;
   text-decoration: none;
   box-shadow: 0 0 15px rgba(255,0,204,.6), 0 0 30px rgba(51,51,255,.5);
@@ -406,11 +406,30 @@
                             @endif
                         </div>
                         <div class="text-center">
-                            @if($post)
-                                <a class="btn btn-final-boss" href="{{ route('assessments.show', $post) }}">
-                                    <i class="fas fa-sword me-2"></i> Face Final Boss
-                                </a>
-                            @endif
+                          @php
+    // Fetch the last level of the stage
+    $lastLevel = $stage->levels->sortByDesc('index')->first();
+
+    // Get the user's progress for that last level
+    $lastLevelProgress = \App\Models\UserLevelProgress::where('user_id', auth()->id())
+        ->where('stage_id', $stage->id)
+        ->where('level_id', $lastLevel?->id)
+        ->first();
+
+    $lastLevelStars = $lastLevelProgress?->stars ?? 0;
+@endphp
+
+@if($post)
+    @if($lastLevelStars >= 1)
+        <a class="btn btn-final-boss" href="{{ route('assessments.show', $post) }}">
+            <i class="fas fa-sword me-2"></i> Face Final Boss
+        </a>
+    @else
+        <button class="btn btn-final-boss" disabled title="Earn at least 1 star on the final level to unlock.">
+            <i class="fas fa-lock me-2"></i> Locked
+        </button>
+    @endif
+@endif
                         </div>
                         @if($progress->post_completed_at)
                             <div class="completed-stamp">

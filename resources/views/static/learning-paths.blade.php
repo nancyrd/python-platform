@@ -14,9 +14,9 @@
                 <div class="stage-tip mb-3">
                     <span class="tip-icon">💡</span>
                     <p>
-                        New to Python? Don’t worry! This roadmap is designed for 
+                        New to Python? Don't worry! This roadmap is designed for 
                         <strong>non-CS students</strong> and beginners. 
-                        Step by step, you’ll unlock knowledge, practice challenges, 
+                        Step by step, you'll unlock knowledge, practice challenges, 
                         and build confidence as you go.
                     </p>
                 </div>
@@ -102,34 +102,172 @@
     </div>
 
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        :root {
+            --primary-purple: #7c3aed;
+            --deep-purple: #6d28d9;
+            --light-purple: #a78bfa;
+            --ultra-light-purple: #ede9fe;
+            --pure-white: #ffffff;
+            --off-white: #fafafa;
+            --text-dark: #4c1d95;
+            --text-muted: #8b5cf6;
+        }
+        
         .game-viewport {
-            background: linear-gradient(45deg, var(--bg-start), var(--bg-end));
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%);
             min-height: calc(100vh - 120px);
         }
+        
+        .stage-title {
+            color: var(--deep-purple);
+            font-weight: 700;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .text-accent {
+            color: var(--primary-purple) !important;
+        }
+        
+        .card-surface {
+            background: var(--pure-white);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.12);
+            border: 2px solid var(--ultra-light-purple);
+        }
+        
         .stage-card {
-            background: var(--card);
-            border: 1px solid var(--card-brd);
-            border-radius: 16px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.25);
-            transition: .2s;
+            background: var(--pure-white);
+            border: 2px solid var(--ultra-light-purple);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .stage-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-purple), var(--light-purple));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+        
+        .stage-card:hover::before {
+            transform: scaleX(1);
+        }
+        
         .stage-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 14px 32px rgba(185,103,255,.35);
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(124, 58, 237, 0.25);
+            border-color: var(--light-purple);
         }
+        
+        .stage-card h4 {
+            color: var(--deep-purple);
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .stage-card .text-muted {
+            color: var(--text-muted) !important;
+            font-weight: 500;
+        }
+        
         .stage-tip {
-            background: linear-gradient(135deg, #6a11cb, #8e2de2);
-            color: #fff;
-            font-size: .9rem;
-            padding: 10px 14px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(142, 45, 226, 0.3);
+            background: linear-gradient(135deg, var(--primary-purple), var(--deep-purple));
+            color: var(--pure-white);
+            font-size: 0.95rem;
+            padding: 18px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+            font-weight: 500;
+            line-height: 1.6;
         }
+        
+        .stage-tip strong {
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-color: rgba(255, 255, 255, 0.4);
+            text-underline-offset: 2px;
+        }
+        
         .tip-icon {
-            margin-right: 6px;
+            margin-right: 8px;
+            font-size: 1.2rem;
         }
-        .list-disc li::marker {
-            color: var(--accent);
+        
+        .muted {
+            color: var(--text-dark);
+            font-weight: 500;
+            line-height: 1.7;
+        }
+        
+        .text-ink {
+            color: var(--text-dark);
+        }
+        
+        .list-disc {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .list-disc li {
+            position: relative;
+            padding-left: 28px;
+            margin-bottom: 10px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        
+        .list-disc li::before {
+            content: '●';
+            position: absolute;
+            left: 8px;
+            color: var(--primary-purple);
+            font-size: 1.2rem;
+        }
+        
+        .btn-game {
+            background: linear-gradient(135deg, var(--primary-purple), var(--deep-purple));
+            color: var(--pure-white);
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 12px 28px rgba(124, 58, 237, 0.35);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-game:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 36px rgba(124, 58, 237, 0.45);
+            background: linear-gradient(135deg, var(--deep-purple), var(--primary-purple));
+            color: var(--pure-white);
+        }
+        
+        .btn-game:active {
+            transform: translateY(-1px);
+        }
+        
+        .fas {
+            color: var(--primary-purple);
         }
     </style>
 </x-app-layout>

@@ -858,7 +858,7 @@ finalScore = Math.min(100, Math.floor(finalScore + timeBonus));
     if(submitted) return;
 
     // H for hint
-    if(e.key.toLowerCase() === 'h'){ e.preventDefault(); showHint(); return; }
+    //if(e.key.toLowerCase() === 'h'){ e.preventDefault(); showHint(); return; }
 
     const q = questions[currentQuestion];
     if (!q) return;

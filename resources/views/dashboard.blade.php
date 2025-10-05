@@ -239,29 +239,56 @@
         }
         
         .stage-node {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            background: var(--map-node);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-weight: 600;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            overflow: hidden;
-            border: 3px solid transparent;
-        }
-        
-        .stage-node:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-        }
-        
+    position: absolute;
+    width: 150px;              /* was 100px → bigger nodes */
+    height: 150px;
+    background: var(--map-node);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+    border: 4px solid transparent;
+    z-index: 3;
+}
+
+.stage-node:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Adjust number and text inside */
+.stage-number {
+    font-size: 3rem;           /* was 2.5rem */
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stage-node-title {
+    font-size: 1rem;           /* was 0.8rem */
+    text-align: center;
+    max-width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stage-node-status {
+    position: absolute;
+    bottom: 8px;
+    font-size: 0.8rem;          /* slightly larger */
+    padding: 0.3rem 0.8rem;
+    border-radius: 1rem;
+    background: rgba(0, 0, 0, 0.3);
+    font-weight: 500;
+}
         .stage-node.unlocked {
             background: linear-gradient(135deg, var(--primary), var(--accent));
             border-color: var(--accent);
@@ -494,19 +521,15 @@
                                     $position = 'left: ' . (5 + ($index * 15)) . '%; top: 70%; transform: translateY(-50%);';
                                 }
                             @endphp
-                            <div class="stage-node {{ $statusClass }}" data-stage-id="{{ $stage->id }}" data-status="{{ $statusClass }}" style="{{ $position }}">
-                                <div class="stage-number">{{ $index + 1 }}</div>
-                                <div class="stage-node-title">{{ $stage->title }}</div>
-                                <div class="stage-node-status">{{ $chip }}</div>
-                                
-                                @if($index == $lastOpenedStageIndex)
-                                    <div class="character">👨‍💻</div>
-                                @endif
-                                
-                                @if($isCompleted)
-                                    <div class="achievement-badge"><i class="fas fa-crown text-warning"></i></div>
-                                @endif
-                            </div>
+                         <div class="stage-node {{ $statusClass }}" 
+     id="stage-{{ $index + 1 }}"
+     data-index="{{ $index + 1 }}"
+     style="{{ $position }}">
+    <div class="stage-number">{{ $index + 1 }}</div>
+    <div class="stage-node-title">{{ $stage->title }}</div>
+    <div class="stage-node-status">{{ $chip }}</div>
+</div>
+
                         @endforeach
                     </div>
                 </div>
@@ -874,7 +897,50 @@
                 });
             });
         });
-        
+      
+document.addEventListener('DOMContentLoaded', function() {
+    const snakeHead = document.querySelector('.snake-head');
+    const stages = Array.from(document.querySelectorAll('.stage-node'));
+    let currentIndex = 0; // start at the first stage
+
+    function moveSnakeTo(nextIndex) {
+        if (!snakeHead || !stages[nextIndex]) return;
+
+        const nextNode = stages[nextIndex];
+        const rect = nextNode.getBoundingClientRect();
+        const containerRect = document.querySelector('.snake-map').getBoundingClientRect();
+
+        // Calculate relative position inside the map
+        const x = rect.left - containerRect.left + rect.width / 2 - snakeHead.offsetWidth / 2;
+        const y = rect.top - containerRect.top + rect.height / 2 - snakeHead.offsetHeight / 2;
+
+        // Animate the snake head
+        snakeHead.style.transition = 'transform 1.5s ease-in-out';
+        snakeHead.style.transform = `translate(${x}px, ${y}px)`;
+
+        // Optional: Glow animation when it reaches a node
+        snakeHead.addEventListener('transitionend', () => {
+            nextNode.classList.add('highlighted');
+            setTimeout(() => nextNode.classList.remove('highlighted'), 1000);
+        }, { once: true });
+    }
+
+    // Simulate movement after completing a stage
+    function simulateStageCompletion() {
+        if (currentIndex < stages.length - 1) {
+            moveSnakeTo(currentIndex + 1);
+            currentIndex++;
+        }
+    }
+
+    // Listen for a fake “stage completed” event (you can trigger this in real time from backend)
+    document.addEventListener('stageCompleted', simulateStageCompletion);
+
+    // Initial position
+    moveSnakeTo(currentIndex);
+});
+
+
         // ripple effect
         document.querySelectorAll('.btn-game').forEach(button=>{
           button.addEventListener('click', function(e){

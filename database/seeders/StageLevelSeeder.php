@@ -134,7 +134,7 @@ Don't just read do! Think of one small, annoying task you do on your computer an
                 "🚫 Not Related to Python" => [
                     "🎨 Graphic Design",
                     "🔧 Direct Hardware Access", 
-                    "🖥️ Operating System Development",
+                    
                     "📣 Marketing & Advertising"
                 ]
             ],
@@ -223,7 +223,7 @@ Don't just read do! Think of one small, annoying task you do on your computer an
                         ],
         
                         [
-                            'question' => 'Which is the correct way to print your age?',
+                            'question' => 'how do you print your age?',
                             'options' => ['print("I am 20")', 'print("I am", 20)', 'Both are correct', 'Neither is correct'],
                             'correct_answer' => 2,
                             'explanation' => 'Both work! You can put the whole message in quotes, or separate text and numbers with commas.'
@@ -541,63 +541,65 @@ For example, \"Hello\" + 25 will give an error because text (string) and numbers
             'cards' => [
                 [
                     'front' => 'Text + Number Error',
-                    'back' => '❌ <code>print("Hello" + 25)</code><br><br>
-Why error? Because Python cannot join text with a number.<br><br>
-✅ Fix 1 (commas): <code>print("Hello", 25)</code> → Hello 25<br>
-✅ Fix 2 (convert): <code>print("Hello" + str(25))</code> → Hello25'
+                    'back' => '❌ print("Hello" + 25)
+Why error? Because Python cannot join text with a number.
+✅ Fix 1 (commas): print("Hello", 25)</code> → Hello 25
+✅ Fix 2 (convert): print("Hello" + str(25)) → Hello25'
                 ],
                 [
                     'front' => 'Number - Text Error',
-                    'back' => '❌ <code>print(10 - "5")</code><br><br>
-Why error? Because you cannot subtract a string from a number.<br><br>
-✅ Fix: Convert the string to a number → <code>print(10 - int("5"))</code> → 5'
+                    'back' => '❌ print(10 - "5")
+Why error? Because you cannot subtract a string from a number.
+✅ Fix: Convert the string to a number → print(10 - int("5")) → 5'
                 ],
                 [
                     'front' => 'Text / Number Error',
-                    'back' => '❌ <code>print("Total" / 2)</code><br><br>
-Why error? Because dividing only works with numbers.<br><br>
-✅ Fix: Use variables and f-strings:<br><code>total = 10<br>print(f"Total {total/2}")</code> → Total 5.0'
+                    'back' => '❌ print("Total" / 2)   Why error? Because dividing only works with numbers.
+✅ Fix: Use variables and f-strings:   total = 10 
+                                                      print(f"Total {total/2}")   → Total 5.0'
+                                    
+                                   
                 ],
                 [
                     'front' => 'Text Multiplication',
-                    'back' => '<code>print("Hi" * 3)</code> ✅<br><br>
-This repeats the text 3 times → HiHiHi<br><br>
+                    'back' => 'print("Hi" * 3)
+This repeats the text 3 times → HiHiHi
 👉 This is the **only math operation** that works directly with strings.'
                 ],
                 [
                     'front' => 'Mixing with Commas',
-                    'back' => '<code>print("Age:", 25)</code> ✅<br><br>
+                    'back' => 'print("Age:", 25)
 Output: Age: 25<br><br>
 ✔ Commas are the easiest and safest way to combine text with numbers.'
                 ],
                 [
                     'front' => 'String Conversion',
-                    'back' => 'Want to join text and numbers with + ?<br><br>
-✅ Use str(): <code>print("Score: " + str(10))</code><br>
+                    'back' => 'Want to join text and numbers with + ?
+✅ Use str(): print("Score: " + str(10))
 Output: Score: 10'
                 ],
                 [
                     'front' => 'Number Conversion',
-                    'back' => 'Need to do math with text numbers?<br><br>
-✅ Convert with int(): <code>print(5 + int("10"))</code><br>
+                    'back' => 'Need to do math with text numbers?
+✅ Convert with int(): print(5 + int("10"))
 Output: 15'
                 ],
                 [
                     'front' => 'F-String Magic',
-                    'back' => '✅ <code>print(f"Value: {10 + 5}")</code><br><br>
-Output: Value: 15<br><br>
+                    'back' => '✅ print(f"Value: {10 + 5}")
+Output: Value: 15
 ✔ F-strings allow mixing text and code easily inside { }.'
                 ],
                 [
                     'front' => 'Boolean in String',
-                    'back' => '❌ <code>print("Result: " + True)</code><br><br>
-Why error? You cannot add text and Boolean.<br><br>
-✅ Fix: <code>print("Result:", True)</code> → Result: True'
+                    'back' => '❌ print("Result: " + True)
+Why error? You cannot add text and Boolean.
+✅ Fix: print("Result:", True) → Result: True'
                 ],
                 [
                     'front' => 'Float Conversion',
-                    'back' => '✅ <code>print("Price: " + str(19.99))</code><br><br>
-Output: Price: 19.99<br><br>
+                    'back' => '✅ print("Price: " + str(19.99))
+Output: Price: 19.99
 ✔ Use str() for decimals too.'
                 ]
             ],

@@ -1,5 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
+        <!-- Font Awesome (latest 6.x) -->
+<link rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" 
+      integrity="sha512-zNf1+fKp6u6A7+EpnXprKKe2Kmx0pN0KjcgH2jD/AXb4z4V2fITwAtybEM8Lklh6w76S+E6dM8h2xC8E+Wr9Q==" 
+      crossorigin="anonymous" referrerpolicy="no-referrer" />
+
         <div class="admin-header-container">
             <div class="flex items-center">
                 <div class="admin-icon-wrapper">

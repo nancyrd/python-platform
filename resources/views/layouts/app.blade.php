@@ -11,6 +11,11 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600;inter:400,500,600,700&display=swap" rel="stylesheet"/>
 
+    <link rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
    
   <link rel="stylesheet" href="{{ asset('css/app.css') }}">
 <script src="{{ asset('js/app.js') }}"></script>
@@ -145,9 +150,7 @@
     <!-- Bottom -->
     <div class="ft-bottom">
       <div class="ft-meta">© {{ date('Y') }} {{ config('app.name', 'PyLearn') }}. All rights reserved.</div>
-      <div class="ft-actions">
-        <span class="ft-meta">Final Year Project – Lebanese University</span>
-      </div>
+    
     </div>
   </div>
 </footer>

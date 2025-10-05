@@ -103,9 +103,7 @@
             const levelType = document.getElementById('levelType').value;
             const dynamicContent = document.getElementById('dynamic-content');
             dynamicContent.innerHTML = '';
-            
-            if (levelType === 'multiple_choice') {
-                // Get existing questions or create empty array
+   if (levelType === 'multiple_choice') {
                 const questions = originalLevel.content && originalLevel.content.questions ? originalLevel.content.questions : [];
                 let questionsHtml = '';
                 
@@ -137,7 +135,6 @@
                         `;
                     });
                 } else {
-                    // Add empty question form if none exist
                     questionsHtml = `
                         <div class="question-item mb-4 p-3 border rounded">
                             <div class="mb-2">
@@ -187,9 +184,9 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 3}">
                     </div>
+                    ${buildExamplesSection()}
                 `;
             } else if (levelType === 'drag_drop') {
-                // Get existing categories or create empty array
                 const categories = originalLevel.content && originalLevel.content.categories ? originalLevel.content.categories : {};
                 let categoriesHtml = '';
                 
@@ -211,7 +208,6 @@
                         `;
                     });
                 } else {
-                    // Add empty category form if none exist
                     categoriesHtml = `
                         <div class="category-item mb-3 p-3 border rounded">
                             <div class="mb-2">
@@ -247,9 +243,9 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 4}">
                     </div>
+                    ${buildExamplesSection()}
                 `;
             } else if (levelType === 'tf1') {
-                // Get existing questions or create empty array
                 const questions = originalLevel.content && originalLevel.content.questions ? originalLevel.content.questions : [];
                 let questionsHtml = '';
                 
@@ -281,7 +277,6 @@
                         `;
                     });
                 } else {
-                    // Add empty question form if none exist
                     questionsHtml = `
                         <div class="tf-question-item mb-4 p-3 border rounded">
                             <div class="mb-2">
@@ -332,9 +327,9 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 3}">
                     </div>
+                    ${buildExamplesSection()}
                 `;
             } else if (levelType === 'match_pairs') {
-                // Get existing pairs or create empty array
                 const pairs = originalLevel.content && originalLevel.content.pairs ? originalLevel.content.pairs : [];
                 let pairsHtml = '';
                 
@@ -357,7 +352,6 @@
                         `;
                     });
                 } else {
-                    // Add empty pair form if none exist
                     pairsHtml = `
                         <div class="pair-item mb-3 p-3 border rounded">
                             <div class="row">
@@ -375,7 +369,6 @@
                     `;
                 }
                 
-                // Get existing sequences or create empty array
                 const sequences = originalLevel.content && originalLevel.content.sequences ? originalLevel.content.sequences : [];
                 let sequencesHtml = '';
                 
@@ -402,7 +395,6 @@
                         `;
                     });
                 } else {
-                    // Add empty sequence form if none exist
                     sequencesHtml = `
                         <div class="sequence-item mb-4 p-3 border rounded">
                             <div class="mb-2">
@@ -453,9 +445,9 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 3}">
                     </div>
+                    ${buildExamplesSection()}
                 `;
             } else if (levelType === 'flip_cards') {
-                // Get existing cards or create empty array
                 const cards = originalLevel.content && originalLevel.content.cards ? originalLevel.content.cards : [];
                 let cardsHtml = '';
                 
@@ -478,7 +470,6 @@
                         `;
                     });
                 } else {
-                    // Add empty card form if none exist
                     cardsHtml = `
                         <div class="card-item mb-3 p-3 border rounded">
                             <div class="row">
@@ -520,9 +511,9 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 3}">
                     </div>
+                    ${buildExamplesSection()}
                 `;
             } else if (levelType === 'reorder') {
-                // Get existing lines or create empty string
                 const lines = originalLevel.content && originalLevel.content.lines ? originalLevel.content.lines.join('\n') : '';
                 
                 dynamicContent.innerHTML = `
@@ -543,7 +534,8 @@
                         <label class="form-label">Max Hints</label>
                         <input type="number" name="content[max_hints]" class="form-control" value="${originalLevel.content && originalLevel.content.max_hints ? originalLevel.content.max_hints : 4}">
                     </div>
-                `;
+                    ${buildExamplesSection()}`
+                ;
             }
         }
         
@@ -567,6 +559,11 @@
             container.appendChild(newCategory);
         }
         
+
+
+
+
+
         function removeCategory(button) {
             const categoryItem = button.closest('.category-item');
             categoryItem.remove();
@@ -719,7 +716,107 @@
             `;
             container.appendChild(newCard);
         }
-        
+        // Add this function after the other helper functions in your edit.blade.php
+
+// ============== Shared EXAMPLES section ==============
+function buildExamplesSection() {
+    // Get existing examples from originalLevel
+    const examples = originalLevel.content && originalLevel.content.examples ? originalLevel.content.examples : [];
+    let examplesHtml = '';
+    
+    if (examples.length > 0) {
+        examples.forEach((example, index) => {
+            examplesHtml += `
+                <div class="example-item mb-3 p-3 border rounded">
+                    <div class="mb-2">
+                        <label class="form-label">Example ${index + 1} - Title</label>
+                        <input type="text" name="content[examples][${index}][title]" class="form-control" value="${example.title || ''}" placeholder="e.g., Define, then call">
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Code</label>
+                        <textarea name="content[examples][${index}][code]" class="form-control" rows="4" placeholder="def hello():\n    print('Hi')\n\nhello()">${example.code || ''}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Explanation</label>
+                        <textarea name="content[examples][${index}][explain]" class="form-control" rows="2" placeholder="Short friendly explanation">${example.explain || ''}</textarea>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Expected Output</label>
+                        <input type="text" name="content[examples][${index}][expected_output]" class="form-control" value="${example.expected_output || ''}" placeholder="What should appear when code runs?">
+                    </div>
+                    <button type="button" class="btn-remove" onclick="removeExample(this)">Remove Example</button>
+                </div>
+            `;
+        });
+    } else {
+        // Add one empty example form
+        examplesHtml = `
+            <div class="example-item mb-3 p-3 border rounded">
+                <div class="mb-2">
+                    <label class="form-label">Example 1 - Title</label>
+                    <input type="text" name="content[examples][0][title]" class="form-control" placeholder="e.g., Define, then call">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Code</label>
+                    <textarea name="content[examples][0][code]" class="form-control" rows="4" placeholder="def hello():\n    print('Hi')\n\nhello()"></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Explanation</label>
+                    <textarea name="content[examples][0][explain]" class="form-control" rows="2" placeholder="Short friendly explanation"></textarea>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Expected Output</label>
+                    <input type="text" name="content[examples][0][expected_output]" class="form-control" placeholder="What should appear when code runs?">
+                </div>
+                <button type="button" class="btn-remove" onclick="removeExample(this)">Remove Example</button>
+            </div>
+        `;
+    }
+    
+    return `
+        <div class="form-group">
+            <label class="form-label">Examples (shown on Instructions page)</label>
+            <p class="form-text">Add runnable examples for learners to see before attempting the level.</p>
+            <div id="examples-container">
+                ${examplesHtml}
+            </div>
+            <button type="button" class="btn-add mt-2" onclick="addExample()">Add Another Example</button>
+        </div>
+    `;
+}
+
+// Functions for managing examples
+function addExample() {
+    const container = document.getElementById('examples-container');
+    const index = container.children.length;
+    const newExample = document.createElement('div');
+    newExample.classList.add('example-item', 'mb-3', 'p-3', 'border', 'rounded');
+    newExample.innerHTML = `
+        <div class="mb-2">
+            <label class="form-label">Example ${index + 1} - Title</label>
+            <input type="text" name="content[examples][${index}][title]" class="form-control" placeholder="e.g., Define, then call">
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Code</label>
+            <textarea name="content[examples][${index}][code]" class="form-control" rows="4" placeholder="def hello():\n    print('Hi')\n\nhello()"></textarea>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Explanation</label>
+            <textarea name="content[examples][${index}][explain]" class="form-control" rows="2" placeholder="Short friendly explanation"></textarea>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Expected Output</label>
+            <input type="text" name="content[examples][${index}][expected_output]" class="form-control" placeholder="What should appear when code runs?">
+        </div>
+        <button type="button" class="btn-remove" onclick="removeExample(this)">Remove Example</button>
+    `;
+    container.appendChild(newExample);
+}
+
+function removeExample(button) {
+    const exampleItem = button.closest('.example-item');
+    exampleItem.remove();
+}
         function removeCard(button) {
             const cardItem = button.closest('.card-item');
             cardItem.remove();

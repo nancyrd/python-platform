@@ -159,7 +159,9 @@ body {
   margin: 0 auto;
   max-width: 820px;
   /* Simulate thickness under the card */
+  background: url("C:\\Users\\Nancy\OneDrive\\Desktop\\pyth\\myapp\\public\\images\\card.png");
 }
+
 .flip-card::before {
   content:"";
   position:absolute; inset:auto 10px -10px 10px;
@@ -196,8 +198,8 @@ body {
   position:absolute; inset:0;
   display:flex; flex-direction:column; gap:.65rem;
   background:
-    linear-gradient(180deg, #ffffff, #fafafa),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 2px, transparent 2px, transparent 4px); /* subtle paper grain */
+   linear-gradient(180deg, rgba(59,20,107,0.75), rgba(26,8,45,0.85)),
+    url('{{ asset('public\images\card.png') }}') ;/* subtle paper grain */
   border:1px solid #e7e9f2;
   border-radius:16px;
   padding:1.1rem 1.2rem 1rem;
@@ -214,7 +216,7 @@ body {
 .back {
   transform: rotateY(180deg);
   background:
-    linear-gradient(180deg, #ffffff, #fbf9ff),
+    linear-gradient(180deg, rgba(85,0,120,0.75), rgba(25,0,50,0.85)),
     repeating-linear-gradient(0deg, rgba(0,0,0,.012) 0, rgba(0,0,0,.012) 2px, transparent 2px, transparent 4px);
 }
 
@@ -236,9 +238,46 @@ body {
 /* Body */
 .face .body { color:var(--text-secondary); white-space:pre-wrap; line-height:1.5; font-size:1.02rem; }
 .face .body code, .face .body pre {
-  background:#0f172a; color:#cfeaff; border:1px solid rgba(255,255,255,.08);
+  background:#0f172a; color:#cfeaff; border:1px solid rgba(228, 255, 245, 0.08);
   border-radius:.6rem; padding:.65rem .75rem; margin-top:.25rem;
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; white-space:pre-wrap;
+}
+.face .body {
+  color: #ffffff; /* Make all normal text white */
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 1.05rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4); /* subtle glow for readability */
+}
+
+/* Code blocks should stay readable but distinct */
+.face .body code,
+.face .body pre {
+  background: rgba(0,0,0,0.55);
+  color: #d8b4fe; /* soft lavender code color */
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+}
+.tag-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem; /* spacing between image and text */
+}
+
+.tag-icon-large {
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(124,58,237,0.3));
+  transition: transform 0.2s ease;
+}
+
+.tag-icon-large:hover {
+  transform: scale(1.05);
 }
 
 /* Foot */
@@ -346,14 +385,17 @@ body {
               <div class="card-head">
                   <div class="card-title">
                       <span class="card-icon"><i class="fas fa-bolt"></i></span>
-                      <span>{{ $card['title'] ?? 'Concept' }}</span>
+                      <span>{{ $card['title'] ?? 'Credit Card' }}</span>
                   </div>
                   <span class="status-chip" aria-hidden="true"><span class="dot"></span> Not flipped</span>
               </div>
               <div class="body">{!! nl2br(e($card['front'])) !!}</div>
               <div class="card-foot">
                   <span class="flip-hint">Press <kbd>Space</kbd> / <kbd>Enter</kbd> or click</span>
-                  <span class="tag-pill">Front</span>
+                 <div class="tag-with-icon">
+  <img src="{{ asset('images/visa.png') }}" alt="Card Icon" class="tag-icon-large">
+  <img src="{{ asset('images/master.png') }}" alt="Card Icon" class="tag-icon-large">
+</div>
               </div>
           </div>
 
@@ -362,17 +404,22 @@ body {
               <div class="card-head">
                   <div class="card-title">
                       <span class="card-icon"><i class="fas fa-check"></i></span>
-                      <span>{{ $card['title'] ?? 'Concept' }}</span>
+                      <span>{{ $card['title'] ?? 'Platinum' }}</span>
                   </div>
                   <span class="status-chip" aria-hidden="true"><span class="dot"></span> Learned</span>
               </div>
               <div class="body">{!! nl2br(e($card['back'])) !!}</div>
               <div class="card-foot">
                   <span class="flip-hint">Press <kbd>Space</kbd> / <kbd>Enter</kbd> or click</span>
-                  <span class="tag-pill">Back</span>
+                    <div class="tag-with-icon">
+                  <img src="{{ asset('images/visa.png') }}" alt="Card Icon" class="tag-icon-large">
+                  <img src="{{ asset('images/master.png') }}" alt="Card Icon" class="tag-icon-large">
+ 
+</div>
+ </div>
               </div>
           </div>
-      </div>
+     
   </div>
 @empty
   <div class="card">No cards defined for this level.</div>
@@ -400,31 +447,7 @@ body {
       </form>
     </div>
 
-    <!-- OPTIONAL EXAMPLES -->
-    @if(!empty($examples))
-    <div class="edge-pad">
-        <div class="card">
-            <div class="section-title">Examples</div>
-            <div class="deck-grid">
-                @foreach($examples as $ex)
-                    <div class="card">
-                        <h4 style="margin:.25rem 0  .5rem;">{{ $ex['title'] ?? 'Example' }}</h4>
-                        @if(!empty($ex['code']))
-                            <pre style="margin:0"><code>{{ $ex['code'] }}</code></pre>
-                        @endif
-                        @if(!empty($ex['explain']))
-                            <div style="margin-top:.5rem; color:var(--text-secondary)">{{ $ex['explain'] }}</div>
-                        @endif
-                        @if(!empty($ex['expected_output']))
-                            <div style="margin-top:.5rem; font-weight:700; color:var(--primary-purple)">Expected: {{ $ex['expected_output'] }}</div>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-    @endif
-</div>
+  
 
 <!-- META BAR -->
 <div class="meta-container full-bleed edge-pad">
@@ -536,25 +559,24 @@ body {
     if (wasFlipped) { /* class will keep it flipped */ }
   }
 
-  // Navigation
-  function showCard(idx, opts={scroll:true}){
-    const cards = getCards();
-    if (!cards.length) return;
-    currentIndex = Math.max(0, Math.min(cards.length-1, idx));
-    cards.forEach((el, i) => {
-      const on = i === currentIndex;
-      el.classList.toggle('active', on);
-      el.hidden = !on;
-      if (on) {
-        el.focus({preventScroll:true});
-        syncHeightFor(el);
-      }
-    });
-    if ($counter) $counter.textContent = `Card ${currentIndex+1} of ${cards.length}`;
-    if ($btnPrev) $btnPrev.disabled = (currentIndex === 0);
-    if ($btnNext) $btnNext.disabled = (currentIndex === cards.length - 1);
-    if (opts.scroll) cards[currentIndex].scrollIntoView({behavior:'smooth', block:'start'});
-  }
+ function showCard(idx) {
+  const cards = getCards();
+  if (!cards.length) return;
+  currentIndex = Math.max(0, Math.min(cards.length - 1, idx));
+  cards.forEach((el, i) => {
+    const on = i === currentIndex;
+    el.classList.toggle('active', on);
+    el.hidden = !on;
+    if (on) {
+      el.focus({ preventScroll: true });
+      syncHeightFor(el);
+    }
+  });
+  if ($counter) $counter.textContent = `Card ${currentIndex + 1} of ${cards.length}`;
+  if ($btnPrev) $btnPrev.disabled = (currentIndex === 0);
+  if ($btnNext) $btnNext.disabled = (currentIndex === cards.length - 1);
+}
+
   const nextCard = ()=> showCard(currentIndex + 1);
   const prevCard = ()=> showCard(currentIndex - 1);
 

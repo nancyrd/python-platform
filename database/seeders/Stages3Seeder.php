@@ -30,7 +30,8 @@ class Stages3Seeder extends Seeder
         'instructions' => "The input() function is how Python listens to users. It pauses and waits for someone to type something. Whatever they type becomes text (a string) that your program can use.\n\n• input() ALWAYS gives you text - even if someone types numbers\n• Use int() to convert text numbers to real numbers\n• Use .strip() to remove extra spaces\n• Print safely with commas to avoid errors\n
         •In the Game Flip the cards to learn how to handle user input like a pro!",
         'content'      => [
-            'intro'       => "Tap each card to learn with simple, real-life examples!",
+            'intro'       => "Tap each card to learn with simple, real-life examples!
+Make sure to use Hints to get full grade!!",
             'time_limit'  => 500,
             'max_hints'   => 3,
             'hints'       => [

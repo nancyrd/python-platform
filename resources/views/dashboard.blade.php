@@ -17,9 +17,12 @@
 
     <!-- RIGHT SIDE -->
     <div class="col-auto d-flex align-items-center">
-        <a class="btn btn-game rounded-pill me-3" data-bs-toggle="modal" data-bs-target="#progressModal" role="button">
-            <i class="fas fa-chart-line me-2"></i> My Progress
-        </a>
+       <button class="btn btn-game rounded-pill me-3" 
+        data-bs-toggle="modal" 
+        data-bs-target="#progressModal" 
+        type="button">
+    <i class="fas fa-chart-line me-2"></i> My Progress
+</button>
 
         <div class="achievement-summary d-none d-md-flex">
             <div class="text-center me-4">
@@ -104,6 +107,7 @@
           --snake-body: #8B5CF6;
           --snake-head: #A78BFA;
         }
+        
 /* Add to your style block */
 .page-header,
 [x-slot="header"],
@@ -133,7 +137,15 @@
         .particle{position:absolute;width:4px;height:4px;background:rgba(255,255,255,.35);border-radius:50%;animation:float 6s ease-in-out infinite}
         @keyframes float{0%,100%{transform:translateY(0) rotate(0);opacity:.35}50%{transform:translateY(-18px) rotate(180deg);opacity:.8}}
         .learning-path{position:relative;z-index:2}
-        
+        /* Add this at the end of your style block */
+.modal-backdrop {
+    position: fixed !important;
+}
+
+body.modal-open {
+    overflow: hidden !important;
+    position: static !important;
+}
         /* Enhanced Snake Map Styles */
         .map-container {
             position: relative;
@@ -203,9 +215,7 @@ header, .header, [class*="header"], x-slot[name="header"],
 }
 
 /* Remove any sticky/fixed positioning from parent containers */
-body > *, main > *, .container > * {
-  position: relative !important;
-}
+
 
 body{ background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
       min-height:100vh;margin:0;padding:0;overflow-x:hidden;
@@ -591,6 +601,7 @@ body{ background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
                 top: 32px;
                 left: 20px;
             }
+            
         }
     </style>
     

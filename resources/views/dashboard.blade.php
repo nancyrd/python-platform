@@ -104,6 +104,18 @@
           --snake-body: #8B5CF6;
           --snake-head: #A78BFA;
         }
+/* Add to your style block */
+.page-header,
+[x-slot="header"],
+.app-header {
+  position: static !important;
+  position: relative !important;
+}
+           header, .header, [class*="header"], x-slot[name="header"], 
+        .row.align-items-center {
+          position: static !important;
+          position: relative !important;
+        }
         body{ background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
               min-height:100vh;margin:0;padding:0;overflow-x:hidden;
               font-family:'Orbitron','Arial',sans-serif;color:#fff; }
@@ -170,7 +182,114 @@
             transform: translateY(-50%);
             z-index: 1;
         }
-        
+        /* ===================== ENHANCED SNAKE MAP ===================== */
+:root{
+  --bg-start:#3B146B; --bg-end:#1A082D;
+  --primary:#7A2EA5;  --accent:#B967FF;
+  --card:#EDE6FF;     --card-brd:rgba(122,46,165,.32);
+  --tile:#F2EBFF;     --ink:#2B1F44; --muted:#5B556A;
+  --success:#16A34A;  --warn:#F59E0B; --ring-track:#E4DBFF;
+  --map-path: #4A2C7A; --map-node: #6A3FAB;
+  --character: #FFD700;
+  --snake-body: #8B5CF6;
+  --snake-head: #A78BFA;
+}
+
+/* Force header to scroll naturally */
+header, .header, [class*="header"], x-slot[name="header"], 
+.row.align-items-center {
+  position: static !important;
+  position: relative !important;
+}
+
+/* Remove any sticky/fixed positioning from parent containers */
+body > *, main > *, .container > * {
+  position: relative !important;
+}
+
+body{ background:linear-gradient(45deg,var(--bg-start),var(--bg-end));
+      min-height:100vh;margin:0;padding:0;overflow-x:hidden;
+      font-family:'Orbitron','Arial',sans-serif;color:#fff; }
+
+/* replace bootstrap blues with purples */
+.bg-primary,.badge.bg-primary,.progress-bar.bg-primary{background-color:var(--primary)!important;color:#fff!important}
+.text-primary{color:var(--primary)!important}
+.bg-info,.badge.bg-info,.progress-bar.bg-info{background-color:var(--accent)!important;color:#1a082d!important}
+.text-info{color:var(--accent)!important}
+.bg-secondary{background-color:rgba(214,182,255,.16)!important;color:#ddd!important}
+.bg-cosmic{background:linear-gradient(90deg,#3B146B,var(--primary))!important;color:#fff!important}
+.text-cosmic{color:var(--primary)!important}
+.text-neon{color:var(--accent)!important}
+.learning-map-container{min-height:100vh;position:relative}
+.floating-particles{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.particle{position:absolute;width:4px;height:4px;background:rgba(255,255,255,.35);border-radius:50%;animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(0);opacity:.35}50%{transform:translateY(-18px) rotate(180deg);opacity:.8}}
+.learning-path{position:relative;z-index:2}
+
+/* Enhanced Snake Map Styles */
+.map-container {
+    position: relative;
+    background: linear-gradient(135deg, rgba(26, 8, 45, 0.8), rgba(59, 20, 107, 0.8));
+    border-radius: 1.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    border: 2px solid rgba(185, 103, 255, 0.3);
+}
+
+.map-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b967ff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    z-index: -1;
+}
+
+.map-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.snake-map {
+    position: relative;
+    height: 400px;
+    margin: 0 auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* Custom scrollbar styling */
+.snake-map::-webkit-scrollbar {
+    height: 10px;
+}
+
+.snake-map::-webkit-scrollbar-track {
+    background: rgba(26, 8, 45, 0.5);
+    border-radius: 10px;
+}
+
+.snake-map::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 10px;
+}
+
+.snake-map::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, var(--accent), var(--primary));
+}
+
+/* Firefox scrollbar */
+.snake-map {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) rgba(26, 8, 45, 0.5);
+}
         .snake-body {
             position: absolute;
             height: 60px;
@@ -296,7 +415,7 @@
         }
         
         .stage-node.completed {
-            background: linear-gradient(135deg, var(--success), #0d9c5f);
+            background: linear-gradient(135deg, var(--success), #9c0d93ff);
             border-color: var(--success);
             animation: pulse-success 2s ease-in-out infinite;
         }
@@ -392,6 +511,7 @@
             color: var(--bg-end);
         }
         
+        
         .stage-card{background:var(--card);color:var(--ink);border:1px solid var(--card-brd);
                     border-radius:1rem;box-shadow:0 12px 34px rgba(25,10,41,.18),0 0 0 1px rgba(185,103,255,.06);
                     transition:.25s ease;position:relative;overflow:hidden}
@@ -464,6 +584,7 @@
             .snake-eye.right {
                 right: 15px;
             }
+     
             .snake-tongue {
                 width: 20px;
                 height: 6px;
